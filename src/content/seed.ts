@@ -76,33 +76,22 @@ export const publicPages: ReadonlyArray<PublicPage> = [
 
 export const newsItems: ReadonlyArray<NewsItem> = [
   {
-    id: "public-information-2026-10",
-    title: "Les informations pratiques de Janus34",
-    excerpt:
-      "Retrouvez l'adresse, le téléphone et les documents publics utiles pour découvrir l'association.",
-    startsAt: "2026-10-11",
-    endsAt: null,
-    featured: true,
-    status: "published",
-  },
-  {
-    id: "association-founded-2006",
-    title: "Janus34, association fondée en 2006",
-    excerpt:
-      "Janus34 est une association loi 1901 et un Groupe d'Entraide Mutuelle implanté à Montpellier.",
-    startsAt: "2026-10-10",
+    id: "planning-2026-06-19",
+    title: "Planning 19 06 2026",
+    excerpt: "Le PDF intitulé « Planning 19 06 2026 » est daté du 19 juin 2026.",
+    startsAt: "2026-06-19",
     endsAt: null,
     featured: false,
     status: "published",
   },
   {
-    id: "editorial-draft",
-    title: "Brouillon éditorial",
-    excerpt: "Ce contenu non publié reste absent du site public.",
-    startsAt: "2026-10-12",
+    id: "compte-rendu-ag-2025",
+    title: "Compte rendu AG 2025",
+    excerpt: "L'assemblée générale s'est tenue le 10 mai 2025.",
+    startsAt: "2025-05-10",
     endsAt: null,
     featured: false,
-    status: "draft",
+    status: "published",
   },
 ];
 
