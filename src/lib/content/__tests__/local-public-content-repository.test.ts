@@ -1,11 +1,13 @@
 import { publicContentRepository } from "../local-public-content-repository";
+import { publicDateTimestamp } from "@/lib/date/public-date";
 
 test("returns only published news in reverse chronological order", async () => {
   const news = await publicContentRepository.getNews();
   expect(news.length).toBeGreaterThan(0);
   expect(news.every((item) => item.status === "published")).toBe(true);
-  expect(news.map((item) => item.startsAt)).toEqual(
-    [...news.map((item) => item.startsAt)].sort().reverse(),
+  const chronologicalKeys = news.map((item) => publicDateTimestamp(item.startsAt));
+  expect(chronologicalKeys).toEqual(
+    [...chronologicalKeys].sort((left, right) => right - left),
   );
 });
 

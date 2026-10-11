@@ -21,6 +21,7 @@ function cloneNewsItem(item: NewsItem): NewsItem {
 }
 
 function cloneDocument(document: PublicDocument): PublicDocument {
+  publicDateTimestamp(document.updatedAt);
   return { ...document };
 }
 
