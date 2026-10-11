@@ -18,6 +18,11 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         title: "Une association",
         body: "La vie de l'association repose sur la participation de ses adhérents et sur des temps collectifs.",
       },
+      {
+        id: "objectifs",
+        title: "Nos objectifs",
+        body: "Janus34 agit pour rompre l'isolement, encourager l'entraide et soutenir l'autonomie et la participation sociale de ses adhérents.",
+      },
     ],
   },
   {
@@ -30,6 +35,11 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         id: "participer",
         title: "Participer à son rythme",
         body: "Les propositions peuvent prendre la forme d'activités créatives, culturelles, sportives ou de temps d'échange.",
+      },
+      {
+        id: "propositions",
+        title: "Des propositions variées",
+        body: "Le programme peut réunir expression et créativité, réflexion collective, mobilisation corporelle, sorties culturelles et activités sportives.",
       },
     ],
   },
@@ -45,6 +55,16 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         title: "Prendre contact",
         body: "L'équipe de Janus34 répond au 04 67 04 87 68 pour présenter l'association et les modalités d'accueil.",
       },
+      {
+        id: "premiere-visite",
+        title: "Préparer une première visite",
+        body: "Avant de venir pour la première fois, téléphonez à l'association. L'équipe pourra convenir avec vous d'un temps d'accueil et expliquer le fonctionnement du lieu, sans engagement d'adhésion.",
+      },
+      {
+        id: "adresse-transports",
+        title: "Adresse et transports en commun",
+        body: "Janus34 se trouve au 405 rue des Grèzes à Montpellier. Pour préparer votre trajet en transports en commun, demandez à l'équipe les indications adaptées au moment de votre appel.",
+      },
     ],
   },
   {
@@ -56,21 +76,38 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "role-du-gem",
         title: "Le rôle du GEM",
-        body: "Un Groupe d'Entraide Mutuelle est un espace de lien social et d'entraide. Il ne remplace pas une structure de soins.",
+        body: "Un Groupe d'Entraide Mutuelle est un espace de lien social et d'entraide. Janus34 n'est ni un professionnel de santé ni un service de soins, et les informations proposées ici ne remplacent pas l'avis d'un professionnel de santé.",
+      },
+      {
+        id: "informations-generales",
+        title: "Des informations générales",
+        body: "Les ressources présentées ont un rôle d'information générale. Elles ne permettent pas d'établir un diagnostic et ne constituent pas des conseils médicaux.",
       },
     ],
   },
   {
     slug: "mentions-legales",
     title: "Mentions légales",
-    introduction: "Informations légales relatives au site public de l'association Janus34.",
-    sections: [],
+    introduction: "Contenu provisoire en attente de validation par l'association avant la mise en production du site.",
+    sections: [
+      {
+        id: "validation-requise",
+        title: "Validation requise avant mise en production",
+        body: "L'association doit compléter et valider les informations relatives à l'édition et à l'hébergement du site. Aucune identité de représentant légal ni donnée d'immatriculation non vérifiée n'est publiée ici.",
+      },
+    ],
   },
   {
     slug: "confidentialite",
     title: "Confidentialité",
-    introduction: "Informations relatives à la protection des données sur le site public de Janus34.",
-    sections: [],
+    introduction: "Contenu provisoire en attente de validation par l'association avant la mise en production du site.",
+    sections: [
+      {
+        id: "validation-requise",
+        title: "Validation requise avant mise en production",
+        body: "L'association doit définir et valider les informations relatives aux données traitées, à leur durée de conservation et aux modalités d'exercice des droits avant l'ouverture du site au public.",
+      },
+    ],
   },
 ];
 
@@ -125,5 +162,25 @@ export const publicDocuments: ReadonlyArray<PublicDocument> = [
     mimeType: "application/pdf",
     updatedAt: "2026-10-11",
     downloadUrl: "/documents/reglement-interieur",
+  },
+  {
+    id: "bipolar-disorder-guide",
+    title: "Repères sur le trouble bipolaire",
+    slug: "reperes-trouble-bipolaire",
+    description: "Un document d'information générale sur le trouble bipolaire, sans conseil médical personnalisé.",
+    category: "health",
+    mimeType: "application/pdf",
+    updatedAt: "2026-10-11",
+    downloadUrl: "/documents/reperes-trouble-bipolaire",
+  },
+  {
+    id: "professional-support-guide",
+    title: "S'orienter vers un professionnel de santé",
+    slug: "orientation-professionnel-sante",
+    description: "Des repères généraux pour identifier les interlocuteurs du soin, distincts des activités de Janus34.",
+    category: "health",
+    mimeType: "application/pdf",
+    updatedAt: "2026-10-11",
+    downloadUrl: "/documents/orientation-professionnel-sante",
   },
 ];
