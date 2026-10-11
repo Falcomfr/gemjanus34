@@ -1,0 +1,24 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# test output
+/coverage
+/playwright-report
+/test-results
+
+# local environment
+.env*
+!.env.example
+
+# local Supabase and Vercel state
+/.supabase
+/.vercel
+
+# editor and OS files
+.DS_Store
+*.swp
+
