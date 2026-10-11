@@ -152,3 +152,60 @@ Result SHA: the commit containing this section, with subject `fix: validate and 
 
 - No new product concerns. The existing CSP, development-audit, legal-copy and contact-delivery concerns above remain unchanged.
 - The external reviewer subprocess was unavailable because the installed Codex launcher lacks its Linux optional package; the final requirements and diff review was completed inline instead.
+
+## Final Document Date Consistency Fix
+
+Date: 2026-10-11
+
+Base SHA: `fa291a49dec5687975d5ebe780590b5dfd78ba36`.
+
+Implementation SHA: `5db64cab3afda9e926a5662612317e352effdde5` (`fix: apply strict dates to public documents`).
+
+### Outcome
+
+- `selectLatestDocument` now compares `updatedAt` values by `publicDateTimestamp`, so differing offsets are ordered by instant and equal instants retain the ascending document-ID tie-break.
+- The local content repository invokes the strict shared public-date boundary before cloning every document returned by `getDocuments()` or `getSiteData()`.
+- The remaining reverse lexical repository test oracle now asserts descending numeric chronological keys.
+- Focused tests cover differing-offset document selection, equal-instant deterministic selection, and malformed, impossible, arbitrary, and timezone-less document-date rejection through both repository return paths.
+
+### RED Evidence
+
+- Selector command: `npm test -- src/lib/content/__tests__/select-latest-document.test.ts`.
+- Result: exit 1; 1 file failed and both tests failed. The lexical implementation selected `2026-10-15T10:00:00+02:00` over the later `2026-10-15T09:00:00Z` instant and also bypassed the ID tie-break for the offset-equivalent `2026-10-15T08:00:00Z` value.
+- Repository command: `npm test -- src/lib/content/__tests__/local-public-content-repository-documents.test.ts src/lib/content/__tests__/local-public-content-repository.test.ts`.
+- Result: exit 1; the existing repository suite passed, while all 4 document-boundary cases failed because `getDocuments()` resolved with invalid data instead of rejecting.
+- The first post-implementation repository run passed the malformed case but left 3 failures because the test mock had snapshotted the first table value. Changing the mock's `updatedAt` to a getter corrected the fixture; no production change was needed for that test issue.
+
+### GREEN Evidence
+
+- Selector test: 1 file and 2 tests passed.
+- Repository boundary and oracle tests: 2 files and 11 tests passed.
+- Focused date/content command: `npm test -- src/lib/date/__tests__/public-date.test.ts src/lib/content/__tests__/select-latest-document.test.ts src/lib/content/__tests__/local-public-content-repository.test.ts src/lib/content/__tests__/local-public-content-repository-documents.test.ts src/lib/content/__tests__/local-public-content-repository-ordering.test.ts`.
+- Focused result: exit 0; 5 files and 33 tests passed.
+- Full unit/component suite: `npm test` exited 0; 13 files and 60 tests passed.
+- `npm run typecheck`: exit 0.
+- `npm run lint`: exit 0.
+- `npm run build`: exit 0; 13 static routes generated.
+- `npm run test:e2e`: exit 0 after a fresh production build; all 24 Chromium tests passed against `next start`.
+- `npm audit --omit=dev`: exit 0; 0 vulnerabilities.
+- `git diff --check`: exit 0.
+- A requirements scan found no remaining lexical `updatedAt` comparison or `.sort().reverse()` oracle in `src/lib/content`.
+
+### Review
+
+- Inline requirements and cached-diff review found no Critical or Important issues.
+- A separate reviewer subprocess could not run because the installed Codex launcher still lacks `@openai/codex-linux-x64`; `codex --version` exited 1 with that dependency error.
+
+### Files Changed
+
+- `src/lib/content/__tests__/local-public-content-repository-documents.test.ts`
+- `src/lib/content/__tests__/local-public-content-repository.test.ts`
+- `src/lib/content/__tests__/select-latest-document.test.ts`
+- `src/lib/content/local-public-content-repository.ts`
+- `src/lib/content/select-latest-document.ts`
+- `.superpowers/sdd/final-fix-report.md` (evidence follow-up)
+
+### Concerns
+
+- No new product concerns. The existing CSP, development-audit, legal-copy and contact-delivery concerns remain unchanged.
+- The report is committed separately from the implementation because a commit cannot contain its own immutable SHA.
