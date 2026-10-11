@@ -7,6 +7,7 @@ import type {
   PublicSiteData,
 } from "@/content/types";
 import type { PublicContentRepository } from "@/lib/content/public-content-repository";
+import { publicDateTimestamp } from "@/lib/date/public-date";
 
 function clonePage(page: PublicPage): PublicPage {
   return {
@@ -26,7 +27,9 @@ function cloneDocument(document: PublicDocument): PublicDocument {
 function getPublishedNews(): NewsItem[] {
   return newsItems
     .filter((item) => item.status === "published")
-    .toSorted((left, right) => right.startsAt.localeCompare(left.startsAt))
+    .toSorted(
+      (left, right) => publicDateTimestamp(right.startsAt) - publicDateTimestamp(left.startsAt),
+    )
     .map(cloneNewsItem);
 }
 

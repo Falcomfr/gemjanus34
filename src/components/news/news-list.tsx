@@ -1,6 +1,9 @@
 import type { JSX } from "react";
 import type { NewsItem as NewsItemData } from "@/content/types";
-import { isCurrentOrFuturePublicDate } from "@/lib/date/public-date";
+import {
+  isCurrentOrFuturePublicDate,
+  publicDateTimestamp,
+} from "@/lib/date/public-date";
 import { NewsItem } from "./news-item";
 
 type NewsListProps = {
@@ -12,10 +15,14 @@ export function NewsList({ items, now }: NewsListProps): JSX.Element {
   const published = items.filter((item) => item.status === "published");
   const upcoming = published
     .filter((item) => isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
-    .toSorted((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt));
+    .toSorted(
+      (left, right) => publicDateTimestamp(left.startsAt) - publicDateTimestamp(right.startsAt),
+    );
   const archived = published
     .filter((item) => !isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
-    .toSorted((left, right) => Date.parse(right.startsAt) - Date.parse(left.startsAt));
+    .toSorted(
+      (left, right) => publicDateTimestamp(right.startsAt) - publicDateTimestamp(left.startsAt),
+    );
 
   return (
     <div className="timeline content-container">

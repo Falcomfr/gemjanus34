@@ -72,3 +72,46 @@ test("keeps date-only announcements upcoming until the Paris calendar day ends",
     ),
   ).toBeInTheDocument();
 });
+
+test("orders announcements by instant across differing and equivalent offsets", () => {
+  render(
+    <NewsList
+      now="2026-10-15T00:00:00Z"
+      items={[
+        {
+          id: "equivalent-z",
+          title: "Même instant UTC",
+          excerpt: "Premier élément équivalent",
+          startsAt: "2026-10-15T09:00:00Z",
+          endsAt: null,
+          featured: false,
+          status: "published",
+        },
+        {
+          id: "earlier-offset",
+          title: "Plus tôt avec décalage",
+          excerpt: "Commence avant les deux autres",
+          startsAt: "2026-10-15T10:30:00+02:00",
+          endsAt: null,
+          featured: false,
+          status: "published",
+        },
+        {
+          id: "equivalent-offset",
+          title: "Même instant décalé",
+          excerpt: "Second élément équivalent",
+          startsAt: "2026-10-15T11:00:00+02:00",
+          endsAt: null,
+          featured: false,
+          status: "published",
+        },
+      ]}
+    />,
+  );
+
+  expect(
+    within(screen.getByRole("region", { name: /à venir/i }))
+      .getAllByRole("heading", { level: 3 })
+      .map((heading) => heading.textContent),
+  ).toEqual(["Plus tôt avec décalage", "Même instant UTC", "Même instant décalé"]);
+});

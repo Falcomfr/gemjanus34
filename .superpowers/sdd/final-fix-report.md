@@ -101,3 +101,54 @@ Accessibility and maintenance:
 - The production dependency audit is clean. A full development audit still reports five high-severity findings in the ESLint-only chain (`braces` via `micromatch`, `fast-glob`, `@next/eslint-plugin-next`, and `eslint-config-next`). npm offers only a forced breaking downgrade to `eslint-config-next@14.2.35`; that was not applied because it conflicts with the Next 16 toolchain and is outside deployable dependencies.
 - The CSP intentionally includes production `unsafe-inline` for scripts and styles because the current Next output requires inline bootstrap/style content. A future nonce- or hash-based CSP can tighten this when the deployment architecture provides request-scoped nonces or stable generated hashes.
 - Existing milestone deferrals remain unchanged: legal copy still requires association validation, and contact delivery remains disabled until its secure backend is implemented.
+
+## Second Final-Fix
+
+Date: 2026-10-11
+
+Base SHA: `79acae68bb0d4a16fcea532866f90aae2842b0d5`.
+
+Result SHA: the commit containing this section, with subject `fix: validate and order public dates strictly`. Its resolved SHA is reported in the task handoff because embedding a commit's own SHA would change that SHA.
+
+### Outcome
+
+- Public dates now accept only valid `YYYY-MM-DD` calendar dates or full `YYYY-MM-DDTHH:mm:ss[.fraction](Z|+HH:mm|-HH:mm)` timestamps. Calendar, clock and offset fields are validated before `Date` parsing.
+- `publicDateTimestamp` is the shared chronological key used by both `NewsList` and the local public content repository. Offset-equivalent instants retain stable input order and differing offsets sort by instant.
+- Production E2E coverage checks every configured security header, `X-Frame-Options`, all five Permissions Policy restrictions, and includes `sitemap.xml` and `robots.txt`.
+- Europe/Paris date-only end-of-day behavior remains unchanged.
+
+### RED Evidence
+
+- Focused command: `npm test -- src/lib/date/__tests__/public-date.test.ts src/components/news/__tests__/news-list.test.tsx src/lib/content/__tests__/local-public-content-repository-ordering.test.ts`.
+- Result: exit 1; 2 files failed, 1 passed; 7 tests failed and 16 passed.
+- Four invalid inputs were still accepted (`2026-02-30T12:00:00Z`, `2026-10-15T24:00:00Z`, `2026-10-15T12:00:00`, and `October 15, 2026`), two tests failed because `publicDateTimestamp` did not exist, and repository ordering was lexical rather than chronological.
+- The new `NewsList` ordering assertion passed during RED because its existing `Date.parse` sorting already handled the fixture; the production change removes that duplicate conversion in favor of the shared key.
+- Focused production E2E command: `npm run build && npx playwright test -g "all public responses include every configured security header"`.
+- Result: exit 1 during typecheck because the test-first `publicDateTimestamp` import had no production export yet.
+
+### GREEN Evidence
+
+- Focused tests: 4 files and 30 tests passed.
+- Full unit/component suite: 11 files and 54 tests passed.
+- `npm run typecheck`: exit 0.
+- `npm run lint`: exit 0.
+- `npm run build`: exit 0; 13 static routes generated.
+- `npm run test:e2e`: rebuilt the production application and passed all 24 Chromium tests.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+- `git diff --check`: exit 0 after the report update.
+
+### Files Changed
+
+- `.superpowers/sdd/final-fix-report.md`
+- `src/components/news/__tests__/news-list.test.tsx`
+- `src/components/news/news-list.tsx`
+- `src/lib/content/__tests__/local-public-content-repository-ordering.test.ts`
+- `src/lib/content/local-public-content-repository.ts`
+- `src/lib/date/__tests__/public-date.test.ts`
+- `src/lib/date/public-date.ts`
+- `tests/public-site.spec.ts`
+
+### Concerns
+
+- No new product concerns. The existing CSP, development-audit, legal-copy and contact-delivery concerns above remain unchanged.
+- The external reviewer subprocess was unavailable because the installed Codex launcher lacks its Linux optional package; the final requirements and diff review was completed inline instead.

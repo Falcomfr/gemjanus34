@@ -93,15 +93,20 @@ test("robots allows the public site and protects administration", async ({ reque
   );
 });
 
-test("public responses include baseline security headers", async ({ request }) => {
-  for (const route of publicRoutes) {
-    const response = await request.get(route.path);
+test("all public responses include every configured security header", async ({ request }) => {
+  const securedPaths = [...publicRoutes.map((route) => route.path), "/sitemap.xml", "/robots.txt"];
+
+  for (const path of securedPaths) {
+    const response = await request.get(path);
     const headers = response.headers();
 
     expect(headers["content-security-policy"]).toContain("default-src 'self'");
     expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["x-content-type-options"]).toBe("nosniff");
-    expect(headers["permissions-policy"]).toContain("camera=()");
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["permissions-policy"]).toBe(
+      "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+    );
   }
 });
