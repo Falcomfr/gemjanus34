@@ -1,8 +1,10 @@
+"use client";
+
 import type { JSX } from "react";
 
 export function ContactForm(): JSX.Element {
   return (
-    <form className="contact-form" noValidate>
+    <form className="contact-form" noValidate onSubmit={(event) => event.preventDefault()}>
       <div className="contact-form__grid">
         <div className="field">
           <label htmlFor="contact-name">Nom</label>
