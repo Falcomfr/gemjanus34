@@ -1,19 +1,41 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { CurrentPlanning } from "@/components/home/current-planning";
+import { Hero } from "@/components/home/hero";
+import { UpcomingNews } from "@/components/home/upcoming-news";
+import { VisitPanel } from "@/components/home/visit-panel";
+import { publicContentRepository } from "@/lib/content/local-public-content-repository";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [news, planningDocuments] = await Promise.all([
+    publicContentRepository.getNews(),
+    publicContentRepository.getDocuments("planning"),
+  ]);
+  const planning = planningDocuments[0];
+
   return (
-    <section className="home-introduction" aria-labelledby="home-title">
-      <div className="content-container">
-        <p className="eyebrow">Groupe d&apos;Entraide Mutuelle à Montpellier</p>
-        <h1 id="home-title">Janus34</h1>
-        <p className="home-introduction__copy">
-          Un lieu d&apos;accueil, de partage et d&apos;activités pour créer du lien à son rythme.
-        </p>
-        <div className="home-introduction__actions">
-          <Link className="button button--primary" href="/nous-rejoindre">Nous rejoindre</Link>
-          <Link className="button button--secondary" href="/actualites">Voir le planning</Link>
+    <>
+      <Hero planningHref={planning?.downloadUrl ?? "/actualites"} />
+      <CurrentPlanning document={planning} />
+      <UpcomingNews items={news.slice(0, 3)} />
+
+      <section className="association-introduction" aria-labelledby="association-title">
+        <div className="content-container association-introduction__inner">
+          <p className="eyebrow eyebrow--dark">L&apos;association</p>
+          <h2 id="association-title">Un lieu pour se retrouver et agir ensemble</h2>
+          <p>
+            Janus34 est une association loi 1901 et un Groupe d&apos;Entraide Mutuelle fondé en
+            2006 à Montpellier. Chacun peut y créer du lien, partager des activités et prendre
+            part à la vie collective à son rythme.
+          </p>
+          <Link className="text-link" href="/qui-sommes-nous">
+            Découvrir Janus34
+            <ArrowRight aria-hidden="true" size={20} />
+          </Link>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <VisitPanel />
+    </>
   );
 }
