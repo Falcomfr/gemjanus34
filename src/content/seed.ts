@@ -48,7 +48,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
     title: "Nous rejoindre",
     eyebrow: "Accueil",
     introduction:
-      "Pour découvrir Janus34, contactez l'association par téléphone ou rendez-vous au 405 rue des Grèzes à Montpellier.",
+      "Avant une première visite, contactez l'association par téléphone pour convenir d'un premier accueil.",
     sections: [
       {
         id: "contact",
@@ -63,7 +63,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "adresse-transports",
         title: "Adresse et transports en commun",
-        body: "Janus34 se trouve au 405 rue des Grèzes à Montpellier. Pour préparer votre trajet en transports en commun, demandez à l'équipe les indications adaptées au moment de votre appel.",
+        body: "Janus34 se trouve au 405 rue des Grèzes à Montpellier. En transports en commun, prenez la ligne de bus 11 et descendez à l'arrêt « La Martelle ».",
       },
     ],
   },
