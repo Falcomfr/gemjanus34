@@ -23,8 +23,18 @@ export function ContactForm(): JSX.Element {
 
       <div className="field">
         <label htmlFor="contact-message">Message</label>
-        <textarea id="contact-message" name="message" rows={7} required />
-        <p className="field__hint">20 à 5 000 caractères.</p>
+        <textarea
+          id="contact-message"
+          name="message"
+          rows={7}
+          minLength={20}
+          maxLength={5000}
+          aria-describedby="contact-message-hint"
+          required
+        />
+        <p className="field__hint" id="contact-message-hint">
+          20 à 5 000 caractères.
+        </p>
       </div>
 
       <div className="contact-form__honeypot" aria-hidden="true">

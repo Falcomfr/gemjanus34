@@ -1,21 +1,11 @@
 import { CalendarDays } from "lucide-react";
 import type { JSX } from "react";
 import type { NewsItem } from "@/content/types";
+import { formatPublicDate } from "@/lib/date/public-date";
 
 type UpcomingNewsProps = {
   items: NewsItem[];
 };
-
-const frenchDateFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-function formatDate(value: string): string {
-  return frenchDateFormatter.format(new Date(`${value}T00:00:00Z`));
-}
 
 export function UpcomingNews({ items }: UpcomingNewsProps): JSX.Element {
   return (
@@ -38,7 +28,7 @@ export function UpcomingNews({ items }: UpcomingNewsProps): JSX.Element {
               <article className="news-card" key={item.id}>
                 <p className="news-card__date">
                   <CalendarDays aria-hidden="true" size={18} />
-                  <time dateTime={item.startsAt}>{formatDate(item.startsAt)}</time>
+                  <time dateTime={item.startsAt}>{formatPublicDate(item.startsAt)}</time>
                 </p>
                 <h3>{item.title}</h3>
                 <p>{item.excerpt}</p>

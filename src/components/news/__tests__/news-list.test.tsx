@@ -35,3 +35,40 @@ test("separates upcoming and archived announcements", () => {
     within(screen.getByRole("region", { name: /archives/i })).getByText("Assemblée"),
   ).toBeInTheDocument();
 });
+
+test("keeps date-only announcements upcoming until the Paris calendar day ends", () => {
+  render(
+    <NewsList
+      now="2026-10-12T20:00:00Z"
+      items={[
+        {
+          id: "today-in-paris",
+          title: "Rencontre du jour",
+          excerpt: "Une rencontre sans horaire précis",
+          startsAt: "2026-10-12",
+          endsAt: null,
+          featured: true,
+          status: "published",
+        },
+        {
+          id: "finished-instant",
+          title: "Rencontre terminée",
+          excerpt: "Une rencontre avec un horaire précis",
+          startsAt: "2026-10-12T19:00:00Z",
+          endsAt: null,
+          featured: false,
+          status: "published",
+        },
+      ]}
+    />,
+  );
+
+  expect(
+    within(screen.getByRole("region", { name: /à venir/i })).getByText("Rencontre du jour"),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("region", { name: /archives/i })).getByText(
+      "Rencontre terminée",
+    ),
+  ).toBeInTheDocument();
+});

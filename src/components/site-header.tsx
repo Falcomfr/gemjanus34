@@ -1,27 +1,12 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import type { JSX } from "react";
-
-type NavigationItem = {
-  href: string;
-  label: string;
-  prominent?: boolean;
-};
-
-const navigation: ReadonlyArray<NavigationItem> = [
-  { href: "/", label: "Accueil" },
-  { href: "/qui-sommes-nous", label: "Qui sommes-nous ?" },
-  { href: "/activites", label: "Activités" },
-  { href: "/actualites", label: "Planning et actualités" },
-  { href: "/nous-rejoindre", label: "Nous rejoindre", prominent: true },
-  { href: "/ressources", label: "Ressources" },
-  { href: "/contact", label: "Contact" },
-];
+import { publicNavigation } from "@/content/navigation";
 
 function NavigationLinks(): JSX.Element {
   return (
     <ul className="navigation-list">
-      {navigation.map((item) => (
+      {publicNavigation.map((item) => (
         <li key={item.href}>
           <Link
             className={item.prominent ? "navigation-link navigation-link--prominent" : "navigation-link"}
@@ -49,7 +34,7 @@ export function SiteHeader(): JSX.Element {
         </nav>
 
         <details className="mobile-navigation">
-          <summary aria-label="Ouvrir la navigation">
+          <summary aria-label="Menu">
             <Menu aria-hidden="true" size={24} strokeWidth={2} />
             <span>Menu</span>
           </summary>

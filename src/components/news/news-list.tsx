@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import type { NewsItem as NewsItemData } from "@/content/types";
+import { isCurrentOrFuturePublicDate } from "@/lib/date/public-date";
 import { NewsItem } from "./news-item";
 
 type NewsListProps = {
@@ -7,18 +8,13 @@ type NewsListProps = {
   now: string;
 };
 
-function endTimestamp(item: NewsItemData): number {
-  return Date.parse(item.endsAt ?? item.startsAt);
-}
-
 export function NewsList({ items, now }: NewsListProps): JSX.Element {
-  const nowTimestamp = Date.parse(now);
   const published = items.filter((item) => item.status === "published");
   const upcoming = published
-    .filter((item) => endTimestamp(item) >= nowTimestamp)
+    .filter((item) => isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
     .toSorted((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt));
   const archived = published
-    .filter((item) => endTimestamp(item) < nowTimestamp)
+    .filter((item) => !isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
     .toSorted((left, right) => Date.parse(right.startsAt) - Date.parse(left.startsAt));
 
   return (
