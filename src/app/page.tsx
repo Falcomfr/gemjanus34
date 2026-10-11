@@ -5,17 +5,18 @@ import { Hero } from "@/components/home/hero";
 import { UpcomingNews } from "@/components/home/upcoming-news";
 import { VisitPanel } from "@/components/home/visit-panel";
 import { publicContentRepository } from "@/lib/content/local-public-content-repository";
+import { selectLatestDocument } from "@/lib/content/select-latest-document";
 
 export default async function HomePage() {
   const [news, planningDocuments] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),
   ]);
-  const planning = planningDocuments[0];
+  const planning = selectLatestDocument(planningDocuments);
 
   return (
     <>
-      <Hero planningHref={planning?.downloadUrl ?? "/actualites"} />
+      <Hero planningHref={planning?.downloadUrl} />
       <CurrentPlanning document={planning} />
       <UpcomingNews items={news.slice(0, 3)} />
 

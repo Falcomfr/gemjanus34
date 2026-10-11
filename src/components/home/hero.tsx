@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { JSX } from "react";
 
 type HeroProps = {
-  planningHref: string;
+  planningHref?: string;
 };
 
 export function Hero({ planningHref }: HeroProps): JSX.Element {
@@ -30,10 +30,17 @@ export function Hero({ planningHref }: HeroProps): JSX.Element {
               Nous rejoindre
               <ArrowRight aria-hidden="true" size={20} />
             </Link>
-            <Link className="button button--secondary" href={planningHref}>
-              <CalendarDays aria-hidden="true" size={20} />
-              Voir le planning
-            </Link>
+            {planningHref ? (
+              <Link className="button button--secondary" href={planningHref}>
+                <CalendarDays aria-hidden="true" size={20} />
+                Voir le planning
+              </Link>
+            ) : (
+              <Link className="button button--secondary" href="/activites">
+                <CalendarDays aria-hidden="true" size={20} />
+                Découvrir les activités
+              </Link>
+            )}
           </div>
         </div>
       </div>
