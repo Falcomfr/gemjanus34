@@ -525,6 +525,85 @@ main {
   color: var(--muted);
 }
 
+.timeline {
+  padding-block: clamp(3rem, 7vw, 5rem);
+}
+
+.timeline__section + .timeline__section {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--line);
+}
+
+.section-heading--compact {
+  grid-template-columns: 1fr;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading--compact h2 {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.timeline__list {
+  display: grid;
+  gap: 1px;
+  border-block: 1px solid var(--line);
+  background: var(--line);
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.3fr) minmax(12rem, 0.55fr) minmax(16rem, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  background: var(--surface);
+}
+
+.timeline-item time {
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.timeline-item h3,
+.timeline-item p {
+  margin: 0;
+}
+
+.timeline-item h3 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.3rem;
+}
+
+.timeline-item p,
+.timeline__empty {
+  color: var(--muted);
+}
+
+.timeline__archives summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.timeline__archives summary span:last-child {
+  min-width: 2rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--forest-dark);
+  color: white;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 @media (max-width: 68rem) {
   .desktop-navigation {
     display: none;
@@ -616,6 +695,11 @@ main {
 
   .news-grid {
     grid-template-columns: 1fr;
+  }
+
+  .timeline-item {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
   }
 
   .site-footer__inner {
