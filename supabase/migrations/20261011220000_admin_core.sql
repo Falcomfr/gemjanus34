@@ -4,6 +4,17 @@ create extension if not exists pg_jsonschema with schema extensions;
 create type public.app_role as enum ('admin', 'editor');
 create type public.content_status as enum ('draft', 'published', 'archived');
 
+create schema private;
+revoke all on schema private from public, anon, authenticated;
+
+create table private.page_publication_context (
+  transaction_id bigint not null,
+  actor_id uuid not null,
+  primary key (transaction_id, actor_id)
+);
+
+revoke all on table private.page_publication_context from public, anon, authenticated;
+
 create function public.is_valid_rich_content(value jsonb)
 returns boolean
 language sql
@@ -162,7 +173,7 @@ as $$
                       "href": {
                         "type": "string",
                         "minLength": 1,
-                        "pattern": "^(?![[:space:]]*javascript:)"
+                        "pattern": "^(?![\\x00-\\x20]*[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:)"
                       },
                       "target": { "type": ["string", "null"] },
                       "rel": { "type": ["string", "null"] },
@@ -308,31 +319,34 @@ security definer
 set search_path = ''
 as $$
 declare
-  actor_id uuid := auth.uid();
+  current_actor_id uuid := auth.uid();
   actor_is_admin boolean;
-  publication_allowed boolean := coalesce(
-    current_setting('app.page_publication', true) = 'on',
-    false
-  );
+  publication_allowed boolean;
 begin
   if not public.is_valid_rich_content(new.content) then
     raise exception 'content must be valid Tiptap JSON'
       using errcode = '23514';
   end if;
 
-  if actor_id is null then
+  if current_actor_id is null then
     return new;
   end if;
 
   actor_is_admin := public.is_admin();
+  select exists (
+    select 1
+    from private.page_publication_context as context
+    where context.transaction_id = pg_catalog.txid_current()
+      and context.actor_id = current_actor_id
+  ) into publication_allowed;
 
   if tg_op = 'INSERT' then
-    if new.created_by <> actor_id then
+    if new.created_by <> current_actor_id then
       raise exception 'created_by must match the authenticated user'
         using errcode = '42501';
     end if;
 
-    if new.updated_by <> actor_id then
+    if new.updated_by <> current_actor_id then
       raise exception 'updated_by must match the authenticated user'
         using errcode = '42501';
     end if;
@@ -367,7 +381,7 @@ begin
       using errcode = '42501';
   end if;
 
-  if new.updated_by <> actor_id then
+  if new.updated_by <> current_actor_id then
     raise exception 'updated_by must match the authenticated user'
       using errcode = '42501';
   end if;
@@ -398,6 +412,19 @@ begin
       using errcode = '42501';
   end if;
 
+  if old.status = 'published'
+    and new.status = 'published'
+    and (
+      new.title is distinct from old.title
+      or new.summary is distinct from old.summary
+      or new.content is distinct from old.content
+    )
+    and not publication_allowed
+  then
+    raise exception 'Published page content must use the publication workflow'
+      using errcode = '42501';
+  end if;
+
   new.updated_at := now();
   return new;
 end;
@@ -411,6 +438,7 @@ set search_path = ''
 as $$
 declare
   actor_id uuid := auth.uid();
+  actor_is_admin boolean;
 begin
   if not public.is_valid_rich_content(new.content) then
     raise exception 'content must be valid Tiptap JSON'
@@ -420,6 +448,8 @@ begin
   if actor_id is null then
     return new;
   end if;
+
+  actor_is_admin := public.is_admin();
 
   if tg_op = 'INSERT' then
     if new.created_by <> actor_id then
@@ -432,12 +462,22 @@ begin
         using errcode = '42501';
     end if;
 
-    if new.status = 'archived' and not public.is_admin() then
-      raise exception 'An administrator is required to archive news'
+    if new.status <> 'draft' and not actor_is_admin then
+      raise exception 'An administrator is required to publish or archive news'
         using errcode = '42501';
     end if;
 
     return new;
+  end if;
+
+  if new.id is distinct from old.id then
+    raise exception 'id cannot be changed'
+      using errcode = '42501';
+  end if;
+
+  if not actor_is_admin and old.status <> 'draft' then
+    raise exception 'An administrator is required to change non-draft news'
+      using errcode = '42501';
   end if;
 
   if new.created_by is distinct from old.created_by then
@@ -450,11 +490,10 @@ begin
       using errcode = '42501';
   end if;
 
-  if new.status = 'archived'
-    and new.status is distinct from old.status
-    and not public.is_admin()
+  if new.status is distinct from old.status
+    and not actor_is_admin
   then
-    raise exception 'An administrator is required to archive news'
+    raise exception 'An administrator is required to publish or archive news'
       using errcode = '42501';
   end if;
 
@@ -478,7 +517,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  actor_id uuid := auth.uid();
+  current_actor_id uuid := auth.uid();
   page_record public.pages%rowtype;
 begin
   if not public.is_admin() then
@@ -486,7 +525,8 @@ begin
       using errcode = '42501';
   end if;
 
-  perform set_config('app.page_publication', 'on', true);
+  insert into private.page_publication_context (transaction_id, actor_id)
+  values (pg_catalog.txid_current(), current_actor_id);
 
   select p.*
   into page_record
@@ -513,14 +553,14 @@ begin
     page_record.summary,
     page_record.content,
     'published',
-    actor_id
+    current_actor_id
   );
 
   update public.pages as p
   set
     status = 'published',
     published_at = now(),
-    updated_by = actor_id,
+    updated_by = current_actor_id,
     updated_at = now()
   where p.id = page_record.id;
 
@@ -532,14 +572,16 @@ begin
     metadata
   )
   values (
-    actor_id,
+    current_actor_id,
     'page.publish',
     'page',
     page_record.id,
     '{}'::jsonb
   );
 
-  perform set_config('app.page_publication', 'off', true);
+  delete from private.page_publication_context as context
+  where context.transaction_id = pg_catalog.txid_current()
+    and context.actor_id = current_actor_id;
 end;
 $$;
 
@@ -550,7 +592,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  actor_id uuid := auth.uid();
+  current_actor_id uuid := auth.uid();
   revision_record public.page_revisions%rowtype;
   page_record public.pages%rowtype;
 begin
@@ -559,7 +601,8 @@ begin
       using errcode = '42501';
   end if;
 
-  perform set_config('app.page_publication', 'on', true);
+  insert into private.page_publication_context (transaction_id, actor_id)
+  values (pg_catalog.txid_current(), current_actor_id);
 
   select r.*
   into revision_record
@@ -588,7 +631,7 @@ begin
     summary = revision_record.summary,
     content = revision_record.content,
     status = revision_record.status,
-    updated_by = actor_id,
+    updated_by = current_actor_id,
     updated_at = now(),
     published_at = case
       when revision_record.status = 'published' then now()
@@ -611,7 +654,7 @@ begin
     page_record.summary,
     page_record.content,
     page_record.status,
-    actor_id
+    current_actor_id
   );
 
   insert into public.audit_log (
@@ -622,14 +665,16 @@ begin
     metadata
   )
   values (
-    actor_id,
+    current_actor_id,
     'page.restore',
     'page',
     page_record.id,
     jsonb_build_object('revision_id', revision_record.id)
   );
 
-  perform set_config('app.page_publication', 'off', true);
+  delete from private.page_publication_context as context
+  where context.transaction_id = pg_catalog.txid_current()
+    and context.actor_id = current_actor_id;
 end;
 $$;
 

@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(75);
+select plan(86);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -127,6 +127,18 @@ select ok(
     '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"javascript:alert(1)"}}]}]}]}'::jsonb
   ),
   'the database rejects javascript links'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"JaVaScRiPt:alert(1)"}}]}]}]}'::jsonb
+  ),
+  'the database rejects mixed-case javascript links'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"\n\tjavascript:alert(1)"}}]}]}]}'::jsonb
+  ),
+  'the database rejects javascript links after ASCII whitespace'
 );
 select ok(
   not public.is_valid_rich_content(
@@ -291,6 +303,33 @@ values
     'draft',
     '10000000-0000-0000-0000-000000000002',
     '10000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '40000000-0000-0000-0000-000000000003',
+    'Archived news',
+    'Only administrators may restore this item',
+    now(),
+    'archived',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001'
+  ),
+  (
+    '40000000-0000-0000-0000-000000000004',
+    'Immutable id news',
+    'Its technical identifier must not change',
+    now(),
+    'draft',
+    '10000000-0000-0000-0000-000000000002',
+    '10000000-0000-0000-0000-000000000002'
+  ),
+  (
+    '40000000-0000-0000-0000-000000000005',
+    'Admin publication news',
+    'This draft is reserved for the admin publication test',
+    now(),
+    'draft',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001'
   );
 
 set local role anon;
@@ -340,6 +379,14 @@ set local role authenticated;
 select is(public.current_app_role(), 'editor'::public.app_role, 'editor role is resolved');
 select ok(public.is_active_editor(), 'active editors pass the editor check');
 select ok(not public.is_admin(), 'editors do not pass the admin check');
+select throws_like(
+  $$
+    insert into private.page_publication_context (transaction_id, actor_id)
+    values (pg_catalog.txid_current(), '10000000-0000-0000-0000-000000000002')
+  $$,
+  '%permission denied%',
+  'authenticated callers cannot forge publication context'
+);
 select results_eq(
   $$select display_name from public.profiles$$,
   array['Editor Test'],
@@ -429,6 +476,60 @@ select throws_like(
   $$update public.news set content = '{"type":"script"}' where id = '40000000-0000-0000-0000-000000000002'$$,
   '%valid Tiptap%',
   'editors cannot store unsupported news content'
+);
+select throws_like(
+  $$
+    insert into public.news (
+      title, excerpt, starts_at, status, created_by, updated_by
+    ) values (
+      'Directly published news',
+      'This must remain an administrator action',
+      now(),
+      'published',
+      '10000000-0000-0000-0000-000000000002',
+      '10000000-0000-0000-0000-000000000002'
+    )
+  $$,
+  '%administrator%',
+  'editors cannot insert already-published news'
+);
+select throws_like(
+  $$
+    update public.news
+    set
+      title = 'Published news changed',
+      updated_by = '10000000-0000-0000-0000-000000000002'
+    where id = '40000000-0000-0000-0000-000000000001'
+  $$,
+  '%administrator%',
+  'editors cannot change published news'
+);
+select throws_like(
+  $$
+    update public.news
+    set
+      status = 'published',
+      updated_by = '10000000-0000-0000-0000-000000000002'
+    where id = '40000000-0000-0000-0000-000000000003'
+  $$,
+  '%administrator%',
+  'editors cannot unarchive news'
+);
+select throws_like(
+  $$
+    update public.news
+    set
+      status = 'published',
+      updated_by = '10000000-0000-0000-0000-000000000002'
+    where id = '40000000-0000-0000-0000-000000000002'
+  $$,
+  '%administrator%',
+  'editors cannot publish news'
+);
+select throws_like(
+  $$update public.news set id = '40000000-0000-0000-0000-000000000099' where id = '40000000-0000-0000-0000-000000000004'$$,
+  '%id cannot be changed%',
+  'news identifiers are immutable'
 );
 select throws_like(
   $$delete from public.pages where slug = 'editor-page'$$,
@@ -575,6 +676,31 @@ select throws_like(
   $$
     update public.pages
     set
+      title = 'Published page changed by admin',
+      updated_by = '10000000-0000-0000-0000-000000000001'
+    where id = '20000000-0000-0000-0000-000000000001'
+  $$,
+  '%publication workflow%',
+  'admins cannot change live page content outside the publication workflow'
+);
+select set_config('app.page_publication', 'on', true);
+select throws_like(
+  $$
+    update public.pages
+    set
+      status = 'published',
+      published_at = now(),
+      updated_by = '10000000-0000-0000-0000-000000000001'
+    where slug = 'editor-page'
+  $$,
+  '%publication RPC%',
+  'a caller-controlled GUC cannot bypass the publication RPC'
+);
+select set_config('app.page_publication', 'off', true);
+select throws_like(
+  $$
+    update public.pages
+    set
       status = 'published',
       updated_by = '10000000-0000-0000-0000-000000000001'
     where id = '20000000-0000-0000-0000-000000000002'
@@ -585,6 +711,16 @@ select throws_like(
 select lives_ok(
   $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
   'admins can publish pages through the RPC'
+);
+select lives_ok(
+  $$
+    update public.news
+    set
+      status = 'published',
+      updated_by = '10000000-0000-0000-0000-000000000001'
+    where id = '40000000-0000-0000-0000-000000000005'
+  $$,
+  'admins can publish news'
 );
 select throws_like(
   $$delete from public.pages where id = '20000000-0000-0000-0000-000000000002'$$,
