@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(90);
+select plan(91);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -109,6 +109,18 @@ select ok(
 select ok(
   to_regprocedure('public.restore_page_revision(uuid)') is not null,
   'restore_page_revision(uuid) exists'
+);
+select ok(
+  exists (
+    select 1
+    from auth.users
+    where email = 'admin@gemjanus34.local'
+      and confirmation_token is not null
+      and recovery_token is not null
+      and email_change_token_new is not null
+      and email_change is not null
+  ),
+  'the local bootstrap user is readable by GoTrue password authentication'
 );
 select ok(
   public.is_valid_rich_content(
