@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(91);
+select plan(93);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -19,6 +19,11 @@ select policies_are(
   'public',
   'pages',
   array['pages_public_read', 'pages_editor_write']
+);
+select policies_are(
+  'public',
+  'page_revisions',
+  array['page_revisions_admin_read']
 );
 select policies_are(
   'public',
@@ -61,10 +66,10 @@ select is(
     join pg_class c on c.oid = p.polrelid
     join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public'
-      and c.relname in ('page_revisions', 'audit_log')
+      and c.relname = 'audit_log'
   ),
   0::bigint,
-  'revisions and audit events have no direct client policies'
+  'audit events have no direct client policies'
 );
 select is(
   (
@@ -681,6 +686,11 @@ select set_config(
 );
 set local role authenticated;
 select ok(public.is_admin(), 'admin role is resolved');
+select is(
+  (select count(*) from public.page_revisions),
+  1::bigint,
+  'admins can read page revisions'
+);
 select is(
   (select count(*) from public.profiles),
   3::bigint,
