@@ -722,6 +722,254 @@ main {
   opacity: 0.55;
 }
 
+body:has(.admin-area) > .site-header,
+body:has(.admin-area) > .site-footer,
+body:has(.admin-area) > .skip-link {
+  display: none;
+}
+
+.admin-area {
+  min-height: 100vh;
+  background: #f4f7f5;
+}
+
+.admin-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--forest-dark);
+  color: white;
+}
+
+.admin-sidebar__brand {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.25rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-sidebar__brand .wordmark__mark {
+  color: var(--forest-dark);
+}
+
+.admin-navigation {
+  display: grid;
+  gap: 0.25rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-navigation a,
+.admin-sidebar__account button {
+  width: 100%;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+}
+
+.admin-navigation a:hover,
+.admin-navigation a[aria-current="page"],
+.admin-sidebar__account button:hover {
+  background: #287866;
+}
+
+.admin-navigation svg,
+.admin-sidebar__account svg {
+  flex: 0 0 auto;
+}
+
+.admin-sidebar__account {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #4b806f;
+}
+
+.admin-sidebar__account p {
+  display: grid;
+  margin: 0 0 0.75rem;
+  padding-inline: 0.7rem;
+}
+
+.admin-sidebar__account span {
+  color: #c7ddd5;
+  font-size: 0.85rem;
+}
+
+.admin-sidebar__account button {
+  cursor: pointer;
+}
+
+.admin-main {
+  min-width: 0;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.admin-dashboard {
+  width: min(100%, 70rem);
+}
+
+.admin-page-header {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-page-header h1,
+.admin-login h1 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.admin-page-header > p:last-child,
+.admin-login__panel > p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
+.admin-dashboard section {
+  margin-top: 2rem;
+}
+
+.admin-dashboard h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.4rem;
+}
+
+.admin-summary-list {
+  border-block: 1px solid var(--line);
+}
+
+.admin-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.admin-summary + .admin-summary {
+  border-top: 1px solid var(--line);
+}
+
+.admin-summary > svg {
+  color: var(--coral-dark);
+}
+
+.admin-summary h3,
+.admin-summary p {
+  margin: 0;
+}
+
+.admin-summary h3 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.1rem;
+}
+
+.admin-summary p {
+  color: var(--muted);
+}
+
+.admin-area--login {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.admin-login {
+  width: min(100%, 30rem);
+}
+
+.admin-login__panel {
+  padding: clamp(1.25rem, 5vw, 2.5rem);
+  border: 1px solid var(--line);
+  border-top: 0.35rem solid var(--coral);
+  border-radius: 0.25rem;
+  background: var(--surface);
+}
+
+.admin-login__form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.admin-login__error {
+  margin: 0;
+  padding: 0.75rem;
+  border-left: 0.25rem solid var(--coral-dark);
+  background: #fae9e5;
+  color: #76291f;
+  font-weight: 700;
+}
+
+.admin-login__form .button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 42rem) {
+  .admin-shell {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+
+  .admin-sidebar {
+    padding-inline: 0.65rem;
+  }
+
+  .admin-sidebar__brand {
+    justify-content: center;
+  }
+
+  .admin-sidebar__brand > span:last-child,
+  .admin-navigation a span,
+  .admin-sidebar__account p,
+  .admin-sidebar__account button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .admin-navigation a,
+  .admin-sidebar__account button {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .admin-main {
+    padding: 1.25rem 1rem;
+  }
+}
+
 @media (max-width: 68rem) {
   .desktop-navigation {
     display: none;
