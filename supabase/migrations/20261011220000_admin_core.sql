@@ -173,7 +173,7 @@ as $$
                       "href": {
                         "type": "string",
                         "minLength": 1,
-                        "pattern": "^(?![\\x00-\\x20]*[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:)"
+                        "pattern": "^(?:/[^\\x00-\\x20]*|#[^\\x00-\\x20]*|[hH][tT][tT][pP][sS]?://[^\\x00-\\x20]+|[mM][aA][iI][lL][tT][oO]:[^\\x00-\\x20]+)$"
                       },
                       "target": { "type": ["string", "null"] },
                       "rel": { "type": ["string", "null"] },

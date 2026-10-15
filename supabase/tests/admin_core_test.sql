@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(86);
+select plan(90);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -117,6 +117,18 @@ select ok(
   'the database accepts the supported rich-content vocabulary'
 );
 select ok(
+  public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Site","marks":[{"type":"link","attrs":{"href":"https://gemjanus34.fr/contact"}}]}]}]}'::jsonb
+  ),
+  'the database accepts HTTPS links'
+);
+select ok(
+  public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Courriel","marks":[{"type":"link","attrs":{"href":"mailto:contact@gemjanus34.fr"}}]}]}]}'::jsonb
+  ),
+  'the database accepts mail links'
+);
+select ok(
   not public.is_valid_rich_content(
     '{"type":"doc","content":[{"type":"heading","attrs":{"level":1}}]}'::jsonb
   ),
@@ -139,6 +151,18 @@ select ok(
     '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"\n\tjavascript:alert(1)"}}]}]}]}'::jsonb
   ),
   'the database rejects javascript links after ASCII whitespace'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"java\tscript:alert(1)"}}]}]}]}'::jsonb
+  ),
+  'the database rejects javascript links containing an embedded tab'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"java\nscript:alert(1)"}}]}]}]}'::jsonb
+  ),
+  'the database rejects javascript links containing an embedded newline'
 );
 select ok(
   not public.is_valid_rich_content(
