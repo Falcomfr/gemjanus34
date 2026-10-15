@@ -1,5 +1,9 @@
+import { Editor } from "@tiptap/core";
+import { render, screen } from "@testing-library/react";
+import { createElement } from "react";
 import { describe, expect, test } from "vitest";
-import { createRichTextExtensions } from "../rich-text-editor";
+import { serializeRichContent } from "@/lib/content/rich-content-schema";
+import { createRichTextExtensions, RichTextEditor } from "../rich-text-editor";
 
 describe("createRichTextExtensions", () => {
   test("excludes content nodes and marks outside the controlled schema", () => {
@@ -16,5 +20,49 @@ describe("createRichTextExtensions", () => {
         strike: false,
       }),
     );
+  });
+
+  test("serializes link attributes emitted by the configured editor", () => {
+    const editor = new Editor({
+      content: {
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "Janus34",
+                marks: [{ type: "link", attrs: { href: "https://janus34.fr" } }],
+              },
+            ],
+          },
+        ],
+      },
+      extensions: createRichTextExtensions(),
+    });
+
+    try {
+      const editorJson = editor.getJSON();
+      const link = editorJson.content?.[0].content?.[0].marks?.[0];
+
+      expect(link?.attrs).toEqual(expect.objectContaining({ title: null }));
+      expect(() => serializeRichContent(editorJson)).not.toThrow();
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  test("gives the editable surface an accessible name and error description", async () => {
+    render(createElement(RichTextEditor, {
+      initialContent: { type: "doc", content: [{ type: "paragraph" }] },
+      label: "Contenu de la page",
+      invalid: true,
+      describedBy: "content-error",
+    }));
+
+    const editor = await screen.findByRole("textbox", { name: "Contenu de la page" });
+    expect(editor).toHaveAttribute("aria-invalid", "true");
+    expect(editor).toHaveAttribute("aria-describedby", "content-error");
   });
 });

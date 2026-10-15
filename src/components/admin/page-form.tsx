@@ -33,15 +33,35 @@ type PageFormProps = {
   profile: Profile;
   page?: PageRow;
   parentOptions: ParentOption[];
+  parentOptionsError?: boolean;
   revisions?: RevisionRow[];
+  revisionsError?: boolean;
 };
 
 const emptyContent: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 
-function SubmitButton({ label }: { label: string }) {
+function FieldErrors({
+  className,
+  errors,
+  id,
+}: {
+  className?: string;
+  errors?: string[];
+  id: string;
+}) {
+  if (!errors?.length) return null;
+
+  return (
+    <div className={className} id={id}>
+      {errors.map((error) => <small key={error}>{error}</small>)}
+    </div>
+  );
+}
+
+function SubmitButton({ disabled = false, label }: { disabled?: boolean; label: string }) {
   const { pending } = useFormStatus();
   return (
-    <button className="button button--dark" type="submit" disabled={pending}>
+    <button className="button button--dark" type="submit" disabled={pending || disabled}>
       <Save aria-hidden="true" size={18} />
       {pending ? "Enregistrement…" : label}
     </button>
@@ -63,7 +83,9 @@ export function PageForm({
   profile,
   page,
   parentOptions,
+  parentOptionsError = false,
   revisions = [],
+  revisionsError = false,
 }: PageFormProps) {
   const saveAction = mode === "create" ? createPage : updatePage;
   const [state, formAction] = useActionState(saveAction, initialPageActionState);
@@ -81,18 +103,27 @@ export function PageForm({
   const content = (page?.content as JSONContent | undefined) ?? emptyContent;
   const lifecycleState = publishState.formError ?? archiveState.formError ?? restoreState.formError;
   const lifecycleSuccess = publishState.success ?? archiveState.success ?? restoreState.success;
+  const structureUnavailable = isAdmin && parentOptionsError;
 
   return (
     <div className="admin-editor-layout">
-      <form className="admin-page-form" action={formAction}>
+      <form className="admin-page-form" action={structureUnavailable ? undefined : formAction}>
         {page ? <input type="hidden" name="pageId" value={page.id} /> : null}
         <input type="hidden" name="status" value={page?.status ?? "draft"} />
 
         {isPublished ? (
           <p className="admin-notice">Cette page est publiée. Archivez-la avant de modifier son contenu.</p>
         ) : null}
-        {state.formError ? <p className="form-status form-status--error">{state.formError}</p> : null}
-        {state.success ? <p className="form-status form-status--success">{state.success}</p> : null}
+        {state.formError ? (
+          <p className="form-status form-status--error" role="alert" aria-live="assertive">
+            {state.formError}
+          </p>
+        ) : null}
+        {state.success ? (
+          <p className="form-status form-status--success" role="status" aria-live="polite">
+            {state.success}
+          </p>
+        ) : null}
 
         <section className="admin-form-section" aria-labelledby="page-identity-title">
           <div className="admin-form-section__heading">
@@ -101,26 +132,47 @@ export function PageForm({
           </div>
           <div className="admin-form-grid">
             <label className="admin-field admin-field--wide">
-              <span>Titre</span>
-              <input name="title" defaultValue={page?.title ?? ""} disabled={!isEditable} required maxLength={160} />
-              {state.fieldErrors?.title?.map((error) => <small key={error}>{error}</small>)}
+              <span id="title-label">Titre</span>
+              <input
+                name="title"
+                defaultValue={page?.title ?? ""}
+                disabled={!isEditable}
+                required
+                maxLength={160}
+                aria-labelledby="title-label"
+                aria-invalid={Boolean(state.fieldErrors?.title)}
+                aria-describedby={state.fieldErrors?.title ? "title-error" : undefined}
+              />
+              <FieldErrors id="title-error" errors={state.fieldErrors?.title} />
             </label>
             <label className="admin-field admin-field--wide">
-              <span>Slug</span>
+              <span id="slug-label">Slug</span>
               <input
                 name="slug"
                 defaultValue={page?.slug ?? ""}
                 disabled={!isEditable || !canEditSlug}
                 required
                 pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                aria-labelledby="slug-label"
+                aria-invalid={Boolean(state.fieldErrors?.slug)}
+                aria-describedby={state.fieldErrors?.slug ? "slug-error" : undefined}
               />
               {!canEditSlug && page ? <input type="hidden" name="slug" value={page.slug} /> : null}
-              {state.fieldErrors?.slug?.map((error) => <small key={error}>{error}</small>)}
+              <FieldErrors id="slug-error" errors={state.fieldErrors?.slug} />
             </label>
             <label className="admin-field admin-field--wide">
-              <span>Résumé</span>
-              <textarea name="summary" defaultValue={page?.summary ?? ""} disabled={!isEditable} rows={3} maxLength={500} />
-              {state.fieldErrors?.summary?.map((error) => <small key={error}>{error}</small>)}
+              <span id="summary-label">Résumé</span>
+              <textarea
+                name="summary"
+                defaultValue={page?.summary ?? ""}
+                disabled={!isEditable}
+                rows={3}
+                maxLength={500}
+                aria-labelledby="summary-label"
+                aria-invalid={Boolean(state.fieldErrors?.summary)}
+                aria-describedby={state.fieldErrors?.summary ? "summary-error" : undefined}
+              />
+              <FieldErrors id="summary-error" errors={state.fieldErrors?.summary} />
             </label>
           </div>
         </section>
@@ -129,8 +181,18 @@ export function PageForm({
           <div className="admin-form-section__heading">
             <h2 id="page-content-title">Contenu</h2>
           </div>
-          <RichTextEditor initialContent={content} disabled={!isEditable} />
-          {state.fieldErrors?.content?.map((error) => <small className="admin-field-error" key={error}>{error}</small>)}
+          <RichTextEditor
+            initialContent={content}
+            disabled={!isEditable}
+            label="Contenu de la page"
+            invalid={Boolean(state.fieldErrors?.content)}
+            describedBy={state.fieldErrors?.content ? "content-error" : undefined}
+          />
+          <FieldErrors
+            className="admin-field-error"
+            id="content-error"
+            errors={state.fieldErrors?.content}
+          />
         </section>
 
         <section className="admin-form-section" aria-labelledby="page-navigation-title">
@@ -138,32 +200,52 @@ export function PageForm({
             <h2 id="page-navigation-title">Navigation</h2>
             <p>Ces réglages sont réservés aux administrateurs.</p>
           </div>
+          {parentOptionsError ? (
+            <p className="form-status form-status--error" role="alert" aria-live="assertive">
+              Les pages parentes n’ont pas pu être chargées.
+            </p>
+          ) : null}
           <div className="admin-form-grid">
             <label className="admin-field">
-              <span>Position</span>
+              <span id="position-label">Position</span>
               <input
                 type="number"
                 min="0"
                 name="navigationPosition"
                 defaultValue={page?.navigation_position ?? ""}
-                disabled={!isEditable || !isAdmin}
+                disabled={!isEditable || !isAdmin || parentOptionsError}
+                aria-labelledby="position-label"
+                aria-invalid={Boolean(state.fieldErrors?.navigationPosition)}
+                aria-describedby={state.fieldErrors?.navigationPosition ? "position-error" : undefined}
               />
               {!isAdmin ? <input type="hidden" name="navigationPosition" value={page?.navigation_position ?? ""} /> : null}
+              <FieldErrors id="position-error" errors={state.fieldErrors?.navigationPosition} />
             </label>
             <label className="admin-field">
-              <span>Page parente</span>
-              <select name="parentId" defaultValue={page?.parent_id ?? ""} disabled={!isEditable || !isAdmin}>
+              <span id="parent-label">Page parente</span>
+              <select
+                name="parentId"
+                defaultValue={page?.parent_id ?? ""}
+                disabled={!isEditable || !isAdmin || parentOptionsError}
+                aria-labelledby="parent-label"
+                aria-invalid={Boolean(state.fieldErrors?.parentId)}
+                aria-describedby={state.fieldErrors?.parentId ? "parent-error" : undefined}
+              >
                 <option value="">Aucune</option>
                 {parentOptions.map((option) => <option key={option.id} value={option.id}>{option.title}</option>)}
               </select>
               {!isAdmin ? <input type="hidden" name="parentId" value={page?.parent_id ?? ""} /> : null}
+              <FieldErrors id="parent-error" errors={state.fieldErrors?.parentId} />
             </label>
           </div>
         </section>
 
         {isEditable ? (
           <div className="admin-form-actions">
-            <SubmitButton label={mode === "create" ? "Créer la page" : "Enregistrer"} />
+            <SubmitButton
+              disabled={structureUnavailable}
+              label={mode === "create" ? "Créer la page" : "Enregistrer"}
+            />
           </div>
         ) : null}
       </form>
@@ -173,8 +255,16 @@ export function PageForm({
           <section>
             <h2>Publication</h2>
             <p className={`status-badge status-badge--${page.status}`}>{page.status === "draft" ? "Brouillon" : page.status === "published" ? "Publiée" : "Archivée"}</p>
-            {lifecycleState ? <p className="form-status form-status--error">{lifecycleState}</p> : null}
-            {lifecycleSuccess ? <p className="form-status form-status--success">{lifecycleSuccess}</p> : null}
+            {lifecycleState ? (
+              <p className="form-status form-status--error" role="alert" aria-live="assertive">
+                {lifecycleState}
+              </p>
+            ) : null}
+            {lifecycleSuccess ? (
+              <p className="form-status form-status--success" role="status" aria-live="polite">
+                {lifecycleSuccess}
+              </p>
+            ) : null}
             {isAdmin ? (
               <div className="admin-lifecycle-actions">
                 {page.status !== "published" ? (
@@ -195,7 +285,11 @@ export function PageForm({
 
           <section>
             <h2>Révisions</h2>
-            {revisions.length === 0 ? <p>Aucune révision publiée.</p> : (
+            {revisionsError ? (
+              <p className="form-status form-status--error" role="alert" aria-live="assertive">
+                Les révisions n’ont pas pu être chargées.
+              </p>
+            ) : revisions.length === 0 ? <p>Aucune révision publiée.</p> : (
               <ol className="revision-list">
                 {revisions.map((revision) => (
                   <li key={revision.id}>

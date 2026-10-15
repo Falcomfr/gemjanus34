@@ -15,6 +15,7 @@ const linkMarkSchema = z.object({
     target: z.string().nullable().optional(),
     rel: z.string().nullable().optional(),
     class: z.string().nullable().optional(),
+    title: z.string().nullable().optional(),
   }).strict(),
 }).strict();
 

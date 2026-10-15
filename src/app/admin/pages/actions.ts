@@ -3,35 +3,27 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireProfile, type Profile } from "@/lib/auth/require-profile";
+import { requireProfile } from "@/lib/auth/require-profile";
 import type { Json } from "@/lib/database.types";
 import {
   buildPageUpdate,
   parsePageFormData,
-  type PageField,
 } from "@/lib/admin/page-input";
+import {
+  createLifecyclePageActions,
+  type PageActionState,
+} from "@/lib/admin/page-lifecycle-actions";
 import { createServerClient } from "@/lib/supabase/server";
 
-export type PageActionState = {
-  success?: string;
-  formError?: string;
-  fieldErrors?: Partial<Record<PageField, string[]>>;
-};
+export type { PageActionState } from "@/lib/admin/page-lifecycle-actions";
 
 export const initialPageActionState: PageActionState = {};
 
 const pageIdSchema = z.object({ pageId: z.uuid() });
-const revisionIdSchema = z.object({ revisionId: z.uuid() });
 
 function stringValue(formData: FormData, name: string) {
   const value = formData.get(name);
   return typeof value === "string" ? value : "";
-}
-
-function requireAdmin(profile: Profile): PageActionState | null {
-  return profile.role === "admin"
-    ? null
-    : { formError: "Cette action est réservée aux administrateurs." };
 }
 
 function revalidatePagePaths(slug: string, previousSlug?: string) {
@@ -41,6 +33,46 @@ function revalidatePagePaths(slug: string, previousSlug?: string) {
     revalidatePath(`/${previousSlug}`);
   }
   revalidatePath("/admin/pages");
+}
+
+function createLifecycleDependencies() {
+  let clientPromise: ReturnType<typeof createServerClient> | undefined;
+  const getClient = () => {
+    clientPromise ??= createServerClient();
+    return clientPromise;
+  };
+
+  return {
+    requireProfile,
+    revalidatePath,
+    loadPageSlug: async (pageId: string) => {
+      const supabase = await getClient();
+      return supabase.from("pages").select("slug").eq("id", pageId).single();
+    },
+    loadRevisionPageId: async (revisionId: string) => {
+      const supabase = await getClient();
+      return supabase
+        .from("page_revisions")
+        .select("page_id")
+        .eq("id", revisionId)
+        .single();
+    },
+    publish: async (pageId: string) => {
+      const supabase = await getClient();
+      return supabase.rpc("publish_page", { page_id: pageId });
+    },
+    archive: async (pageId: string, profileId: string) => {
+      const supabase = await getClient();
+      return supabase
+        .from("pages")
+        .update({ status: "archived", updated_by: profileId })
+        .eq("id", pageId);
+    },
+    restore: async (revisionId: string) => {
+      const supabase = await getClient();
+      return supabase.rpc("restore_page_revision", { revision_id: revisionId });
+    },
+  };
 }
 
 export async function createPage(
@@ -132,110 +164,31 @@ export async function updatePage(
 }
 
 export async function publishPage(
-  _previousState: PageActionState,
+  previousState: PageActionState,
   formData: FormData,
 ): Promise<PageActionState> {
-  const profile = await requireProfile();
-  const identity = pageIdSchema.safeParse({ pageId: stringValue(formData, "pageId") });
-  if (!identity.success) {
-    return { formError: "La page demandée est invalide." };
-  }
-  const denied = requireAdmin(profile);
-  if (denied) return denied;
-
-  const supabase = await createServerClient();
-  const { data: page, error: readError } = await supabase
-    .from("pages")
-    .select("slug")
-    .eq("id", identity.data.pageId)
-    .single();
-  if (readError || !page) {
-    return { formError: "La page demandée est introuvable." };
-  }
-
-  const { error } = await supabase.rpc("publish_page", { page_id: identity.data.pageId });
-  if (error) {
-    return { formError: "La page n’a pas pu être publiée." };
-  }
-
-  revalidatePagePaths(page.slug);
-  return { success: "Page publiée et révision créée." };
+  return createLifecyclePageActions(createLifecycleDependencies()).publishPage(
+    previousState,
+    formData,
+  );
 }
 
 export async function archivePage(
-  _previousState: PageActionState,
+  previousState: PageActionState,
   formData: FormData,
 ): Promise<PageActionState> {
-  const profile = await requireProfile();
-  const identity = pageIdSchema.safeParse({ pageId: stringValue(formData, "pageId") });
-  if (!identity.success) {
-    return { formError: "La page demandée est invalide." };
-  }
-  const denied = requireAdmin(profile);
-  if (denied) return denied;
-
-  const supabase = await createServerClient();
-  const { data: page, error: readError } = await supabase
-    .from("pages")
-    .select("slug")
-    .eq("id", identity.data.pageId)
-    .single();
-  if (readError || !page) {
-    return { formError: "La page demandée est introuvable." };
-  }
-
-  const { error } = await supabase
-    .from("pages")
-    .update({ status: "archived", updated_by: profile.id })
-    .eq("id", identity.data.pageId);
-  if (error) {
-    return { formError: "La page n’a pas pu être archivée." };
-  }
-
-  revalidatePagePaths(page.slug);
-  return { success: "Page archivée. Son contenu peut maintenant être modifié." };
+  return createLifecyclePageActions(createLifecycleDependencies()).archivePage(
+    previousState,
+    formData,
+  );
 }
 
 export async function restorePageRevision(
-  _previousState: PageActionState,
+  previousState: PageActionState,
   formData: FormData,
 ): Promise<PageActionState> {
-  const profile = await requireProfile();
-  const identity = revisionIdSchema.safeParse({
-    revisionId: stringValue(formData, "revisionId"),
-  });
-  if (!identity.success) {
-    return { formError: "La révision demandée est invalide." };
-  }
-  const denied = requireAdmin(profile);
-  if (denied) return denied;
-
-  const supabase = await createServerClient();
-  const { data: revision, error: revisionError } = await supabase
-    .from("page_revisions")
-    .select("page_id")
-    .eq("id", identity.data.revisionId)
-    .single();
-  if (revisionError || !revision) {
-    return { formError: "La révision demandée est introuvable." };
-  }
-
-  const { data: page, error: pageError } = await supabase
-    .from("pages")
-    .select("slug")
-    .eq("id", revision.page_id)
-    .single();
-  if (pageError || !page) {
-    return { formError: "La page liée à cette révision est introuvable." };
-  }
-
-  const { error } = await supabase.rpc("restore_page_revision", {
-    revision_id: identity.data.revisionId,
-  });
-  if (error) {
-    return { formError: "La révision n’a pas pu être restaurée." };
-  }
-
-  revalidatePagePaths(page.slug);
-  return { success: "Révision restaurée." };
+  return createLifecyclePageActions(createLifecycleDependencies()).restorePageRevision(
+    previousState,
+    formData,
+  );
 }

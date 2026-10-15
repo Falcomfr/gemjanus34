@@ -9,12 +9,21 @@ export default async function EditAdminPage({ params }: { params: Promise<{ id: 
   const profile = await requireProfile();
   const { id } = await params;
   const supabase = await createServerClient();
-  const [{ data: page }, { data: revisions }, { data: parentOptions }] = await Promise.all([
-    supabase
-      .from("pages")
-      .select("id, slug, title, summary, content, status, navigation_position, parent_id")
-      .eq("id", id)
-      .maybeSingle(),
+  const { data: page, error: pageError } = await supabase
+    .from("pages")
+    .select("id, slug, title, summary, content, status, navigation_position, parent_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (pageError) {
+    throw new Error("La page n’a pas pu être chargée.");
+  }
+  if (!page) notFound();
+
+  const [
+    { data: revisions, error: revisionsError },
+    { data: parentRows, error: parentOptionsError },
+  ] = await Promise.all([
     supabase
       .from("page_revisions")
       .select("id, title, status, created_at")
@@ -22,13 +31,14 @@ export default async function EditAdminPage({ params }: { params: Promise<{ id: 
       .order("created_at", { ascending: false }),
     supabase
       .from("pages")
-      .select("id, title")
+      .select("id, title, status")
       .neq("id", id)
-      .neq("status", "archived")
       .order("title"),
   ]);
 
-  if (!page) notFound();
+  const parentOptions = (parentRows ?? [])
+    .filter((option) => option.status !== "archived" || option.id === page.parent_id)
+    .map(({ id: optionId, title }) => ({ id: optionId, title }));
 
   return (
     <div className="admin-page-editor">
@@ -53,8 +63,10 @@ export default async function EditAdminPage({ params }: { params: Promise<{ id: 
         mode="edit"
         profile={profile}
         page={page}
-        parentOptions={parentOptions ?? []}
+        parentOptions={parentOptions}
+        parentOptionsError={Boolean(parentOptionsError)}
         revisions={revisions ?? []}
+        revisionsError={Boolean(revisionsError)}
       />
     </div>
   );

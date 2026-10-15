@@ -7,7 +7,7 @@ import { createServerClient } from "@/lib/supabase/server";
 export default async function NewAdminPage() {
   const profile = await requireProfile();
   const supabase = await createServerClient();
-  const { data: parentOptions } = await supabase
+  const { data: parentOptions, error: parentOptionsError } = await supabase
     .from("pages")
     .select("id, title")
     .neq("status", "archived")
@@ -24,7 +24,12 @@ export default async function NewAdminPage() {
         <h1>Créer une page</h1>
         <p>La page sera enregistrée comme brouillon.</p>
       </header>
-      <PageForm mode="create" profile={profile} parentOptions={parentOptions ?? []} />
+      <PageForm
+        mode="create"
+        profile={profile}
+        parentOptions={parentOptions ?? []}
+        parentOptionsError={Boolean(parentOptionsError)}
+      />
     </div>
   );
 }
