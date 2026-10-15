@@ -1,0 +1,528 @@
+begin;
+
+create extension if not exists pgtap with schema extensions;
+set search_path = extensions, public;
+
+select plan(47);
+
+select has_table('public', 'profiles', 'profiles table exists');
+select has_table('public', 'pages', 'pages table exists');
+select has_table('public', 'page_revisions', 'page_revisions table exists');
+select has_table('public', 'news', 'news table exists');
+select has_table('public', 'audit_log', 'audit_log table exists');
+select policies_are(
+  'public',
+  'profiles',
+  array['profiles_read_self', 'profiles_admin_all']
+);
+select policies_are(
+  'public',
+  'pages',
+  array['pages_public_read', 'pages_editor_write']
+);
+select policies_are(
+  'public',
+  'news',
+  array['news_public_read', 'news_editor_write']
+);
+select function_returns('public', 'current_app_role', array[]::text[], 'app_role');
+select function_returns('public', 'is_active_editor', array[]::text[], 'boolean');
+select function_returns('public', 'is_admin', array[]::text[], 'boolean');
+select col_is_unique('public', 'pages', 'slug', 'page slugs are unique');
+
+select enum_has_labels(
+  'public',
+  'app_role',
+  array['admin', 'editor'],
+  'app_role has only admin and editor values'
+);
+select enum_has_labels(
+  'public',
+  'content_status',
+  array['draft', 'published', 'archived'],
+  'content_status has the required lifecycle values'
+);
+select is(
+  (
+    select count(*)
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname in ('profiles', 'pages', 'page_revisions', 'news', 'audit_log')
+      and c.relrowsecurity
+  ),
+  5::bigint,
+  'RLS is enabled on every admin core table'
+);
+select is(
+  (
+    select count(*)
+    from pg_policy p
+    join pg_class c on c.oid = p.polrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname in ('page_revisions', 'audit_log')
+  ),
+  0::bigint,
+  'revisions and audit events have no direct client policies'
+);
+select is(
+  (
+    select count(*)
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'current_app_role',
+        'is_active_editor',
+        'is_admin',
+        'publish_page',
+        'restore_page_revision'
+      )
+      and p.prosecdef
+  ),
+  5::bigint,
+  'all privileged functions are security definer'
+);
+select is(
+  (
+    select count(*)
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'current_app_role',
+        'is_active_editor',
+        'is_admin',
+        'publish_page',
+        'restore_page_revision'
+      )
+      and p.proconfig @> array['search_path=""']
+  ),
+  5::bigint,
+  'all privileged functions use an empty search_path'
+);
+select ok(
+  to_regprocedure('public.publish_page(uuid)') is not null,
+  'publish_page(uuid) exists'
+);
+select ok(
+  to_regprocedure('public.restore_page_revision(uuid)') is not null,
+  'restore_page_revision(uuid) exists'
+);
+
+select (
+  to_regclass('public.profiles') is not null
+  and to_regclass('public.pages') is not null
+  and to_regclass('public.news') is not null
+  and to_regprocedure('public.publish_page(uuid)') is not null
+  and to_regprocedure('public.restore_page_revision(uuid)') is not null
+) as schema_ready \gset
+
+\if :schema_ready
+
+truncate table
+  public.audit_log,
+  public.page_revisions,
+  public.news,
+  public.pages,
+  public.profiles
+restart identity cascade;
+
+insert into auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at
+)
+values
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '10000000-0000-0000-0000-000000000001',
+    'authenticated',
+    'authenticated',
+    'admin-test@gemjanus34.local',
+    crypt('test-only-password', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}',
+    now(),
+    now()
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '10000000-0000-0000-0000-000000000002',
+    'authenticated',
+    'authenticated',
+    'editor-test@gemjanus34.local',
+    crypt('test-only-password', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}',
+    now(),
+    now()
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '10000000-0000-0000-0000-000000000003',
+    'authenticated',
+    'authenticated',
+    'inactive-test@gemjanus34.local',
+    crypt('test-only-password', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}',
+    now(),
+    now()
+  );
+
+insert into public.profiles (id, display_name, role, active)
+values
+  ('10000000-0000-0000-0000-000000000001', 'Admin Test', 'admin', true),
+  ('10000000-0000-0000-0000-000000000002', 'Editor Test', 'editor', true),
+  ('10000000-0000-0000-0000-000000000003', 'Inactive Test', 'editor', false);
+
+insert into public.pages (
+  id,
+  slug,
+  title,
+  summary,
+  content,
+  status,
+  created_by,
+  updated_by
+)
+values
+  (
+    '20000000-0000-0000-0000-000000000001',
+    'published-page',
+    'Published page',
+    'Visible to everyone',
+    '{"type":"doc","content":[]}',
+    'published',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001'
+  ),
+  (
+    '20000000-0000-0000-0000-000000000002',
+    'draft-page',
+    'Draft page',
+    'Visible to editors',
+    '{"type":"doc","content":[]}',
+    'draft',
+    '10000000-0000-0000-0000-000000000002',
+    '10000000-0000-0000-0000-000000000002'
+  );
+
+insert into public.page_revisions (
+  id,
+  page_id,
+  title,
+  summary,
+  content,
+  status,
+  created_by
+)
+values (
+  '30000000-0000-0000-0000-000000000001',
+  '20000000-0000-0000-0000-000000000001',
+  'Restorable title',
+  'Restorable summary',
+  '{"type":"doc","content":[{"type":"paragraph"}]}',
+  'published',
+  '10000000-0000-0000-0000-000000000001'
+);
+
+insert into public.news (
+  id,
+  title,
+  excerpt,
+  starts_at,
+  status,
+  created_by,
+  updated_by
+)
+values
+  (
+    '40000000-0000-0000-0000-000000000001',
+    'Published news',
+    'Visible to everyone',
+    now(),
+    'published',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001'
+  ),
+  (
+    '40000000-0000-0000-0000-000000000002',
+    'Draft news',
+    'Visible to editors',
+    now(),
+    'draft',
+    '10000000-0000-0000-0000-000000000002',
+    '10000000-0000-0000-0000-000000000002'
+  );
+
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+select results_eq(
+  $$select slug from public.pages order by slug$$,
+  array['published-page'],
+  'anonymous users read only published pages'
+);
+select results_eq(
+  $$select title from public.news order by title$$,
+  array['Published news'],
+  'anonymous users read only published news'
+);
+select throws_like(
+  $$
+    insert into public.pages (
+      slug, title, created_by, updated_by
+    ) values (
+      'anonymous-page',
+      'Anonymous page',
+      '10000000-0000-0000-0000-000000000001',
+      '10000000-0000-0000-0000-000000000001'
+    )
+  $$,
+  '%row-level security%',
+  'anonymous users cannot create pages'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"10000000-0000-0000-0000-000000000002","role":"authenticated"}',
+  true
+);
+set local role authenticated;
+select is(public.current_app_role(), 'editor'::public.app_role, 'editor role is resolved');
+select ok(public.is_active_editor(), 'active editors pass the editor check');
+select ok(not public.is_admin(), 'editors do not pass the admin check');
+select results_eq(
+  $$select display_name from public.profiles$$,
+  array['Editor Test'],
+  'editors read only their own active profile'
+);
+select is(
+  (select count(*) from public.pages),
+  2::bigint,
+  'active editors can read published and draft pages'
+);
+select lives_ok(
+  $$
+    insert into public.pages (
+      slug, title, created_by, updated_by
+    ) values (
+      'editor-page',
+      'Editor page',
+      '10000000-0000-0000-0000-000000000002',
+      '10000000-0000-0000-0000-000000000002'
+    )
+  $$,
+  'active editors can create pages'
+);
+update public.profiles
+set display_name = 'Changed by editor'
+where id = '10000000-0000-0000-0000-000000000001';
+reset role;
+select is(
+  (
+    select display_name
+    from public.profiles
+    where id = '10000000-0000-0000-0000-000000000001'
+  ),
+  'Admin Test',
+  'editors cannot administer profiles'
+);
+set local role authenticated;
+select is(
+  (select count(*) from public.page_revisions),
+  0::bigint,
+  'editors cannot directly read revisions'
+);
+select is(
+  (select count(*) from public.audit_log),
+  0::bigint,
+  'editors cannot directly read audit events'
+);
+select throws_like(
+  $$select public.restore_page_revision('30000000-0000-0000-0000-000000000001')$$,
+  '%administrator%',
+  'editors cannot restore revisions'
+);
+select lives_ok(
+  $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
+  'active editors can publish pages'
+);
+reset role;
+
+select is(
+  (select status from public.pages where id = '20000000-0000-0000-0000-000000000002'),
+  'published'::public.content_status,
+  'publishing changes page status'
+);
+select ok(
+  exists (
+    select 1
+    from public.page_revisions
+    where page_id = '20000000-0000-0000-0000-000000000002'
+      and title = 'Draft page'
+      and summary = 'Visible to editors'
+      and content = '{"type":"doc","content":[]}'::jsonb
+      and status = 'published'
+      and created_by = '10000000-0000-0000-0000-000000000002'
+  ),
+  'publishing records the complete published revision'
+);
+select is(
+  (
+    select count(*)
+    from public.audit_log
+    where action = 'page.publish'
+      and entity_type = 'page'
+      and entity_id = '20000000-0000-0000-0000-000000000002'
+      and actor_id = '10000000-0000-0000-0000-000000000002'
+  ),
+  1::bigint,
+  'publishing records an audit event'
+);
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"10000000-0000-0000-0000-000000000003","role":"authenticated"}',
+  true
+);
+set local role authenticated;
+select ok(not public.is_active_editor(), 'inactive editors fail the editor check');
+select is(
+  (select count(*) from public.profiles),
+  0::bigint,
+  'inactive users cannot read their own profile'
+);
+select throws_like(
+  $$
+    insert into public.news (
+      title, excerpt, starts_at, created_by, updated_by
+    ) values (
+      'Inactive editor news',
+      'This insert must be rejected',
+      now(),
+      '10000000-0000-0000-0000-000000000003',
+      '10000000-0000-0000-0000-000000000003'
+    )
+  $$,
+  '%row-level security%',
+  'inactive editors cannot create news'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"10000000-0000-0000-0000-000000000001","role":"authenticated"}',
+  true
+);
+set local role authenticated;
+select ok(public.is_admin(), 'admin role is resolved');
+select is(
+  (select count(*) from public.profiles),
+  3::bigint,
+  'admins can read all profiles'
+);
+update public.profiles
+set notify_on_publish = false
+where id = '10000000-0000-0000-0000-000000000002';
+select is(
+  (
+    select notify_on_publish
+    from public.profiles
+    where id = '10000000-0000-0000-0000-000000000002'
+  ),
+  false,
+  'admins can manage profiles'
+);
+select lives_ok(
+  $$select public.restore_page_revision('30000000-0000-0000-0000-000000000001')$$,
+  'admins can restore page revisions'
+);
+reset role;
+
+select results_eq(
+  $$
+    select title, summary, content, status::text
+    from public.pages
+    where id = '20000000-0000-0000-0000-000000000001'
+  $$,
+  $$
+    values (
+      'Restorable title'::text,
+      'Restorable summary'::text,
+      '{"type":"doc","content":[{"type":"paragraph"}]}'::jsonb,
+      'published'::text
+    )
+  $$,
+  'restoration copies all revision fields back to the page'
+);
+select is(
+  (
+    select count(*)
+    from public.page_revisions
+    where page_id = '20000000-0000-0000-0000-000000000001'
+  ),
+  2::bigint,
+  'restoration creates a new immutable revision'
+);
+select is(
+  (
+    select count(*)
+    from public.audit_log
+    where action = 'page.restore'
+      and entity_type = 'page'
+      and entity_id = '20000000-0000-0000-0000-000000000001'
+      and actor_id = '10000000-0000-0000-0000-000000000001'
+  ),
+  1::bigint,
+  'restoration records an audit event'
+);
+
+\else
+
+select fail('anonymous users read only published pages');
+select fail('anonymous users read only published news');
+select fail('anonymous users cannot create pages');
+select fail('editor role is resolved');
+select fail('active editors pass the editor check');
+select fail('editors do not pass the admin check');
+select fail('editors read only their own active profile');
+select fail('active editors can read published and draft pages');
+select fail('active editors can create pages');
+select fail('editors cannot administer profiles');
+select fail('editors cannot directly read revisions');
+select fail('editors cannot directly read audit events');
+select fail('editors cannot restore revisions');
+select fail('active editors can publish pages');
+select fail('publishing changes page status');
+select fail('publishing records the complete published revision');
+select fail('publishing records an audit event');
+select fail('inactive editors fail the editor check');
+select fail('inactive users cannot read their own profile');
+select fail('inactive editors cannot create news');
+select fail('admin role is resolved');
+select fail('admins can read all profiles');
+select fail('admins can manage profiles');
+select fail('admins can restore page revisions');
+select fail('restoration copies all revision fields back to the page');
+select fail('restoration creates a new immutable revision');
+select fail('restoration records an audit event');
+
+\endif
+
+select * from finish();
+rollback;

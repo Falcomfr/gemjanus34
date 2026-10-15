@@ -19,9 +19,10 @@ next-env.d.ts
 
 # local Supabase and Vercel state
 /.supabase
+/supabase/.branches
+/supabase/.temp
 /.vercel
 
 # editor and OS files
 .DS_Store
 *.swp
-
