@@ -280,6 +280,7 @@ export type Database = {
       };
       is_active_editor: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_valid_rich_content: { Args: { value: Json }; Returns: boolean };
       publish_page: { Args: { page_id: string }; Returns: undefined };
       restore_page_revision: { Args: { revision_id: string }; Returns: undefined };
     };

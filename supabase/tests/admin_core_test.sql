@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(47);
+select plan(75);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -109,6 +109,30 @@ select ok(
 select ok(
   to_regprocedure('public.restore_page_revision(uuid)') is not null,
   'restore_page_revision(uuid) exists'
+);
+select ok(
+  public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Titre","marks":[{"type":"bold"},{"type":"textStyle","attrs":{"color":"#185c4c"}}]}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"Element","marks":[{"type":"link","attrs":{"href":"/ressources","target":null,"rel":null,"class":null}}]}]}]}]}]}'::jsonb
+  ),
+  'the database accepts the supported rich-content vocabulary'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"heading","attrs":{"level":1}}]}'::jsonb
+  ),
+  'the database rejects heading level one'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lien","marks":[{"type":"link","attrs":{"href":"javascript:alert(1)"}}]}]}]}'::jsonb
+  ),
+  'the database rejects javascript links'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Couleur","marks":[{"type":"textStyle","attrs":{"color":"#ffffff"}}]}]}]}'::jsonb
+  ),
+  'the database rejects colors outside the editor palette'
 );
 
 select (
@@ -295,6 +319,16 @@ select throws_like(
   '%row-level security%',
   'anonymous users cannot create pages'
 );
+select throws_like(
+  $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
+  '%permission denied%',
+  'anonymous users cannot publish pages'
+);
+select throws_like(
+  $$select public.restore_page_revision('30000000-0000-0000-0000-000000000001')$$,
+  '%permission denied%',
+  'anonymous users cannot restore page revisions'
+);
 reset role;
 
 select set_config(
@@ -329,6 +363,83 @@ select lives_ok(
   $$,
   'active editors can create pages'
 );
+select lives_ok(
+  $$
+    update public.pages
+    set
+      title = 'Draft page edited',
+      summary = 'Editorial changes are allowed',
+      content = '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Edited"}]}]}'
+    where id = '20000000-0000-0000-0000-000000000002'
+  $$,
+  'active editors can update editorial page fields'
+);
+select throws_like(
+  $$
+    update public.pages
+    set
+      title = 'Published page changed',
+      updated_by = '10000000-0000-0000-0000-000000000002'
+    where id = '20000000-0000-0000-0000-000000000001'
+  $$,
+  '%administrator%',
+  'editors cannot change a page that is already published'
+);
+select throws_like(
+  $$update public.pages set id = '20000000-0000-0000-0000-000000000099' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%id cannot be changed%',
+  'page identifiers are immutable'
+);
+select throws_like(
+  $$update public.pages set slug = 'editor-renamed-page' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%administrator%',
+  'editors cannot change page slugs'
+);
+select throws_like(
+  $$update public.pages set navigation_position = 3 where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%administrator%',
+  'editors cannot change navigation position'
+);
+select throws_like(
+  $$update public.pages set parent_id = '20000000-0000-0000-0000-000000000001' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%administrator%',
+  'editors cannot change page hierarchy'
+);
+select throws_like(
+  $$update public.pages set status = 'published' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%publication RPC%',
+  'editors cannot publish pages directly'
+);
+select throws_like(
+  $$update public.pages set created_by = '10000000-0000-0000-0000-000000000001' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%created_by%',
+  'editors cannot spoof page creators'
+);
+select throws_like(
+  $$update public.pages set updated_by = '10000000-0000-0000-0000-000000000001' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%updated_by%',
+  'editors cannot spoof page updaters'
+);
+select throws_like(
+  $$update public.pages set content = '{"type":"script"}' where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%valid Tiptap%',
+  'editors cannot store unsupported page content'
+);
+select throws_like(
+  $$update public.news set content = '{"type":"script"}' where id = '40000000-0000-0000-0000-000000000002'$$,
+  '%valid Tiptap%',
+  'editors cannot store unsupported news content'
+);
+select throws_like(
+  $$delete from public.pages where slug = 'editor-page'$$,
+  '%permission denied%',
+  'editors cannot delete pages'
+);
+select throws_like(
+  $$delete from public.news where id = '40000000-0000-0000-0000-000000000002'$$,
+  '%permission denied%',
+  'editors cannot delete news'
+);
 update public.profiles
 set display_name = 'Changed by editor'
 where id = '10000000-0000-0000-0000-000000000001';
@@ -358,29 +469,26 @@ select throws_like(
   '%administrator%',
   'editors cannot restore revisions'
 );
-select lives_ok(
+select throws_like(
   $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
-  'active editors can publish pages'
+  '%administrator%',
+  'editors cannot publish pages through the RPC'
 );
 reset role;
 
 select is(
   (select status from public.pages where id = '20000000-0000-0000-0000-000000000002'),
-  'published'::public.content_status,
-  'publishing changes page status'
+  'draft'::public.content_status,
+  'rejected editor publication leaves page status unchanged'
 );
-select ok(
-  exists (
-    select 1
+select is(
+  (
+    select count(*)
     from public.page_revisions
     where page_id = '20000000-0000-0000-0000-000000000002'
-      and title = 'Draft page'
-      and summary = 'Visible to editors'
-      and content = '{"type":"doc","content":[]}'::jsonb
-      and status = 'published'
-      and created_by = '10000000-0000-0000-0000-000000000002'
   ),
-  'publishing records the complete published revision'
+  0::bigint,
+  'rejected editor publication creates no revision'
 );
 select is(
   (
@@ -391,8 +499,8 @@ select is(
       and entity_id = '20000000-0000-0000-0000-000000000002'
       and actor_id = '10000000-0000-0000-0000-000000000002'
   ),
-  1::bigint,
-  'publishing records an audit event'
+  0::bigint,
+  'rejected editor publication creates no audit event'
 );
 
 select set_config(
@@ -422,6 +530,11 @@ select throws_like(
   '%row-level security%',
   'inactive editors cannot create news'
 );
+select throws_like(
+  $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
+  '%administrator%',
+  'inactive editors cannot publish pages'
+);
 reset role;
 
 select set_config(
@@ -449,10 +562,76 @@ select is(
   'admins can manage profiles'
 );
 select lives_ok(
+  $$
+    update public.pages
+    set
+      navigation_position = 2,
+      updated_by = '10000000-0000-0000-0000-000000000001'
+    where id = '20000000-0000-0000-0000-000000000002'
+  $$,
+  'admins can manage page navigation'
+);
+select throws_like(
+  $$
+    update public.pages
+    set
+      status = 'published',
+      updated_by = '10000000-0000-0000-0000-000000000001'
+    where id = '20000000-0000-0000-0000-000000000002'
+  $$,
+  '%publication RPC%',
+  'admins cannot bypass the publication workflow'
+);
+select lives_ok(
+  $$select public.publish_page('20000000-0000-0000-0000-000000000002')$$,
+  'admins can publish pages through the RPC'
+);
+select throws_like(
+  $$delete from public.pages where id = '20000000-0000-0000-0000-000000000002'$$,
+  '%permission denied%',
+  'admins archive rather than delete pages'
+);
+select throws_like(
+  $$delete from public.news where id = '40000000-0000-0000-0000-000000000001'$$,
+  '%permission denied%',
+  'admins archive rather than delete news'
+);
+select lives_ok(
   $$select public.restore_page_revision('30000000-0000-0000-0000-000000000001')$$,
   'admins can restore page revisions'
 );
 reset role;
+
+select is(
+  (select status from public.pages where id = '20000000-0000-0000-0000-000000000002'),
+  'published'::public.content_status,
+  'administrator publication changes page status'
+);
+select ok(
+  exists (
+    select 1
+    from public.page_revisions
+    where page_id = '20000000-0000-0000-0000-000000000002'
+      and title = 'Draft page edited'
+      and summary = 'Editorial changes are allowed'
+      and content = '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Edited"}]}]}'::jsonb
+      and status = 'published'
+      and created_by = '10000000-0000-0000-0000-000000000001'
+  ),
+  'administrator publication records the complete published revision'
+);
+select is(
+  (
+    select count(*)
+    from public.audit_log
+    where action = 'page.publish'
+      and entity_type = 'page'
+      and entity_id = '20000000-0000-0000-0000-000000000002'
+      and actor_id = '10000000-0000-0000-0000-000000000001'
+  ),
+  1::bigint,
+  'administrator publication records an audit event'
+);
 
 select results_eq(
   $$

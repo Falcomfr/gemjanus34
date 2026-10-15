@@ -1,7 +1,204 @@
 create extension if not exists pgcrypto;
+create extension if not exists pg_jsonschema with schema extensions;
 
 create type public.app_role as enum ('admin', 'editor');
 create type public.content_status as enum ('draft', 'published', 'archived');
+
+create function public.is_valid_rich_content(value jsonb)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select extensions.jsonb_matches_schema(
+    $schema$
+      {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$ref": "#/definitions/doc",
+        "definitions": {
+          "doc": {
+            "type": "object",
+            "required": ["type", "content"],
+            "properties": {
+              "type": { "const": "doc" },
+              "content": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/block" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "block": {
+            "oneOf": [
+              { "$ref": "#/definitions/paragraph" },
+              { "$ref": "#/definitions/heading" },
+              { "$ref": "#/definitions/bulletList" },
+              { "$ref": "#/definitions/orderedList" }
+            ]
+          },
+          "paragraph": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "const": "paragraph" },
+              "content": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/inline" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "heading": {
+            "type": "object",
+            "required": ["type", "attrs"],
+            "properties": {
+              "type": { "const": "heading" },
+              "attrs": {
+                "type": "object",
+                "required": ["level"],
+                "properties": { "level": { "enum": [2, 3] } },
+                "additionalProperties": false
+              },
+              "content": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/inline" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletList": {
+            "type": "object",
+            "required": ["type", "content"],
+            "properties": {
+              "type": { "const": "bulletList" },
+              "content": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/definitions/listItem" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "orderedList": {
+            "type": "object",
+            "required": ["type", "content"],
+            "properties": {
+              "type": { "const": "orderedList" },
+              "attrs": {
+                "type": "object",
+                "properties": { "start": { "type": "integer", "minimum": 1 } },
+                "additionalProperties": false
+              },
+              "content": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/definitions/listItem" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "listItem": {
+            "type": "object",
+            "required": ["type", "content"],
+            "properties": {
+              "type": { "const": "listItem" },
+              "content": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/paragraph" },
+                    { "$ref": "#/definitions/heading" },
+                    { "$ref": "#/definitions/bulletList" },
+                    { "$ref": "#/definitions/orderedList" }
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "inline": {
+            "oneOf": [
+              { "$ref": "#/definitions/text" },
+              { "$ref": "#/definitions/hardBreak" }
+            ]
+          },
+          "text": {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": {
+              "type": { "const": "text" },
+              "text": { "type": "string" },
+              "marks": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/mark" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "hardBreak": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "const": "hardBreak" } },
+            "additionalProperties": false
+          },
+          "mark": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": { "type": { "enum": ["bold", "italic", "underline"] } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["type", "attrs"],
+                "properties": {
+                  "type": { "const": "link" },
+                  "attrs": {
+                    "type": "object",
+                    "required": ["href"],
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^(?![[:space:]]*javascript:)"
+                      },
+                      "target": { "type": ["string", "null"] },
+                      "rel": { "type": ["string", "null"] },
+                      "class": { "type": ["string", "null"] }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["type", "attrs"],
+                "properties": {
+                  "type": { "const": "textStyle" },
+                  "attrs": {
+                    "type": "object",
+                    "required": ["color"],
+                    "properties": {
+                      "color": {
+                        "enum": ["#202521", "#185c4c", "#c84f3b", "#5b655f"]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    $schema$::json,
+    value
+  )
+$$;
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -18,7 +215,8 @@ create table public.pages (
   slug text not null unique check (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
   title text not null check (char_length(title) between 1 and 160),
   summary text not null default '',
-  content jsonb not null default '{"type":"doc","content":[]}'::jsonb,
+  content jsonb not null default '{"type":"doc","content":[]}'::jsonb
+    check (public.is_valid_rich_content(content)),
   status public.content_status not null default 'draft',
   navigation_position integer,
   parent_id uuid references public.pages(id) on delete set null,
@@ -34,7 +232,7 @@ create table public.page_revisions (
   page_id uuid not null references public.pages(id) on delete cascade,
   title text not null,
   summary text not null,
-  content jsonb not null,
+  content jsonb not null check (public.is_valid_rich_content(content)),
   status public.content_status not null,
   created_by uuid not null references public.profiles(id),
   created_at timestamptz not null default now()
@@ -44,7 +242,8 @@ create table public.news (
   id uuid primary key default gen_random_uuid(),
   title text not null check (char_length(title) between 1 and 160),
   excerpt text not null check (char_length(excerpt) between 1 and 500),
-  content jsonb not null default '{"type":"doc","content":[]}'::jsonb,
+  content jsonb not null default '{"type":"doc","content":[]}'::jsonb
+    check (public.is_valid_rich_content(content)),
   starts_at timestamptz not null,
   ends_at timestamptz,
   featured boolean not null default false,
@@ -102,6 +301,176 @@ as $$
   select coalesce(public.current_app_role() = 'admin'::public.app_role, false)
 $$;
 
+create function public.enforce_page_write_boundaries()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor_id uuid := auth.uid();
+  actor_is_admin boolean;
+  publication_allowed boolean := coalesce(
+    current_setting('app.page_publication', true) = 'on',
+    false
+  );
+begin
+  if not public.is_valid_rich_content(new.content) then
+    raise exception 'content must be valid Tiptap JSON'
+      using errcode = '23514';
+  end if;
+
+  if actor_id is null then
+    return new;
+  end if;
+
+  actor_is_admin := public.is_admin();
+
+  if tg_op = 'INSERT' then
+    if new.created_by <> actor_id then
+      raise exception 'created_by must match the authenticated user'
+        using errcode = '42501';
+    end if;
+
+    if new.updated_by <> actor_id then
+      raise exception 'updated_by must match the authenticated user'
+        using errcode = '42501';
+    end if;
+
+    if new.status <> 'draft' or new.published_at is not null then
+      raise exception 'Pages must be published through the publication RPC'
+        using errcode = '42501';
+    end if;
+
+    if not actor_is_admin
+      and (new.navigation_position is not null or new.parent_id is not null)
+    then
+      raise exception 'An administrator is required to manage page structure'
+        using errcode = '42501';
+    end if;
+
+    return new;
+  end if;
+
+  if new.id is distinct from old.id then
+    raise exception 'id cannot be changed'
+      using errcode = '42501';
+  end if;
+
+  if not actor_is_admin and old.status <> 'draft' then
+    raise exception 'An administrator is required to change a non-draft page'
+      using errcode = '42501';
+  end if;
+
+  if new.created_by is distinct from old.created_by then
+    raise exception 'created_by cannot be changed'
+      using errcode = '42501';
+  end if;
+
+  if new.updated_by <> actor_id then
+    raise exception 'updated_by must match the authenticated user'
+      using errcode = '42501';
+  end if;
+
+  if not actor_is_admin and (
+    new.slug is distinct from old.slug
+    or new.navigation_position is distinct from old.navigation_position
+    or new.parent_id is distinct from old.parent_id
+  ) then
+    raise exception 'An administrator is required to manage page structure'
+      using errcode = '42501';
+  end if;
+
+  if new.status is distinct from old.status then
+    if new.status = 'published' and not publication_allowed then
+      raise exception 'Pages must be published through the publication RPC'
+        using errcode = '42501';
+    end if;
+
+    if not actor_is_admin then
+      raise exception 'An administrator is required to change page status'
+        using errcode = '42501';
+    end if;
+  end if;
+
+  if new.published_at is distinct from old.published_at and not publication_allowed then
+    raise exception 'Pages must be published through the publication RPC'
+      using errcode = '42501';
+  end if;
+
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+create function public.enforce_news_write_boundaries()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor_id uuid := auth.uid();
+begin
+  if not public.is_valid_rich_content(new.content) then
+    raise exception 'content must be valid Tiptap JSON'
+      using errcode = '23514';
+  end if;
+
+  if actor_id is null then
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' then
+    if new.created_by <> actor_id then
+      raise exception 'created_by must match the authenticated user'
+        using errcode = '42501';
+    end if;
+
+    if new.updated_by <> actor_id then
+      raise exception 'updated_by must match the authenticated user'
+        using errcode = '42501';
+    end if;
+
+    if new.status = 'archived' and not public.is_admin() then
+      raise exception 'An administrator is required to archive news'
+        using errcode = '42501';
+    end if;
+
+    return new;
+  end if;
+
+  if new.created_by is distinct from old.created_by then
+    raise exception 'created_by cannot be changed'
+      using errcode = '42501';
+  end if;
+
+  if new.updated_by <> actor_id then
+    raise exception 'updated_by must match the authenticated user'
+      using errcode = '42501';
+  end if;
+
+  if new.status = 'archived'
+    and new.status is distinct from old.status
+    and not public.is_admin()
+  then
+    raise exception 'An administrator is required to archive news'
+      using errcode = '42501';
+  end if;
+
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+create trigger pages_enforce_write_boundaries
+before insert or update on public.pages
+for each row execute function public.enforce_page_write_boundaries();
+
+create trigger news_enforce_write_boundaries
+before insert or update on public.news
+for each row execute function public.enforce_news_write_boundaries();
+
 create function public.publish_page(page_id uuid)
 returns void
 language plpgsql
@@ -112,10 +481,12 @@ declare
   actor_id uuid := auth.uid();
   page_record public.pages%rowtype;
 begin
-  if not public.is_active_editor() then
-    raise exception 'An active editor is required to publish pages'
+  if not public.is_admin() then
+    raise exception 'An administrator is required to publish pages'
       using errcode = '42501';
   end if;
+
+  perform set_config('app.page_publication', 'on', true);
 
   select p.*
   into page_record
@@ -167,6 +538,8 @@ begin
     page_record.id,
     '{}'::jsonb
   );
+
+  perform set_config('app.page_publication', 'off', true);
 end;
 $$;
 
@@ -185,6 +558,8 @@ begin
     raise exception 'An administrator is required to restore page revisions'
       using errcode = '42501';
   end if;
+
+  perform set_config('app.page_publication', 'on', true);
 
   select r.*
   into revision_record
@@ -253,6 +628,8 @@ begin
     page_record.id,
     jsonb_build_object('revision_id', revision_record.id)
   );
+
+  perform set_config('app.page_publication', 'off', true);
 end;
 $$;
 
@@ -303,15 +680,20 @@ with check (public.is_active_editor());
 
 grant usage on type public.app_role, public.content_status to anon, authenticated, service_role;
 grant select on public.pages, public.news to anon;
-grant select, insert, update, delete on public.profiles, public.pages, public.news
-  to authenticated;
+grant select, insert, update, delete on public.profiles to authenticated;
+grant select, insert, update on public.pages, public.news to authenticated;
+revoke delete on public.pages, public.news from anon, authenticated;
 
-revoke all on function public.current_app_role() from public;
-revoke all on function public.is_active_editor() from public;
-revoke all on function public.is_admin() from public;
-revoke all on function public.publish_page(uuid) from public;
-revoke all on function public.restore_page_revision(uuid) from public;
+revoke all on function public.is_valid_rich_content(jsonb) from public, anon;
+revoke all on function public.current_app_role() from public, anon;
+revoke all on function public.is_active_editor() from public, anon;
+revoke all on function public.is_admin() from public, anon;
+revoke all on function public.enforce_page_write_boundaries() from public, anon;
+revoke all on function public.enforce_news_write_boundaries() from public, anon;
+revoke all on function public.publish_page(uuid) from public, anon;
+revoke all on function public.restore_page_revision(uuid) from public, anon;
 
+grant execute on function public.is_valid_rich_content(jsonb) to authenticated, service_role;
 grant execute on function public.current_app_role() to authenticated, service_role;
 grant execute on function public.is_active_editor() to authenticated, service_role;
 grant execute on function public.is_admin() to authenticated, service_role;
