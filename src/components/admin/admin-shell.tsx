@@ -21,10 +21,17 @@ const navigation = [
 
 type AdminShellProps = {
   children: ReactNode;
+  pathname: string;
   profile: Profile;
 };
 
-export function AdminShell({ children, profile }: AdminShellProps) {
+function isCurrentSection(pathname: string, href: string) {
+  return href === "/admin"
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function AdminShell({ children, pathname, profile }: AdminShellProps) {
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -37,7 +44,11 @@ export function AdminShell({ children, profile }: AdminShellProps) {
           <ul className="admin-navigation">
             {navigation.map(({ href, label, icon: Icon }) => (
               <li key={href}>
-                <Link href={href} aria-current={href === "/admin" ? "page" : undefined}>
+                <Link
+                  href={href}
+                  aria-current={isCurrentSection(pathname, href) ? "page" : undefined}
+                  title={label}
+                >
                   <Icon aria-hidden="true" size={20} />
                   <span>{label}</span>
                 </Link>

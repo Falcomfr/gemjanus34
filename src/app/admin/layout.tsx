@@ -27,7 +27,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="admin-area">
       <a className="skip-link" href="#admin-contenu">Aller au contenu d’administration</a>
-      <AdminShell profile={profile}>{children}</AdminShell>
+      <AdminShell pathname={pathname ?? "/admin"} profile={profile}>
+        {children}
+      </AdminShell>
     </div>
   );
 }

@@ -1,0 +1,51 @@
+import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { vi } from "vitest";
+import { AdminShell } from "../admin-shell";
+
+vi.mock("next/link", () => ({
+  default: ({ children, href, ...props }: { children: ReactNode; href: string }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}));
+
+vi.mock("@/app/admin/connexion/actions", () => ({
+  logout: vi.fn(),
+}));
+
+const profile = {
+  id: "00000000-0000-0000-0000-000000000001",
+  displayName: "Camille",
+  role: "editor" as const,
+  active: true,
+  notifyOnPublish: true,
+};
+
+test("marks only the current administration section", () => {
+  render(
+    <AdminShell pathname="/admin/pages/une-page" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+
+  expect(screen.getByRole("link", { name: "Pages" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute(
+    "aria-current",
+  );
+});
+
+test("exposes navigation labels as icon tooltips", () => {
+  render(
+    <AdminShell pathname="/admin" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+
+  expect(screen.getByRole("link", { name: "Pages" })).toHaveAttribute(
+    "title",
+    "Pages",
+  );
+});
