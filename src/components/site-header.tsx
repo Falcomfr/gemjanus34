@@ -1,7 +1,10 @@
-import { Menu } from "lucide-react";
+import { Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { JSX } from "react";
+import { contact } from "@/content/contact";
 import { publicNavigation } from "@/content/navigation";
+import { MobileNavigation } from "./mobile-navigation";
 
 function NavigationLinks(): JSX.Element {
   return (
@@ -25,7 +28,7 @@ export function SiteHeader(): JSX.Element {
     <header className="site-header">
       <div className="site-header__inner">
         <Link className="wordmark" href="/" aria-label="Janus34, accueil">
-          <span aria-hidden="true" className="wordmark__mark">J34</span>
+          <Image src="/images/janus34-logo.png" alt="" width={44} height={44} />
           <span>Janus34</span>
         </Link>
 
@@ -33,15 +36,13 @@ export function SiteHeader(): JSX.Element {
           <NavigationLinks />
         </nav>
 
-        <details className="mobile-navigation">
-          <summary aria-label="Menu">
-            <Menu aria-hidden="true" size={24} strokeWidth={2} />
-            <span>Menu</span>
-          </summary>
-          <nav aria-label="Navigation mobile">
-            <NavigationLinks />
-          </nav>
-        </details>
+        <MobileNavigation>
+          <NavigationLinks />
+          <a className="mobile-navigation__phone" href={contact.phoneHref}>
+            <Phone aria-hidden="true" size={20} />
+            Appeler le {contact.phone}
+          </a>
+        </MobileNavigation>
       </div>
     </header>
   );
