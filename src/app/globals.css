@@ -2834,6 +2834,7 @@ body:has(.admin-area) > .skip-link {
 
 .slot-dialog {
   width: min(100% - 2rem, 32rem);
+  margin: auto;
   padding: 0;
   border: 0;
   border-top: 0.4rem solid var(--tone);

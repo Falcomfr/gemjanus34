@@ -161,6 +161,10 @@ test("an activity of the planning opens a window with its details", async ({ pag
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("Jeudi, 15 h – 16 h 30");
   await expect(dialog).toContainText("avec Sévérine");
+  const box = (await dialog.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(2);
+  expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
 });
