@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
+import { parisWeekday } from "@/components/planning/planning-format";
+import { WeekPlanning } from "@/components/planning/week-planning";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
 
@@ -13,10 +15,12 @@ export const revalidate = 3600;
 
 export default async function NewsPage() {
   const publicContentRepository = getPublicContentRepository();
-  const [items, planningDocuments] = await Promise.all([
+  const [items, planningDocuments, planning] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),
+    publicContentRepository.getPlanning(),
   ]);
+  const now = new Date().toISOString();
 
   return (
     <>
@@ -30,8 +34,12 @@ export default async function NewsPage() {
           </p>
         </div>
       </header>
-      <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
-      <NewsList items={items} now={new Date().toISOString()} />
+      {planning?.slots.length ? (
+        <WeekPlanning planning={planning} today={parisWeekday(now)} />
+      ) : (
+        <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
+      )}
+      <NewsList items={items} now={now} />
     </>
   );
 }

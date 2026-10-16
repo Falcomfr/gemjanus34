@@ -1,4 +1,5 @@
 import { CurrentPlanning } from "@/components/home/current-planning";
+import { TodayAtGem } from "@/components/planning/today-at-gem";
 import { Hero } from "@/components/home/hero";
 import { KeyFigures } from "@/components/home/key-figures";
 import { Mission } from "@/components/home/mission";
@@ -13,10 +14,12 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   const publicContentRepository = getPublicContentRepository();
-  const [news, planningDocuments] = await Promise.all([
+  const [news, planningDocuments, planning] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),
+    publicContentRepository.getPlanning(),
   ]);
+  const now = new Date().toISOString();
 
   return (
     <>
@@ -25,8 +28,12 @@ export default async function HomePage() {
       <KeyFigures />
       <Mission />
       <Quote />
-      <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
-      <UpcomingNews items={news} now={new Date().toISOString()} />
+      {planning?.slots.length ? (
+        <TodayAtGem planning={planning} now={now} />
+      ) : (
+        <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
+      )}
+      <UpcomingNews items={news} now={now} />
       <VisitPanel />
     </>
   );

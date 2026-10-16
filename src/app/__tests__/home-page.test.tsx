@@ -55,7 +55,15 @@ test("explains the collective project and the three activity families", async ()
   }
 });
 
-test("uses the most recently updated planning regardless of repository order", async () => {
+test("shows what happens at the GEM today from the planning", async () => {
+  render(await HomePage());
+
+  expect(screen.getByRole("region", { name: /au GEM$/ })).toHaveTextContent("13 h – 18 h");
+  expect(screen.getByRole("link", { name: /tout le planning de la semaine/i })).toHaveAttribute("href", "/actualites#planning");
+});
+
+test("falls back to the most recent planning PDF when no planning is stored", async () => {
+  vi.spyOn(publicContentRepository, "getPlanning").mockResolvedValue(null);
   vi.spyOn(publicContentRepository, "getDocuments").mockResolvedValueOnce([
     planningDocument("planning-precedent", "2026-09-15"),
     planningDocument("dernier-planning", "2026-10-10"),
@@ -71,6 +79,7 @@ test("uses the most recently updated planning regardless of repository order", a
 });
 
 test("keeps the planning access useful when no planning is available", async () => {
+  vi.spyOn(publicContentRepository, "getPlanning").mockResolvedValue(null);
   vi.spyOn(publicContentRepository, "getDocuments").mockResolvedValueOnce([]);
 
   render(await HomePage());

@@ -2459,6 +2459,323 @@ body:has(.admin-area) > .skip-link {
   }
 }
 
+
+/* Planning */
+
+.week-planning {
+  padding: 3rem 0;
+  background: var(--sun-soft);
+}
+
+.week-planning__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
+.week-planning__header h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.week-planning__header p:last-child {
+  max-width: 42rem;
+  margin: 0.6rem 0 0;
+}
+
+.planning-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.planning-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.planning-legend__item::before {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--tone);
+  content: "";
+}
+
+.planning-legend__item--creer,
+.planning-slot--creer {
+  --tone: var(--sun);
+  --tone-soft: #fff6dd;
+}
+
+.planning-legend__item--bouger,
+.planning-slot--bouger {
+  --tone: var(--coral);
+  --tone-soft: var(--coral-soft);
+}
+
+.planning-legend__item--echanger,
+.planning-slot--echanger {
+  --tone: var(--logo-blue);
+  --tone-soft: var(--blue-soft);
+}
+
+.planning-week {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planning-day {
+  height: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  box-shadow: 0 0.35rem 1rem rgb(31 41 36 / 8%);
+}
+
+.planning-day--today {
+  box-shadow: 0 0 0 3px var(--forest), 0 0.5rem 1.25rem rgb(31 41 36 / 14%);
+}
+
+.planning-day__header h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--forest);
+  font-size: 1.35rem;
+}
+
+.planning-day__today {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--forest);
+  color: white;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planning-day__header p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.planning-day__slots {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planning-slot {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 0.3rem solid var(--tone);
+  border-radius: 0.4rem;
+  background: var(--tone-soft);
+}
+
+.planning-slot__time {
+  color: var(--forest);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.planning-slot__title {
+  font-family: var(--font-display), serif;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.planning-slot__leader,
+.planning-slot__note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.planning-day__empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.today-at-gem {
+  padding: 3rem 0;
+  background: var(--sun-soft);
+}
+
+.today-at-gem__inner {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.today-at-gem h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.today-at-gem__heading > p:not(.eyebrow) {
+  margin: 0.5rem 0 1rem;
+  font-weight: 700;
+}
+
+.today-at-gem__slots {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  align-content: start;
+}
+
+.printable-planning__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding-block: 1.5rem;
+}
+
+.printable-planning__actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.printable-planning__brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(100% - 2rem, 76rem);
+  margin: 0 auto;
+  padding-top: 1rem;
+}
+
+.printable-planning__brand img {
+  width: 3rem;
+  height: 3rem;
+}
+
+.printable-planning__brand p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.week-planning--print {
+  padding-top: 1rem;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  html,
+  body {
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .printable-planning__actions {
+    display: none !important;
+  }
+
+  .printable-planning__sheet,
+  .week-planning--print {
+    padding: 0;
+    background: white;
+  }
+
+  .printable-planning__brand,
+  .week-planning--print .content-container {
+    width: 100%;
+  }
+
+  .week-planning--print .eyebrow {
+    display: none;
+  }
+
+  .week-planning--print h2 {
+    font-size: 16pt;
+  }
+
+  .week-planning--print .week-planning__header p:last-child,
+  .printable-planning__brand p,
+  .week-planning--print .planning-legend {
+    margin: 0.15rem 0;
+    font-size: 8.5pt;
+  }
+
+  .week-planning--print .planning-week {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 2mm;
+  }
+
+  .week-planning--print .planning-day {
+    padding: 2mm;
+    border: 1px solid #cfd6d1;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .week-planning--print .planning-day__header h3 {
+    font-size: 11pt;
+  }
+
+  .week-planning--print .planning-day__header p {
+    margin: 0.5mm 0 1.5mm;
+    font-size: 7.5pt;
+  }
+
+  .week-planning--print .planning-day__slots {
+    gap: 1.5mm;
+  }
+
+  .week-planning--print .planning-slot {
+    padding: 1.2mm 1.6mm;
+  }
+
+  .week-planning--print .planning-slot__title {
+    font-size: 9pt;
+  }
+
+  .week-planning--print .planning-slot__time,
+  .week-planning--print .planning-slot__leader,
+  .week-planning--print .planning-slot__note {
+    font-size: 7pt;
+  }
+
+  .week-planning--print .planning-day__today {
+    display: none;
+  }
+}
+
 /* Public site breakpoints (mobile first). Heading sizes are fixed per breakpoint. */
 
 @media (max-width: 67.99rem) {
@@ -2548,6 +2865,16 @@ body:has(.admin-area) > .skip-link {
 }
 
 @media (min-width: 48rem) {
+  .planning-week {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .today-at-gem__inner {
+    grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 3rem;
+  }
+
   .key-figures__list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -2712,6 +3039,10 @@ body:has(.admin-area) > .skip-link {
 }
 
 @media (min-width: 68rem) {
+  .planning-week {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .content-page__header:not(:has(.content-page__header-inner--visual))::before,
   .content-page__header:not(:has(.content-page__header-inner--visual))::after {
     display: block;
