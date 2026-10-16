@@ -12,7 +12,11 @@ import { publicDateTimestamp } from "@/lib/date/public-date";
 function clonePage(page: PublicPage): PublicPage {
   return {
     ...page,
-    sections: page.sections.map((section) => ({ ...section })),
+    sections: page.sections.map((section) => ({
+      ...section,
+      ...(section.items ? { items: [...section.items] } : {}),
+      ...(section.links ? { links: section.links.map((link) => ({ ...link })) } : {}),
+    })),
   };
 }
 

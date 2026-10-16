@@ -130,6 +130,47 @@ describe("Supabase public content mapping", () => {
     }));
   });
 
+  test("falls back to the bundled page when Supabase has no published row", async () => {
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getPublishedPages: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }));
+
+    const bundled = await localRepository.getPage("activites");
+    expect(bundled).not.toBeNull();
+    await expect(repository.getPage("activites")).resolves.toEqual(bundled);
+    await expect(repository.getPage("absente")).resolves.toBeNull();
+  });
+
+  test("maps bullet and ordered lists to section items", async () => {
+    const item = (text: string) => ({
+      type: "listItem",
+      content: [{ type: "paragraph", content: [{ type: "text", text }] }],
+    });
+    const listContent: Json = {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Ateliers" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Exemples." }] },
+        { type: "bulletList", content: [item("Écriture"), item("Qi Gong")] },
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Étapes" }] },
+        { type: "orderedList", attrs: { start: 1 }, content: [item("Appeler"), item("Venir")] },
+      ],
+    };
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getPublishedPages: vi.fn().mockResolvedValue({
+        data: [{ slug: "listes", title: "Listes", summary: "Résumé", content: listContent }],
+        error: null,
+      }),
+    }));
+
+    await expect(repository.getPage("listes")).resolves.toEqual(expect.objectContaining({
+      sections: [
+        { id: "ateliers", title: "Ateliers", body: "Exemples.", items: ["Écriture", "Qi Gong"] },
+        { id: "etapes", title: "Étapes", body: "", items: ["Appeler", "Venir"], ordered: true },
+      ],
+    }));
+  });
+
   test("propagates configured query failures instead of using local seed data", async () => {
     const repository = createSupabasePublicContentRepository(queryClient({
       getPublishedNews: vi.fn().mockResolvedValue({ data: null, error: new Error("database unavailable") }),

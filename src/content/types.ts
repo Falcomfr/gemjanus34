@@ -22,12 +22,23 @@ export type NewsItem = {
   status: ContentStatus;
 };
 
+export type PageLink = { label: string; href: string };
+
+export type PageSection = {
+  id: string;
+  title: string;
+  body: string;
+  items?: string[];
+  ordered?: boolean;
+  links?: PageLink[];
+};
+
 export type PublicPage = {
   slug: string;
   title: string;
   eyebrow?: string;
   introduction: string;
-  sections: Array<{ id: string; title: string; body: string }>;
+  sections: PageSection[];
 };
 
 export type PublicSiteData = {

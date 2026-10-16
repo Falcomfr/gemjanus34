@@ -39,6 +39,21 @@ function textContent(node: RichNode): string {
   }).join("");
 }
 
+function listItems(list: RichNode): string[] {
+  if (!Array.isArray(list.content) || list.content.length === 0) {
+    throw new Error("Unsupported public page content");
+  }
+  return list.content.map((item: RichNode) => {
+    if (item.type !== "listItem" || !Array.isArray(item.content)) {
+      throw new Error("Unsupported public page content");
+    }
+    return item.content.map((child: RichNode) => {
+      if (child.type !== "paragraph") throw new Error("Unsupported public page content");
+      return textContent(child);
+    }).join(" ");
+  });
+}
+
 function sectionId(title: string, index: number): string {
   const normalized = title
     .normalize("NFD")
@@ -85,13 +100,17 @@ function richContentToSections(content: Json): PublicPage["sections"] {
       continue;
     }
 
-    if (node.type === "paragraph") {
-      const body = textContent(node);
+    if (node.type === "paragraph" || node.type === "bulletList" || node.type === "orderedList") {
       if (!current) {
         current = { id: nextSectionId("Contenu"), title: "Contenu", body: "" };
         sections.push(current);
       }
-      current.body = [current.body, body].filter(Boolean).join("\n\n");
+      if (node.type === "paragraph") {
+        current.body = [current.body, textContent(node)].filter(Boolean).join("\n\n");
+      } else {
+        if (!current.items && node.type === "orderedList") current.ordered = true;
+        current.items = [...(current.items ?? []), ...listItems(node)];
+      }
       continue;
     }
 
@@ -151,7 +170,8 @@ export function createSupabasePublicContentRepository(
 
     async getPage(slug) {
       const rows = requireData(await client.getPublishedPages(slug));
-      return rows[0] ? mapPage(rows[0]) : null;
+      // Fixed public routes ship their own content; the database only overrides it.
+      return rows[0] ? mapPage(rows[0]) : localRepository.getPage(slug);
     },
 
     async getNews() {
