@@ -316,7 +316,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "formulaire",
         title: "Formulaire de contact",
-        body: "Le formulaire de contact n'est pas encore ouvert : aucune information saisie dans ses champs n'est envoyée ni enregistrée. Pour joindre l'équipe, utilisez le téléphone ou le courrier.\n\nLorsque l'envoi sera activé, cette page précisera les données transmises (nom, adresse e-mail, objet et message), leur usage, qui sera limité à la réponse à votre demande, et leur durée de conservation.",
+        body: "Lorsque vous écrivez à l'association depuis le formulaire, Janus34 enregistre votre nom, adresse e-mail, objet et message. Ces informations servent uniquement à répondre à votre demande. Seule l'équipe de Janus34 y a accès, depuis l'espace d'administration du site.\n\nLes messages sont supprimés une fois la demande traitée, et au plus tard au bout de 3 ans.",
       },
       {
         id: "navigation",
@@ -326,7 +326,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "administration",
         title: "Espace d'administration",
-        body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe et les contenus publiés sont hébergés par le service Supabase.",
+        body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe, les contenus publiés et les messages reçus sont hébergés par le service Supabase.",
       },
       {
         id: "droits",

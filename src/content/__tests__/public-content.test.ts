@@ -88,7 +88,11 @@ describe("public content contracts", () => {
   test("describes what the contact form really does with data", () => {
     const copy = getPageCopy("confidentialite");
 
-    expect(copy).toMatch(/aucune information saisie[^.]*n'est envoyée ni enregistrée/i);
+    expect(copy).toMatch(/nom, adresse e-mail, objet et message/);
+    expect(copy).toMatch(/répondre à votre demande/);
+    expect(copy).toMatch(/seule l'équipe de Janus34/i);
+    expect(copy).toMatch(/au plus tard au bout de 3 ans/);
+    expect(copy).not.toMatch(/pas encore ouvert/);
     expect(copy).toMatch(/CNIL/);
   });
 

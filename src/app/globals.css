@@ -1188,11 +1188,9 @@ h3 {
   accent-color: var(--forest);
 }
 
-.contact-form__notice {
+.field__error {
   margin: 0;
-  padding: 1rem;
-  border-left: 0.35rem solid var(--sun);
-  background: var(--sun-soft);
+  color: #76291f;
   font-weight: 700;
 }
 
@@ -1480,6 +1478,60 @@ body:has(.admin-area) > .skip-link {
 .admin-documents__list span {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.admin-message {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem 0 1.25rem 1rem;
+  border-left: 0.3rem solid transparent;
+}
+
+.admin-message--new {
+  border-left-color: var(--sun);
+  background: #fffaf0;
+}
+
+.admin-message header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-message h2 {
+  margin: 0;
+}
+
+.admin-message header p,
+.admin-message__body {
+  margin: 0;
+}
+
+.admin-message header p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.admin-message__body {
+  max-width: 48rem;
+  white-space: pre-line;
+}
+
+.admin-message__footer,
+.admin-messages__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-button--outlined,
+.admin-button--quiet {
+  border-color: var(--line);
+}
+
+.admin-button--quiet {
+  background: transparent;
+  color: var(--coral-dark);
 }
 
 .sr-only {
