@@ -34,6 +34,17 @@ function queryClient(overrides: Partial<PublicContentQueryClient> = {}): PublicC
       }],
       error: null,
     }),
+    getDocuments: vi.fn().mockResolvedValue({
+      data: [{
+        id: "doc-1",
+        title: "Planning d'automne",
+        description: "Le planning de la rentrée.",
+        category: "planning",
+        document_date: "2026-10-20",
+        url: "https://example.supabase.co/storage/v1/object/public/documents/planning/automne.pdf",
+      }],
+      error: null,
+    }),
     ...overrides,
   };
 }
@@ -205,6 +216,39 @@ describe("Supabase public content mapping", () => {
     await expect(repository.getPage("editeur")).resolves.toEqual(expect.objectContaining({
       sections: [{ id: "horaires", title: "Horaires", body: "Lundi Mardi", items: ["Ateliers", "Collage"] }],
     }));
+  });
+
+  test("reads documents from Supabase as public documents", async () => {
+    const client = queryClient();
+    const repository = createSupabasePublicContentRepository(client);
+
+    await expect(repository.getDocuments("planning")).resolves.toEqual([{
+      id: "doc-1",
+      title: "Planning d'automne",
+      slug: "doc-1",
+      description: "Le planning de la rentrée.",
+      category: "planning",
+      mimeType: "application/pdf",
+      updatedAt: "2026-10-20",
+      downloadUrl: "https://example.supabase.co/storage/v1/object/public/documents/planning/automne.pdf",
+    }]);
+    expect(client.getDocuments).toHaveBeenCalledWith("planning");
+  });
+
+  test("shows no planning rather than failing when none is stored", async () => {
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getDocuments: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }));
+
+    await expect(repository.getDocuments("planning")).resolves.toEqual([]);
+  });
+
+  test("propagates document query failures", async () => {
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getDocuments: vi.fn().mockResolvedValue({ data: null, error: new Error("storage down") }),
+    }));
+
+    await expect(repository.getDocuments()).rejects.toThrow("storage down");
   });
 
   test("propagates configured query failures instead of using local seed data", async () => {

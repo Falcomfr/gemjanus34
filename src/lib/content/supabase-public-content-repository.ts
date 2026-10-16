@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { NewsItem, PublicPage } from "@/content/types";
+import type { DocumentCategory, NewsItem, PublicDocument, PublicPage } from "@/content/types";
 import type { Database, Json } from "@/lib/database.types";
 import type { SupabaseConfig } from "@/lib/supabase/config";
 import { publicContentRepository as localRepository } from "./local-public-content-repository";
@@ -15,11 +15,17 @@ type PublicNewsRow = Pick<
   "id" | "title" | "excerpt" | "starts_at" | "ends_at" | "featured" | "status"
 >;
 
+type PublicDocumentRow = Pick<
+  Database["public"]["Tables"]["documents"]["Row"],
+  "id" | "title" | "description" | "category" | "document_date" | "url"
+>;
+
 type QueryResult<T> = Promise<{ data: T[] | null; error: Error | null }>;
 
 export interface PublicContentQueryClient {
   getPublishedPages(slug?: string): QueryResult<PublicPageRow>;
   getPublishedNews(): QueryResult<PublicNewsRow>;
+  getDocuments(category?: DocumentCategory): QueryResult<PublicDocumentRow>;
 }
 
 type RichNode = {
@@ -152,6 +158,20 @@ function mapNews(row: PublicNewsRow): NewsItem {
   };
 }
 
+function mapDocument(row: PublicDocumentRow): PublicDocument {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.id,
+    description: row.description,
+    // The database check constraint restricts category to DocumentCategory values.
+    category: row.category as DocumentCategory,
+    mimeType: "application/pdf",
+    updatedAt: row.document_date,
+    downloadUrl: row.url,
+  };
+}
+
 function requireData<T>(result: { data: T[] | null; error: Error | null }): T[] {
   if (result.error) throw result.error;
   return result.data ?? [];
@@ -162,15 +182,15 @@ export function createSupabasePublicContentRepository(
 ): PublicContentRepository {
   return {
     async getSiteData() {
-      const [pagesResult, newsResult, documents] = await Promise.all([
+      const [pagesResult, newsResult, documentsResult] = await Promise.all([
         client.getPublishedPages(),
         client.getPublishedNews(),
-        localRepository.getDocuments(),
+        client.getDocuments(),
       ]);
       return {
         pages: requireData(pagesResult).map(mapPage),
         news: requireData(newsResult).map(mapNews),
-        documents,
+        documents: requireData(documentsResult).map(mapDocument),
       };
     },
 
@@ -184,8 +204,8 @@ export function createSupabasePublicContentRepository(
       return requireData(await client.getPublishedNews()).map(mapNews);
     },
 
-    getDocuments(category) {
-      return localRepository.getDocuments(category);
+    async getDocuments(category) {
+      return requireData(await client.getDocuments(category)).map(mapDocument);
     },
   };
 }
@@ -205,6 +225,16 @@ export function createSupabasePublicQueryClient(
         .eq("status", "published")
         .order("navigation_position", { ascending: true, nullsFirst: false });
       if (slug) query = query.eq("slug", slug);
+      const result = await query;
+      return { data: result.data, error: result.error };
+    },
+
+    async getDocuments(category) {
+      let query = client
+        .from("documents")
+        .select("id, title, description, category, document_date, url")
+        .order("document_date", { ascending: false });
+      if (category) query = query.eq("category", category);
       const result = await query;
       return { data: result.data, error: result.error };
     },
