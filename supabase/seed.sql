@@ -101,42 +101,23 @@ values (
   now()
 );
 
--- Announcements taken from the "Quoi de neuf" page of the original site (October 2026).
+-- Agenda taken from the "Quoi de neuf" and "Les samedis" pages of the original site.
 insert into public.news (id, title, excerpt, starts_at, ends_at, featured, status, created_by, updated_by)
 values
-  (
-    '00000000-0000-4000-8000-000000000201',
-    'GEM Hors les murs au musée Fabre',
-    'Après le temps d''accueil au café The Little Italy Shop (4 bis cours Gambetta, près de l''arrêt Saint-Denis du tram 3), visite de l''exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d''entrée ; pensez à vos justificatifs pour les réductions.',
-    '2026-10-08T10:00:00+02:00',
-    '2026-10-08T13:00:00+02:00',
-    true,
-    'published',
-    '00000000-0000-4000-8000-000000000001',
-    '00000000-0000-4000-8000-000000000001'
-  ),
-  (
-    '00000000-0000-4000-8000-000000000202',
-    'Groupe de parole annulé le 6 octobre',
-    'Le groupe de parole du mardi 6 octobre est exceptionnellement annulé. L''atelier Qi Gong a lieu comme prévu à 14 h 30.',
-    '2026-10-06T16:00:00+02:00',
-    null,
-    false,
-    'published',
-    '00000000-0000-4000-8000-000000000001',
-    '00000000-0000-4000-8000-000000000001'
-  ),
-  (
-    '00000000-0000-4000-8000-000000000203',
-    'Atelier collage du samedi 3 octobre',
-    'L''atelier collage a lieu à 14 h. Ce samedi, le GEM est ouvert par une animatrice.',
-    '2026-10-03T14:00:00+02:00',
-    '2026-10-03T15:00:00+02:00',
-    false,
-    'published',
-    '00000000-0000-4000-8000-000000000001',
-    '00000000-0000-4000-8000-000000000001'
-  );
+  ('00000000-0000-4000-8000-000000000201', 'Jeudi 8 octobre : GEM Hors les murs au musée Fabre', 'Après le temps d''accueil habituel de 10 h à 10 h 45 au café « The Little Italy Shop », 4 bis cours Gambetta (à côté de l''arrêt Saint-Denis du tram 3), visite de l''exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d''entrée ; pensez à vos justificatifs pour bénéficier des réductions.', '2026-10-08T10:00:00+02:00', '2026-10-08T13:00:00+02:00', true, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000208', 'Jeudi 8 octobre : yoga en douceur et écriture poétique', 'L''atelier « yoga en douceur » a lieu à 15 h, puis l''atelier « écriture poétique » avec Mona à 16 h 45.', '2026-10-08T15:00:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000207', 'Mercredi 7 octobre : « Les mots qui volent »', 'L''atelier « Les mots qui volent » a lieu à 15 h.', '2026-10-07T15:00:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000202', 'Mardi 6 octobre : Qi Gong, groupe de parole annulé', 'L''atelier « Qi Gong » a lieu à 14 h 30. Le groupe de parole est exceptionnellement annulé en raison de la séance mensuelle d''analyse de pratique des animatrices, de 15 h à 16 h 45.', '2026-10-06T14:30:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000206', 'Lundi 5 octobre : expression créatrice', 'Le GEM est ouvert par Mona. L''atelier « Expression créatrice » a lieu à 14 h.', '2026-10-05T14:00:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000203', 'Samedi 3 octobre : atelier collage', 'Le GEM est ouvert par Mona. L''atelier collage a lieu à 14 h.', '2026-10-03T14:00:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000205', 'Vendredi 2 octobre : linogravure', 'L''atelier « linogravure » a lieu à 14 h.', '2026-10-02T14:00:00+02:00', null, false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-000000000204', 'Les samedis d''août', 'Les samedis, le GEM est ouvert par un adhérent porteur de clés ; une animatrice est présente un samedi par mois. En août : ouverture par un adhérent les 1er, 15, 22 et 29 août, et par Mona le 8 août.', '2026-08-01T12:00:00+02:00', '2026-08-29T12:00:00+02:00', false, 'published', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001')
+on conflict (id) do update set
+  title = excluded.title,
+  excerpt = excluded.excerpt,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  featured = excluded.featured;
 
 -- The six fixed site pages, editable in the admin (same content as migration 20261016170000).
 insert into public.pages (slug, title, summary, content, status, published_at, created_by, updated_by)

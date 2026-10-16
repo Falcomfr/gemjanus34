@@ -41,9 +41,14 @@ test("returns only news records with verified public dates", async () => {
   const news = await publicContentRepository.getNews();
 
   expect(news.map(({ title, startsAt }) => ({ title, startsAt }))).toEqual([
-    { title: "GEM Hors les murs au musée Fabre", startsAt: "2026-10-08T10:00:00+02:00" },
-    { title: "Groupe de parole annulé le 6 octobre", startsAt: "2026-10-06T16:00:00+02:00" },
-    { title: "Atelier collage du samedi 3 octobre", startsAt: "2026-10-03T14:00:00+02:00" },
+    { title: "Jeudi 8 octobre : yoga en douceur et écriture poétique", startsAt: "2026-10-08T15:00:00+02:00" },
+    { title: "Jeudi 8 octobre : GEM Hors les murs au musée Fabre", startsAt: "2026-10-08T10:00:00+02:00" },
+    { title: "Mercredi 7 octobre : « Les mots qui volent »", startsAt: "2026-10-07T15:00:00+02:00" },
+    { title: "Mardi 6 octobre : Qi Gong, groupe de parole annulé", startsAt: "2026-10-06T14:30:00+02:00" },
+    { title: "Lundi 5 octobre : expression créatrice", startsAt: "2026-10-05T14:00:00+02:00" },
+    { title: "Samedi 3 octobre : atelier collage", startsAt: "2026-10-03T14:00:00+02:00" },
+    { title: "Vendredi 2 octobre : linogravure", startsAt: "2026-10-02T14:00:00+02:00" },
+    { title: "Les samedis d'août", startsAt: "2026-08-01" },
     { title: "Assemblée générale 2025", startsAt: "2025-05-10" },
   ]);
 });

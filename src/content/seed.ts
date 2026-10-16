@@ -327,30 +327,81 @@ export const publicPages: ReadonlyArray<PublicPage> = [
 export const newsItems: ReadonlyArray<NewsItem> = [
   {
     id: "hors-les-murs-musee-fabre",
-    title: "GEM Hors les murs au musée Fabre",
+    title: "Jeudi 8 octobre : GEM Hors les murs au musée Fabre",
     excerpt:
-      "Après le temps d'accueil au café The Little Italy Shop (4 bis cours Gambetta, près de l'arrêt Saint-Denis du tram 3), visite de l'exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d'entrée ; pensez à vos justificatifs pour les réductions.",
+      "Après le temps d'accueil habituel de 10 h à 10 h 45 au café « The Little Italy Shop », 4 bis cours Gambetta (à côté de l'arrêt Saint-Denis du tram 3), visite de l'exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d'entrée ; pensez à vos justificatifs pour bénéficier des réductions.",
     startsAt: "2026-10-08T10:00:00+02:00",
     endsAt: "2026-10-08T13:00:00+02:00",
     featured: true,
     status: "published",
   },
   {
-    id: "groupe-de-parole-annule-6-octobre",
-    title: "Groupe de parole annulé le 6 octobre",
+    id: "yoga-ecriture-8-octobre",
+    title: "Jeudi 8 octobre : yoga en douceur et écriture poétique",
     excerpt:
-      "Le groupe de parole du mardi 6 octobre est exceptionnellement annulé. L'atelier Qi Gong a lieu comme prévu à 14 h 30.",
-    startsAt: "2026-10-06T16:00:00+02:00",
+      "L'atelier « yoga en douceur » a lieu à 15 h, puis l'atelier « écriture poétique » avec Mona à 16 h 45.",
+    startsAt: "2026-10-08T15:00:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "mots-qui-volent-7-octobre",
+    title: "Mercredi 7 octobre : « Les mots qui volent »",
+    excerpt:
+      "L'atelier « Les mots qui volent » a lieu à 15 h.",
+    startsAt: "2026-10-07T15:00:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "groupe-de-parole-annule-6-octobre",
+    title: "Mardi 6 octobre : Qi Gong, groupe de parole annulé",
+    excerpt:
+      "L'atelier « Qi Gong » a lieu à 14 h 30. Le groupe de parole est exceptionnellement annulé en raison de la séance mensuelle d'analyse de pratique des animatrices, de 15 h à 16 h 45.",
+    startsAt: "2026-10-06T14:30:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "expression-creatrice-5-octobre",
+    title: "Lundi 5 octobre : expression créatrice",
+    excerpt:
+      "Le GEM est ouvert par Mona. L'atelier « Expression créatrice » a lieu à 14 h.",
+    startsAt: "2026-10-05T14:00:00+02:00",
     endsAt: null,
     featured: false,
     status: "published",
   },
   {
     id: "atelier-collage-3-octobre",
-    title: "Atelier collage du samedi 3 octobre",
-    excerpt: "L'atelier collage a lieu à 14 h. Ce samedi, le GEM est ouvert par une animatrice.",
+    title: "Samedi 3 octobre : atelier collage",
+    excerpt:
+      "Le GEM est ouvert par Mona. L'atelier collage a lieu à 14 h.",
     startsAt: "2026-10-03T14:00:00+02:00",
-    endsAt: "2026-10-03T15:00:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "linogravure-2-octobre",
+    title: "Vendredi 2 octobre : linogravure",
+    excerpt:
+      "L'atelier « linogravure » a lieu à 14 h.",
+    startsAt: "2026-10-02T14:00:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "samedis-aout",
+    title: "Les samedis d'août",
+    excerpt:
+      "Les samedis, le GEM est ouvert par un adhérent porteur de clés ; une animatrice est présente un samedi par mois. En août : ouverture par un adhérent les 1er, 15, 22 et 29 août, et par Mona le 8 août.",
+    startsAt: "2026-08-01",
+    endsAt: "2026-08-29",
     featured: false,
     status: "published",
   },
