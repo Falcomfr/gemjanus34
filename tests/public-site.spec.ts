@@ -152,3 +152,15 @@ test("all public responses include every configured security header", async ({ r
     );
   }
 });
+
+test("an activity of the planning opens a window with its details", async ({ page }) => {
+  await page.goto("/actualites");
+  await page.getByRole("button", { name: /yoga en douceur/i }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Yoga en douceur" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("Jeudi, 15 h – 16 h 30");
+  await expect(dialog).toContainText("avec Sévérine");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+});

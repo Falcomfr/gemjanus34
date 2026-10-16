@@ -215,3 +215,48 @@ test("a slot added in the admin planning shows on the site and the printable ver
   await page.goto("/actualites");
   await expect(page.getByText("Atelier E2E")).toHaveCount(0);
 });
+
+test("an administrator manages an account from creation to deletion", async ({ page, browser }) => {
+  const stamp = Date.now();
+  const email = `e2e-${stamp}@gemjanus34.local`;
+  const name = `Compte E2E ${stamp}`;
+  await login(page);
+  await page.goto("/admin/comptes");
+  const create = page.locator(".account-create");
+  await create.getByLabel("Adresse e-mail").fill(email);
+  await create.getByLabel("Nom affiché").fill(name);
+  await create.getByRole("button", { name: "Créer le compte" }).click();
+  const temporary = (await create.locator(".account-password code").textContent())!.trim();
+  expect(temporary).toMatch(/^[A-Za-z0-9-]{14,}$/);
+
+  const other = await browser.newPage();
+  await other.goto("/admin/connexion");
+  await other.getByLabel("Adresse e-mail").fill(email);
+  await other.getByLabel("Mot de passe").fill(temporary);
+  await other.getByRole("button", { name: "Se connecter" }).click();
+  await expect(other.getByRole("heading", { level: 1, name: "Tableau de bord" })).toBeVisible();
+  await expect(other.getByRole("link", { name: "Comptes" })).toHaveCount(0);
+  await other.getByRole("link", { name: /mon compte/i }).click();
+  await other.getByLabel("Mot de passe actuel").fill(temporary);
+  await other.getByLabel("Nouveau mot de passe", { exact: true }).fill("un-nouveau-mot-de-passe");
+  await other.getByLabel("Confirmer le nouveau mot de passe").fill("un-nouveau-mot-de-passe");
+  await other.getByRole("button", { name: "Changer le mot de passe" }).click();
+  await expect(other.getByRole("status")).toContainText("Mot de passe modifié");
+
+  await page.reload();
+  const row = page.getByRole("article", { name });
+  await row.getByLabel("Compte actif").uncheck();
+  await row.getByRole("button", { name: "Enregistrer" }).click();
+  await expect(row.getByRole("status")).toContainText("Compte modifié");
+
+  const third = await browser.newPage();
+  await third.goto("/admin/connexion");
+  await third.getByLabel("Adresse e-mail").fill(email);
+  await third.getByLabel("Mot de passe").fill("un-nouveau-mot-de-passe");
+  await third.getByRole("button", { name: "Se connecter" }).click();
+  await expect(third.locator(".admin-login__error")).toContainText("désactivé");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("article", { name }).getByRole("button", { name: "Supprimer" }).click();
+  await expect(page.getByRole("article", { name })).toHaveCount(0);
+});
