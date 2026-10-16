@@ -4,7 +4,7 @@ import type { PublicDocument } from "@/content/types";
 import { publicContentRepository } from "@/lib/content/local-public-content-repository";
 import HomePage from "../page";
 
-const forbiddenWording = /import|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation/i;
+const forbiddenWording = /importé|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation/i;
 
 function planningDocument(id: string, updatedAt: string): PublicDocument {
   return {

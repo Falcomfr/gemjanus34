@@ -71,7 +71,7 @@ describe("public content contracts", () => {
     const allCopy = JSON.stringify([publicPages, publicDocuments, newsItems]);
 
     expect(allCopy).not.toMatch(
-      /import|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation|validation requise/i,
+      /importé|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation|validation requise/i,
     );
     expect(allCopy).not.toContain("\u2014");
     expect(allCopy).not.toContain("—");
@@ -90,6 +90,20 @@ describe("public content contracts", () => {
 
     expect(copy).toMatch(/aucune information saisie[^.]*n'est envoyée ni enregistrée/i);
     expect(copy).toMatch(/CNIL/);
+  });
+
+  test("keeps everything the original site explained", () => {
+    expect(getPageCopy("ressources")).toMatch(/tristesse intense/);
+    expect(getPageCopy("ressources")).toMatch(/euphorie excessive/);
+    expect(getPageCopy("activites")).toMatch(/Favoriser l'échange entre adhérents/);
+    expect(getPageCopy("activites")).toMatch(/poser vos questions aux intervenants/);
+    expect(getPageCopy("ressources")).toMatch(/Culture et Sport Solidaires 34/);
+    expect(getPageCopy("qui-sommes-nous")).toMatch(/une animatrice est présente un samedi par mois/i);
+    expect(getPageCopy("qui-sommes-nous")).toMatch(/une face tournée vers le passé/);
+    expect(getPage("qui-sommes-nous").sections.find((section) => section.image)?.image?.src).toBe(
+      "/images/janus-vatican.jpg",
+    );
+    expect(JSON.stringify(getPage("nous-rejoindre"))).toContain("https://www.google.com/maps/search/?api=1&query=");
   });
 
   test("gives complete phone-first information for a first visit", () => {

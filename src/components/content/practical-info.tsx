@@ -25,9 +25,15 @@ export function PracticalInfo(): JSX.Element {
           {contact.openingHours}
         </span>
       </address>
-      <Link className="text-link" href="/contact">
-        Toutes les façons de nous joindre
-      </Link>
+      <p className="practical-info__links">
+        <a className="text-link" href={contact.mapHref} target="_blank" rel="noopener noreferrer">
+          Voir sur la carte
+          <span className="sr-only"> (nouvel onglet)</span>
+        </a>
+        <Link className="text-link" href="/contact">
+          Toutes les façons de nous joindre
+        </Link>
+      </p>
     </section>
   );
 }

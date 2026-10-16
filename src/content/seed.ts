@@ -1,3 +1,4 @@
+import { contact } from "@/content/contact";
 import type { NewsItem, PublicDocument, PublicPage } from "@/content/types";
 
 export const publicPages: ReadonlyArray<PublicPage> = [
@@ -22,7 +23,20 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "histoire",
         title: "Janus34 depuis 2006",
-        body: "Janus34 a été fondée en 2006 par des personnes et des proches concernés par des troubles bipolaires. L'association s'est donné pour objectif de rompre les solitudes et de favoriser l'entraide, la solidarité et le partage entre ses membres.\n\nElle informe et soutient aussi les personnes qui présentent des troubles de l'humeur et d'autres difficultés psychiques. Dans la mythologie romaine, Janus est le dieu des commencements, des passages et des portes.",
+        body: "Janus34 a été fondée en 2006 par des personnes et des proches concernés par des troubles bipolaires. L'association s'est donné pour objectif de rompre les solitudes et de favoriser l'entraide, la solidarité et le partage entre ses membres.\n\nElle informe et soutient aussi les personnes qui présentent des troubles de l'humeur et d'autres difficultés psychiques.",
+      },
+      {
+        id: "janus",
+        title: "Pourquoi Janus ?",
+        body: "Dans la mythologie romaine, Janus est le dieu des commencements et des fins, des choix, du passage et des portes. Il est représenté avec une face tournée vers le passé et l'autre vers l'avenir.\n\nIl est fêté le 1er janvier : son mois, Januarius, a donné son nom à janvier.",
+        image: {
+          src: "/images/janus-vatican.jpg",
+          alt: "Buste en marbre de Janus aux deux visages opposés",
+          caption: "Buste de Janus, musées du Vatican. Photo : Fubar Obfusco, domaine public (Wikimedia Commons).",
+          width: 604,
+          height: 530,
+        },
+        links: [{ label: "Janus sur Wikipédia", href: "https://fr.wikipedia.org/wiki/Janus_(mythologie)" }],
       },
       {
         id: "valeurs",
@@ -43,7 +57,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "equipe",
         title: "L'équipe d'animation et les intervenants",
-        body: "Une équipe d'animatrices salariées accueille les adhérents et anime une partie des activités. D'autres ateliers sont animés par des intervenants extérieurs professionnels, par des stagiaires ou par des adhérents.\n\nLe samedi, le GEM est ouvert par un adhérent ou par une animatrice, pour des temps collectifs.",
+        body: "Une équipe d'animatrices salariées accueille les adhérents et anime une partie des activités. D'autres ateliers sont animés par des intervenants extérieurs professionnels, par des stagiaires ou par des adhérents.\n\nLe samedi, le GEM est ouvert par un adhérent porteur de clés, et une animatrice est présente un samedi par mois.",
       },
       {
         id: "soins",
@@ -87,9 +101,21 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         ],
       },
       {
-        id: "comprendre",
-        title: "Mieux comprendre la maladie",
-        body: "Janus34 organise des conférences d'information sur le trouble bipolaire avec des professionnels de santé, sur inscription. Le programme du prochain cycle sera annoncé dans les actualités.\n\nCes temps d'information ne remplacent pas un suivi personnel par un professionnel de santé.",
+        id: "soutien",
+        title: "Soutien face à la maladie",
+        body: "Ce troisième axe de la démarche de Janus34 aide chacun à mieux vivre avec ses troubles, grâce à l'échange entre pairs et à l'information.",
+        items: [
+          "Mieux connaître et comprendre la maladie, et mieux repérer les signes précurseurs",
+          "S'informer sur le trouble bipolaire d'un point de vue médical, social et psychologique",
+          "Favoriser l'échange entre adhérents",
+          "Soutenir le processus thérapeutique",
+          "Faciliter l'expression des difficultés et des souffrances rencontrées",
+        ],
+      },
+      {
+        id: "conferences",
+        title: "Les conférences",
+        body: "Des médecins psychiatres et des psychologues du CHU de Montpellier interviennent régulièrement à Janus34 sur des thèmes liés aux troubles psychiques. Ces conférences sont ouvertes à tous, pour mieux connaître et comprendre ces troubles : vous pouvez aussi poser vos questions aux intervenants.\n\nLes conférences sont sur inscription auprès de l'équipe. En cas d'empêchement, prévenez-nous pour que la place profite à une autre personne. Le programme du cycle 2026-2027 sera annoncé dans les actualités.\n\nCes temps d'information ne remplacent pas un suivi personnel par un professionnel de santé.",
       },
       {
         id: "programme",
@@ -128,6 +154,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         id: "adresse-transports",
         title: "Adresse et transports en commun",
         body: "Janus34 se trouve au 405 rue des Grèzes à Montpellier (34070).\n\nEn transports en commun, prenez la ligne de bus 11 et descendez à l'arrêt « La Martelle ».",
+        links: [{ label: "Voir l'itinéraire sur Google Maps", href: contact.mapHref }],
       },
       {
         id: "horaires",
@@ -167,6 +194,32 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         ],
       },
       {
+        id: "phase-depressive",
+        title: "La phase dépressive",
+        body: "Elle peut se manifester par :",
+        items: [
+          "une tristesse intense et une perte de la capacité à éprouver du plaisir",
+          "une indifférence à l'environnement et de l'anxiété",
+          "un ralentissement de la pensée, des difficultés de concentration ou de prise de décision",
+          "des idées noires (dévalorisation, pessimisme), parfois des idées suicidaires",
+          "une diminution de l'activité et de la fatigue",
+          "des modifications du sommeil, de l'appétit et de la libido",
+        ],
+      },
+      {
+        id: "phase-maniaque",
+        title: "L'hypomanie et la manie",
+        body: "Ces phases d'excitation, qui peuvent aller jusqu'à une perte du contrôle de soi, peuvent se manifester par :",
+        items: [
+          "une euphorie excessive, une irritabilité et une colère facile",
+          "une augmentation de l'estime de soi, un sentiment exagéré de grandeur et d'importance",
+          "une fuite des idées, une accélération de la pensée et une distractibilité",
+          "une envie de parler constamment et une hyperactivité",
+          "des comportements inhabituels : dépenses d'argent, prises de risques, consommation de toxiques",
+          "une réduction du temps de sommeil sans fatigue",
+        ],
+      },
+      {
         id: "videos",
         title: "Conférences en vidéo",
         body: "Deux vidéos retenues par l'association pour approfondir le sujet. Les conférences organisées au GEM sont annoncées dans les actualités.",
@@ -194,7 +247,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "sorties",
         title: "Sorties culturelles et sportives",
-        body: "Pour trouver des idées de sorties et d'activités à Montpellier, l'association recommande notamment ces partenaires.",
+        body: "Grâce à Culture et Sport Solidaires 34, les adhérents peuvent accéder gratuitement à des cours de sport à l'année, encadrés par des éducateurs sportifs, et à des sorties culturelles : théâtre, musique, danse, cinéma, expositions, musées, sorties nature. Pour en bénéficier, adressez-vous aux animatrices de Janus34.\n\nLe MCSA 34 propose aussi des cours de sport adapté à l'année, et des classeurs disponibles au GEM rassemblent d'autres idées de sorties.",
         links: [
           { label: "Culture et Sport Solidaires 34", href: "https://www.cultureetsportsolidaires34.fr/" },
           { label: "Montpellier Culture Sport Adapté (MCSA34)", href: "https://www.mcsa34.com/" },

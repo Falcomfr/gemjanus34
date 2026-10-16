@@ -31,6 +31,7 @@ export type PageSection = {
   items?: string[];
   ordered?: boolean;
   links?: PageLink[];
+  image?: { src: string; alt: string; caption: string; width: number; height: number };
 };
 
 export type PublicPage = {

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { ContentPage } from "../content-page";
 
 test("renders structured sections and document downloads", () => {
@@ -86,4 +86,28 @@ test("keeps French punctuation attached to the previous word", () => {
   expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Comment venir ?");
   expect(screen.getByText(/Hors les murs/).textContent).toBe("Le GEM « Hors les murs » : en ville.");
   expect(screen.getByText(/Appelez/).textContent).toBe("Appelez !");
+});
+
+test("renders a section image with its caption", () => {
+  render(
+    <ContentPage
+      page={{
+        slug: "exemple",
+        title: "Titre",
+        introduction: "Intro",
+        sections: [
+          {
+            id: "janus",
+            title: "Janus",
+            body: "Texte.",
+            image: { src: "/images/janus-vatican.jpg", alt: "Buste de Janus", caption: "Photo : domaine public", width: 604, height: 530 },
+          },
+        ],
+      }}
+    />,
+  );
+
+  const figure = screen.getByRole("figure");
+  expect(within(figure).getByRole("img", { name: "Buste de Janus" })).toBeInTheDocument();
+  expect(figure.querySelector("figcaption")?.textContent).toBe("Photo\u202f: domaine public");
 });

@@ -1,4 +1,5 @@
 import { ArrowRight, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { JSX, ReactNode } from "react";
 import type { PageSection, PublicDocument, PublicPage } from "@/content/types";
@@ -74,6 +75,17 @@ export function ContentPage({ page, documents = [], children }: ContentPageProps
                   </List>
                 ) : null}
                 {section.links?.length ? <SectionLinks links={section.links} /> : null}
+                {section.image ? (
+                  <figure className="content-figure">
+                    <Image
+                      src={section.image.src}
+                      alt={section.image.alt}
+                      width={section.image.width}
+                      height={section.image.height}
+                    />
+                    <figcaption>{fr(section.image.caption)}</figcaption>
+                  </figure>
+                ) : null}
               </div>
             </section>
           );

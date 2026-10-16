@@ -639,6 +639,63 @@ h3 {
 
 /* Footer */
 
+.partners {
+  margin: -3rem 0 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.partners__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.5rem;
+}
+
+.partners h2 {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.partners ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem 2.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.partners img {
+  width: auto;
+  height: 4.5rem;
+}
+
+.content-figure {
+  margin: 1.5rem 0 0;
+}
+
+.content-figure img {
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+.content-figure figcaption {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .site-footer {
   padding: 3rem 0;
   background: var(--text);
@@ -831,6 +888,13 @@ h3 {
   flex: 0 0 auto;
   margin-top: 0.15rem;
   color: var(--forest);
+}
+
+.practical-info__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
 }
 
 .health-notice {

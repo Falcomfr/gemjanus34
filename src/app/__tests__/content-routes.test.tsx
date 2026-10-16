@@ -81,4 +81,5 @@ test("puts the practical information first on the first visit page", async () =>
   expect(practical).toHaveTextContent("Bus 11, arrêt La Martelle");
   expect(practical).toHaveTextContent("13 h");
   expect(practical.querySelector('a[href="tel:+33467048768"]')).not.toBeNull();
+  expect(practical.querySelector('a[href^="https://www.google.com/maps/search/"]')).toHaveTextContent(/carte/i);
 });
