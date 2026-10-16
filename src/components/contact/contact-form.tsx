@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useRef, type JSX } from "react";
 import { sendContactMessage, type ContactActionState } from "@/app/contact/actions";
 import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
@@ -84,7 +85,7 @@ export function ContactForm(): JSX.Element {
           <input id="contact-consent" name="consent" type="checkbox" required aria-invalid={Boolean(errors.consent)} aria-describedby={describedBy("consent")} />
           <span>
             J&apos;accepte que Janus34 utilise ces informations pour répondre à ma demande. Elles ne
-            sont lues que par l&apos;équipe (voir la <a href="/confidentialite">politique de confidentialité</a>).
+            sont lues que par l&apos;équipe (voir la <Link href="/confidentialite">politique de confidentialité</Link>).
           </span>
         </label>
         {error("consent")}

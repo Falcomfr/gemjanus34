@@ -1,4 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { vi } from "vitest";
 import { AdminShell } from "../admin-shell";
@@ -32,7 +34,7 @@ test("marks only the current administration section", () => {
     "aria-current",
     "page",
   );
-  expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute(
+  expect(screen.getByRole("link", { name: "Tableau de bord" })).not.toHaveAttribute(
     "aria-current",
   );
 });
@@ -48,4 +50,35 @@ test("exposes navigation labels as icon tooltips", () => {
     "title",
     "Pages",
   );
+});
+
+test("links every administration section to an existing page", () => {
+  render(
+    <AdminShell pathname="/admin" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+  const navigation = screen.getByRole("navigation", { name: "Navigation de l’administration" });
+
+  for (const link of within(navigation).getAllByRole("link")) {
+    const route = link.getAttribute("href")!;
+    expect(existsSync(join(process.cwd(), "src/app", route, "page.tsx")), route).toBe(true);
+  }
+  expect(within(navigation).getAllByRole("link").map((link) => link.textContent)).toEqual([
+    "Tableau de bord",
+    "Pages",
+    "Actualités",
+    "Documents",
+    "Messages",
+  ]);
+});
+
+test("offers a way back to the public site", () => {
+  render(
+    <AdminShell pathname="/admin" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+
+  expect(screen.getByRole("link", { name: /voir le site/i })).toHaveAttribute("href", "/");
 });

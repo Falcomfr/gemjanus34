@@ -1,4 +1,5 @@
 import {
+  ExternalLink,
   FileText,
   FolderOpen,
   LayoutDashboard,
@@ -12,7 +13,7 @@ import { logout } from "@/app/admin/connexion/actions";
 import type { Profile } from "@/lib/auth/require-profile";
 
 const navigation = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/pages", label: "Pages", icon: FileText },
   { href: "/admin/actualites", label: "Actualités", icon: Newspaper },
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
@@ -56,6 +57,12 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
             ))}
           </ul>
         </nav>
+
+        <a className="admin-sidebar__site" href="/" target="_blank" rel="noopener noreferrer" title="Voir le site">
+          <ExternalLink aria-hidden="true" size={20} />
+          <span>Voir le site</span>
+          <span className="sr-only"> (nouvel onglet)</span>
+        </a>
 
         <div className="admin-sidebar__account">
           <p>

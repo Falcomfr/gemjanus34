@@ -1284,8 +1284,24 @@ body:has(.admin-area) > .skip-link {
   flex: 0 0 auto;
 }
 
-.admin-sidebar__account {
+.admin-sidebar__site {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
   margin-top: auto;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-sidebar__site:hover {
+  background: #287866;
+}
+
+.admin-sidebar__account {
   padding-top: 1rem;
   border-top: 1px solid #4b806f;
 }
@@ -1344,37 +1360,45 @@ body:has(.admin-area) > .skip-link {
 }
 
 .admin-summary-list {
+  margin: 0;
+  padding: 0;
   border-block: 1px solid var(--line);
+  list-style: none;
 }
 
 .admin-summary {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 1rem 0.75rem;
+  color: var(--text);
+  text-decoration: none;
 }
 
-.admin-summary + .admin-summary {
+.admin-summary:hover {
+  background: var(--forest-soft);
+}
+
+.admin-summary > span {
+  display: grid;
+}
+
+.admin-summary strong {
+  font-family: var(--font-display), serif;
+  font-size: 1.1rem;
+}
+
+.admin-summary > span > span {
+  color: var(--muted);
+}
+
+.admin-summary-list li + li {
   border-top: 1px solid var(--line);
 }
 
 .admin-summary > svg {
   color: var(--coral-dark);
-}
-
-.admin-summary h3,
-.admin-summary p {
-  margin: 0;
-}
-
-.admin-summary h3 {
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.1rem;
-}
-
-.admin-summary p {
-  color: var(--muted);
 }
 
 .admin-area--login {
@@ -1998,6 +2022,7 @@ body:has(.admin-area) > .skip-link {
 
   .admin-sidebar__brand > span:last-child,
   .admin-navigation a span,
+  .admin-sidebar__site > span:not(.sr-only),
   .admin-sidebar__account p,
   .admin-sidebar__account button span {
     position: absolute;
@@ -2009,6 +2034,7 @@ body:has(.admin-area) > .skip-link {
   }
 
   .admin-navigation a,
+  .admin-sidebar__site,
   .admin-sidebar__account button {
     justify-content: center;
     padding-inline: 0;
