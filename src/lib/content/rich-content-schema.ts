@@ -43,13 +43,15 @@ const hardBreakSchema = z.object({
 
 const inlineSchema = z.union([textSchema, hardBreakSchema]);
 
-type RichBlock =
+export type RichInline = z.infer<typeof inlineSchema>;
+
+export type RichBlock =
   | { type: "paragraph"; content?: z.infer<typeof inlineSchema>[] }
   | { type: "heading"; attrs: { level: 2 | 3 }; content?: z.infer<typeof inlineSchema>[] }
   | { type: "bulletList"; content: RichListItem[] }
   | { type: "orderedList"; attrs?: { start?: number }; content: RichListItem[] };
 
-type RichListItem = {
+export type RichListItem = {
   type: "listItem";
   content: RichBlock[];
 };

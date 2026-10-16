@@ -111,3 +111,72 @@ test("renders a section image with its caption", () => {
   expect(within(figure).getByRole("img", { name: "Buste de Janus" })).toBeInTheDocument();
   expect(figure.querySelector("figcaption")?.textContent).toBe("Photo\u202f: domaine public");
 });
+
+test("renders editor content as written: marks, links, H3, nested lists and block order", () => {
+  const { container } = render(
+    <ContentPage
+      page={{
+        slug: "exemple",
+        title: "Titre",
+        introduction: "Intro",
+        sections: [],
+        content: {
+          type: "doc",
+          content: [
+            { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Section" }] },
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "Gras", marks: [{ type: "bold" }] },
+                { type: "text", text: " italique", marks: [{ type: "italic" }] },
+                { type: "text", text: " souligné", marks: [{ type: "underline" }] },
+                { type: "text", text: " vert", marks: [{ type: "textStyle", attrs: { color: "#185c4c" } }] },
+                { type: "hardBreak" },
+                { type: "text", text: "Psycom", marks: [{ type: "link", attrs: { href: "https://www.psycom.org/" } }] },
+              ],
+            },
+            { type: "heading", attrs: { level: 3 }, content: [{ type: "text", text: "Sous-titre" }] },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [
+                    { type: "paragraph", content: [{ type: "text", text: "Parent" }] },
+                    { type: "orderedList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Enfant" }] }] }] },
+                  ],
+                },
+              ],
+            },
+            { type: "paragraph", content: [{ type: "text", text: "Après la liste" }] },
+          ],
+        },
+      }}
+    />,
+  );
+
+  expect(screen.getByRole("heading", { level: 2, name: "Section" })).toBeInTheDocument();
+  expect(container.querySelector("strong")?.textContent).toBe("Gras");
+  expect(container.querySelector("em")?.textContent).toBe(" italique");
+  expect(container.querySelector("u")?.textContent).toBe(" souligné");
+  expect(container.querySelector('span[style*="color"]')?.textContent).toBe(" vert");
+  expect(container.querySelector("br")).not.toBeNull();
+  expect(screen.getByRole("link", { name: /psycom/i })).toHaveAttribute("href", "https://www.psycom.org/");
+  expect(screen.getByRole("heading", { level: 3, name: "Sous-titre" })).toBeInTheDocument();
+  expect(container.querySelector("ul ol li")?.textContent).toBe("Enfant");
+  const list = container.querySelector("ul")!;
+  expect(list.compareDocumentPosition(screen.getByText("Après la liste"))).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+});
+
+test("shows a header visual and an eyebrow chosen by the route", () => {
+  render(
+    <ContentPage
+      page={{ slug: "exemple", title: "Titre", introduction: "Intro", sections: [] }}
+      eyebrow="L'association"
+      visual={{ src: "/images/janus-vatican.jpg", alt: "Buste de Janus", caption: "Domaine public", width: 604, height: 530 }}
+    />,
+  );
+
+  expect(screen.getByText("L'association")).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: "Buste de Janus" })).toBeInTheDocument();
+});

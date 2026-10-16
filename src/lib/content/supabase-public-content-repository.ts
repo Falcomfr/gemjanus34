@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { DocumentCategory, NewsItem, PublicDocument, PublicPage } from "@/content/types";
-import type { Database, Json } from "@/lib/database.types";
+import type { Database } from "@/lib/database.types";
+import { richContentSchema } from "./rich-content-schema";
 import type { SupabaseConfig } from "@/lib/supabase/config";
 import { publicContentRepository as localRepository } from "./local-public-content-repository";
 import type { PublicContentRepository } from "./public-content-repository";
@@ -28,108 +29,10 @@ export interface PublicContentQueryClient {
   getDocuments(category?: DocumentCategory): QueryResult<PublicDocumentRow>;
 }
 
-type RichNode = {
-  type?: unknown;
-  text?: unknown;
-  attrs?: { level?: unknown };
-  content?: unknown;
-};
-
-function textContent(node: RichNode): string {
-  if (!Array.isArray(node.content)) return "";
-  return node.content.map((child: RichNode) => {
-    if (child.type === "hardBreak") return " ";
-    if (child.type !== "text" || typeof child.text !== "string") {
-      throw new Error("Unsupported public page content");
-    }
-    return child.text;
-  }).join("");
-}
-
-// Public sections hold one flat list: nested list items follow their parent item.
-function listItems(list: RichNode): string[] {
-  if (!Array.isArray(list.content) || list.content.length === 0) {
-    throw new Error("Unsupported public page content");
-  }
-  return list.content.flatMap((item: RichNode) => {
-    if (item.type !== "listItem" || !Array.isArray(item.content)) {
-      throw new Error("Unsupported public page content");
-    }
-    const text: string[] = [];
-    const nested: string[] = [];
-    for (const child of item.content as RichNode[]) {
-      if (child.type === "paragraph") text.push(textContent(child));
-      else if (child.type === "bulletList" || child.type === "orderedList") nested.push(...listItems(child));
-      else throw new Error("Unsupported public page content");
-    }
-    return [text.join(" "), ...nested].filter(Boolean);
-  });
-}
-
-function sectionId(title: string, index: number): string {
-  const normalized = title
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-  return normalized || `section-${index + 1}`;
-}
-
-function richContentToSections(content: Json): PublicPage["sections"] {
-  if (!content || Array.isArray(content) || typeof content !== "object") {
-    throw new Error("Unsupported public page content");
-  }
-
-  const doc = content as RichNode;
-  if (doc.type !== "doc" || !Array.isArray(doc.content)) {
-    throw new Error("Unsupported public page content");
-  }
-
-  const sections: PublicPage["sections"] = [];
-  const usedIds = new Set<string>();
-  let current: PublicPage["sections"][number] | undefined;
-
-  const nextSectionId = (title: string) => {
-    const base = sectionId(title, sections.length);
-    let candidate = base;
-    let suffix = 2;
-
-    while (usedIds.has(candidate)) {
-      candidate = `${base}-${suffix}`;
-      suffix += 1;
-    }
-
-    usedIds.add(candidate);
-    return candidate;
-  };
-
-  for (const node of doc.content as RichNode[]) {
-    if (node.type === "heading" && (node.attrs?.level === 2 || node.attrs?.level === 3)) {
-      const title = textContent(node);
-      current = { id: nextSectionId(title), title, body: "" };
-      sections.push(current);
-      continue;
-    }
-
-    if (node.type === "paragraph" || node.type === "bulletList" || node.type === "orderedList") {
-      if (!current) {
-        current = { id: nextSectionId("Contenu"), title: "Contenu", body: "" };
-        sections.push(current);
-      }
-      if (node.type === "paragraph") {
-        current.body = [current.body, textContent(node)].filter(Boolean).join("\n\n");
-      } else {
-        if (!current.items && node.type === "orderedList") current.ordered = true;
-        current.items = [...(current.items ?? []), ...listItems(node)];
-      }
-      continue;
-    }
-
-    throw new Error("Unsupported public page content");
-  }
-
-  return sections;
+function parseRichContent(value: unknown) {
+  const parsed = richContentSchema.safeParse(value);
+  if (!parsed.success) throw new Error("Unsupported public page content", { cause: parsed.error });
+  return parsed.data;
 }
 
 function mapPage(row: PublicPageRow): PublicPage {
@@ -138,7 +41,9 @@ function mapPage(row: PublicPageRow): PublicPage {
       slug: row.slug,
       title: row.title,
       introduction: row.summary,
-      sections: richContentToSections(row.content),
+      sections: [],
+      // Strict validation: unsupported content fails closed instead of rendering partially.
+      content: parseRichContent(row.content),
     };
   } catch (error) {
     console.error(`Unsupported public page content for slug ${row.slug}`, error);

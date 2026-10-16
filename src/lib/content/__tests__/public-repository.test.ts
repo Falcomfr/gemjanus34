@@ -84,10 +84,8 @@ describe("Supabase public content mapping", () => {
       slug: "nouvelle-page",
       title: "Nouvelle page",
       introduction: "Résumé",
-      sections: [
-        { id: "contenu", title: "Contenu", body: "Introduction détaillée." },
-        { id: "accueil", title: "Accueil", body: "Texte de section." },
-      ],
+      sections: [],
+      content: paragraphContent,
     });
     await expect(repository.getNews()).resolves.toEqual([
       expect.objectContaining({ id: "news-1", status: "published", featured: true }),
@@ -113,34 +111,6 @@ describe("Supabase public content mapping", () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
-  test("makes repeated heading IDs deterministic and unique", async () => {
-    const repeatedHeadings: Json = {
-      type: "doc",
-      content: [
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
-        { type: "paragraph", content: [{ type: "text", text: "Premier." }] },
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil-2" }] },
-        { type: "paragraph", content: [{ type: "text", text: "Intermédiaire." }] },
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
-        { type: "paragraph", content: [{ type: "text", text: "Second." }] },
-      ],
-    };
-    const repository = createSupabasePublicContentRepository(queryClient({
-      getPublishedPages: vi.fn().mockResolvedValue({
-        data: [{ slug: "doublons", title: "Doublons", summary: "Résumé", content: repeatedHeadings }],
-        error: null,
-      }),
-    }));
-
-    await expect(repository.getPage("doublons")).resolves.toEqual(expect.objectContaining({
-      sections: [
-        expect.objectContaining({ id: "accueil", body: "Premier." }),
-        expect.objectContaining({ id: "accueil-2", body: "Intermédiaire." }),
-        expect.objectContaining({ id: "accueil-3", body: "Second." }),
-      ],
-    }));
-  });
-
   test("falls back to the bundled page when Supabase has no published row", async () => {
     const repository = createSupabasePublicContentRepository(queryClient({
       getPublishedPages: vi.fn().mockResolvedValue({ data: [], error: null }),
@@ -150,72 +120,6 @@ describe("Supabase public content mapping", () => {
     expect(bundled).not.toBeNull();
     await expect(repository.getPage("activites")).resolves.toEqual(bundled);
     await expect(repository.getPage("absente")).resolves.toBeNull();
-  });
-
-  test("maps bullet and ordered lists to section items", async () => {
-    const item = (text: string) => ({
-      type: "listItem",
-      content: [{ type: "paragraph", content: [{ type: "text", text }] }],
-    });
-    const listContent: Json = {
-      type: "doc",
-      content: [
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Ateliers" }] },
-        { type: "paragraph", content: [{ type: "text", text: "Exemples." }] },
-        { type: "bulletList", content: [item("Écriture"), item("Qi Gong")] },
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Étapes" }] },
-        { type: "orderedList", attrs: { start: 1 }, content: [item("Appeler"), item("Venir")] },
-      ],
-    };
-    const repository = createSupabasePublicContentRepository(queryClient({
-      getPublishedPages: vi.fn().mockResolvedValue({
-        data: [{ slug: "listes", title: "Listes", summary: "Résumé", content: listContent }],
-        error: null,
-      }),
-    }));
-
-    await expect(repository.getPage("listes")).resolves.toEqual(expect.objectContaining({
-      sections: [
-        { id: "ateliers", title: "Ateliers", body: "Exemples.", items: ["Écriture", "Qi Gong"] },
-        { id: "etapes", title: "Étapes", body: "", items: ["Appeler", "Venir"], ordered: true },
-      ],
-    }));
-  });
-
-  test("accepts hard breaks and nested lists allowed by the editor", async () => {
-    const text = (value: string) => ({ type: "paragraph", content: [{ type: "text", text: value }] });
-    const content: Json = {
-      type: "doc",
-      content: [
-        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Horaires" }] },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "Lundi" }, { type: "hardBreak" }, { type: "text", text: "Mardi" }],
-        },
-        {
-          type: "bulletList",
-          content: [
-            {
-              type: "listItem",
-              content: [
-                text("Ateliers"),
-                { type: "bulletList", content: [{ type: "listItem", content: [text("Collage")] }] },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-    const repository = createSupabasePublicContentRepository(queryClient({
-      getPublishedPages: vi.fn().mockResolvedValue({
-        data: [{ slug: "editeur", title: "Éditeur", summary: "Résumé", content }],
-        error: null,
-      }),
-    }));
-
-    await expect(repository.getPage("editeur")).resolves.toEqual(expect.objectContaining({
-      sections: [{ id: "horaires", title: "Horaires", body: "Lundi Mardi", items: ["Ateliers", "Collage"] }],
-    }));
   });
 
   test("reads documents from Supabase as public documents", async () => {
