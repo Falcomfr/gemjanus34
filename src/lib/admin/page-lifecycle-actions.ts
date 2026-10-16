@@ -18,7 +18,7 @@ type LifecyclePageDependencies = {
   publish: (pageId: string) => MutationResult;
   archive: (pageId: string, profileId: string) => MutationResult;
   restore: (revisionId: string) => MutationResult;
-  revalidatePath: (path: string) => void;
+  revalidatePath: (path: string, type?: "layout" | "page") => void;
 };
 
 const pageIdSchema = z.object({ pageId: z.uuid() });
@@ -35,10 +35,9 @@ function requireAdmin(profile: Profile): PageActionState | null {
     : { formError: "Cette action est réservée aux administrateurs." };
 }
 
-function revalidatePagePaths(revalidatePath: (path: string) => void, slug: string) {
-  revalidatePath("/");
-  revalidatePath(`/${slug}`);
-  revalidatePath("/admin/pages");
+// Pages appear in every footer's site map, so refresh the whole site.
+function revalidatePagePaths(revalidatePath: LifecyclePageDependencies["revalidatePath"]) {
+  revalidatePath("/", "layout");
 }
 
 export function createLifecyclePageActions(dependencies: LifecyclePageDependencies) {
@@ -67,7 +66,7 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
         return { formError: "La page n’a pas pu être publiée." };
       }
 
-      revalidatePagePaths(dependencies.revalidatePath, page.slug);
+      revalidatePagePaths(dependencies.revalidatePath);
       return { success: "Page publiée et révision créée." };
     },
 
@@ -95,7 +94,7 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
         return { formError: "La page n’a pas pu être archivée." };
       }
 
-      revalidatePagePaths(dependencies.revalidatePath, page.slug);
+      revalidatePagePaths(dependencies.revalidatePath);
       return { success: "Page archivée. Son contenu peut maintenant être modifié." };
     },
 
@@ -131,7 +130,7 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
         return { formError: "La révision n’a pas pu être restaurée." };
       }
 
-      revalidatePagePaths(dependencies.revalidatePath, page.slug);
+      revalidatePagePaths(dependencies.revalidatePath);
       return { success: "Révision restaurée." };
     },
   };

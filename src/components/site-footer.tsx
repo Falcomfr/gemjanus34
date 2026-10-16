@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { JSX } from "react";
 import { contact } from "@/content/contact";
 import { publicNavigation } from "@/content/navigation";
+import type { ExtraPage } from "@/lib/content/extra-pages";
 
 const partners = [
   { src: "/images/partenaires/ars-occitanie.png", alt: "Agence Régionale de Santé Occitanie", width: 231, height: 133 },
@@ -11,7 +12,7 @@ const partners = [
   { src: "/images/partenaires/fnapsy.png", alt: "FNAPSY, les usagers en santé mentale", width: 237, height: 236 },
 ] as const;
 
-export function SiteFooter(): JSX.Element {
+export function SiteFooter({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
   return (
     <footer className="site-footer">
       <section className="partners" aria-labelledby="partners-title">
@@ -55,6 +56,11 @@ export function SiteFooter(): JSX.Element {
           {publicNavigation.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.label}
+            </Link>
+          ))}
+          {extraPages.map((page) => (
+            <Link key={page.slug} href={`/${page.slug}`}>
+              {page.title}
             </Link>
           ))}
         </nav>

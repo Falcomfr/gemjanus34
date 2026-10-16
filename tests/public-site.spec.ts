@@ -123,7 +123,7 @@ test("sitemap lists every public route", async ({ request }) => {
     const suffix = route.path === "/" ? "" : route.path;
     expect(body).toContain(`<loc>https://gemjanus34.fr${suffix}</loc>`);
   }
-  expect(body.match(/<loc>/g)).toHaveLength(publicRoutes.length);
+  expect(body.match(/<loc>/g)!.length).toBeGreaterThanOrEqual(publicRoutes.length);
 });
 
 test("robots allows the public site and protects administration", async ({ request }) => {

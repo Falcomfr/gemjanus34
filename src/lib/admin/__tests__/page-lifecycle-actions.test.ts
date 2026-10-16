@@ -71,11 +71,8 @@ describe("page lifecycle actions", () => {
       const actions = createLifecyclePageActions(dependencies);
 
       await expect(actions[actionName]({}, formData(field, id))).resolves.toEqual({ success });
-      expect(dependencies.revalidatePath.mock.calls.map(([path]) => path)).toEqual([
-        "/",
-        "/accueil",
-        "/admin/pages",
-      ]);
+      // Pages appear in every footer's site map: the whole site is refreshed.
+      expect(dependencies.revalidatePath.mock.calls).toEqual([["/", "layout"]]);
     },
   );
 });

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Source_Serif_4 } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getExtraPages } from "@/lib/content/extra-pages";
 import "./globals.css";
 
 const body = Nunito_Sans({ subsets: ["latin"], variable: "--font-body" });
@@ -17,14 +18,14 @@ export const metadata: Metadata = {
     "Janus34, Groupe d'Entraide Mutuelle à Montpellier depuis 2006 : rompre les solitudes, créer des liens.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className={`${body.variable} ${display.variable}`}>
       <body>
         <a className="skip-link" href="#contenu">Aller au contenu</a>
         <SiteHeader />
         <main id="contenu">{children}</main>
-        <SiteFooter />
+        <SiteFooter extraPages={await getExtraPages()} />
       </body>
     </html>
   );

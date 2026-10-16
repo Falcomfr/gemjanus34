@@ -25,13 +25,9 @@ function stringValue(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
-function revalidatePagePaths(slug: string, previousSlug?: string) {
-  revalidatePath("/");
-  revalidatePath(`/${slug}`);
-  if (previousSlug && previousSlug !== slug) {
-    revalidatePath(`/${previousSlug}`);
-  }
-  revalidatePath("/admin/pages");
+function revalidatePagePaths() {
+  // A page also appears in every footer's site map, so refresh the whole site.
+  revalidatePath("/", "layout");
 }
 
 function createLifecycleDependencies() {
@@ -106,7 +102,7 @@ export async function createPage(
     return { formError: "La page n’a pas pu être créée. Vérifiez que le slug est unique." };
   }
 
-  revalidatePagePaths(parsed.data.slug);
+  revalidatePagePaths();
   redirect(`/admin/pages/${data.id}`);
 }
 
@@ -165,7 +161,7 @@ export async function updatePage(
       .eq("id", identity.data.pageId);
     if (structureError) return { formError: "Le contenu est en ligne, mais l’adresse ou la position n’a pas pu être modifiée." };
 
-    revalidatePagePaths(update.slug, existing.slug);
+    revalidatePagePaths();
     return { success: "Modifications en ligne." };
   }
   const { error } = await supabase
@@ -181,7 +177,7 @@ export async function updatePage(
     return { formError: "Les modifications n’ont pas pu être enregistrées." };
   }
 
-  revalidatePagePaths(update.slug, existing.slug);
+  revalidatePagePaths();
   return { success: "Page enregistrée." };
 }
 
