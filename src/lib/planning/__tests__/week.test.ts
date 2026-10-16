@@ -129,3 +129,11 @@ test("resolves the requested week within the next eight weeks", () => {
     expect(resolveWeek(invalid, now).monday, invalid).toBe("2026-10-12");
   }
 });
+
+test("looks past a long closure for the next opening day", () => {
+  const summer = withExceptions({ id: "f1", kind: "closure", date: "2026-08-03", endDate: "2026-08-22", reason: "Congés d'été" });
+  expect(nextOpenDay(summer, "2026-08-04T09:00:00Z")).toMatchObject({ day: { date: "2026-08-24" }, closedToday: "Congés d'été" });
+
+  const endless = withExceptions({ id: "f2", kind: "closure", date: "2026-08-03", endDate: "2027-08-03", reason: "Travaux" });
+  expect(nextOpenDay(endless, "2026-08-04T09:00:00Z")).toEqual({ day: null, closedToday: "Travaux" });
+});

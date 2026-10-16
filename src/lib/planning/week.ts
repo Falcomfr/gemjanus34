@@ -81,15 +81,14 @@ export function buildWeek(planning: Planning, monday: string): PlanningWeek {
   return { monday, days };
 }
 
-/** The first open day from today on, and the reason when the GEM is closed today. */
-export function nextOpenDay(planning: Planning, now: string): { day: PlanningWeekDay; closedToday: string | null } | null {
+/** The first open day from today on (looking ten weeks ahead), and the reason when the GEM is closed today. */
+export function nextOpenDay(planning: Planning, now: string): { day: PlanningWeekDay | null; closedToday: string | null } | null {
   const today = parisDate(now);
   const monday = currentMonday(now);
-  const days = [...buildWeek(planning, monday).days, ...buildWeek(planning, addDays(monday, 7)).days];
-  const day = days.find((candidate) => candidate.date >= today && candidate.opensAt && !candidate.closedReason);
-  if (!day) return null;
+  const days = Array.from({ length: 10 }, (_, week) => buildWeek(planning, addDays(monday, 7 * week)).days).flat();
+  const day = days.find((candidate) => candidate.date >= today && candidate.opensAt && !candidate.closedReason) ?? null;
   const closedToday = days.find((candidate) => candidate.date === today)?.closedReason ?? null;
-  return { day, closedToday };
+  return day || closedToday !== null ? { day, closedToday } : null;
 }
 
 const months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];

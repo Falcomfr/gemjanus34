@@ -5,7 +5,8 @@ import { parsePlanningDay, parsePlanningException, parsePlanningSettings, parseP
 import { requireProfile } from "@/lib/auth/require-profile";
 import { refreshPublicContent } from "@/lib/content/public-cache";
 import type { Database } from "@/lib/database.types";
-import { isoWeekday, parisDate } from "@/lib/planning/week";
+import type { PlanningSlot } from "@/content/types";
+import { isoWeekday, occursOn, parisDate, recurrenceLabel } from "@/lib/planning/week";
 import { createServerClient } from "@/lib/supabase/server";
 
 export type PlanningActionState = {
@@ -89,10 +90,18 @@ export async function addPlanningException(_previous: PlanningActionState, formD
   const input = parsed.data;
   const supabase = await createServerClient();
   if (input.kind === "cancel") {
-    const { data: slot, error } = await supabase.from("planning_slots").select("day").eq("id", input.slotId).maybeSingle();
+    const { data: slot, error } = await supabase
+      .from("planning_slots")
+      .select("day, recurrence, month_weeks")
+      .eq("id", input.slotId)
+      .maybeSingle();
     if (error || !slot) return { fieldErrors: { slotId: ["Cette séance n’existe plus."] } };
     if (isoWeekday(input.date) !== slot.day) {
       return { fieldErrors: { date: [`Cette séance a lieu le ${weekdays[slot.day]} : choisissez un ${weekdays[slot.day]}.`] } };
+    }
+    const recurrence = { day: slot.day, recurrence: slot.recurrence as PlanningSlot["recurrence"], monthWeeks: slot.month_weeks };
+    if (!occursOn(recurrence, input.date)) {
+      return { fieldErrors: { date: [`Cette séance n’a pas lieu ce jour-là (${recurrenceLabel(recurrence).toLowerCase()}).`] } };
     }
   }
 
@@ -112,6 +121,7 @@ export async function addPlanningException(_previous: PlanningActionState, formD
             family: input.family,
           };
   const { error } = await supabase.from("planning_exceptions").insert(values);
+  if (error?.code === "23505") return { fieldErrors: { date: ["Cette séance est déjà annulée ce jour-là."] } };
   if (error) return { formError: "Le changement n’a pas pu être enregistré." };
 
   revalidatePlanningPaths();

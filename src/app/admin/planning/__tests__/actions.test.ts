@@ -30,7 +30,7 @@ beforeEach(() => {
   table.insert.mockResolvedValue({ error: null });
   table.update.mockResolvedValue({ error: null });
   table.remove.mockResolvedValue({ error: null });
-  table.select.mockResolvedValue({ data: { day: 2 }, error: null });
+  table.select.mockResolvedValue({ data: { day: 2, recurrence: "weekly", month_weeks: [] }, error: null });
 });
 
 test("exports only async server actions", () => {
@@ -112,4 +112,20 @@ test("removes a planned change", async () => {
   await planningActions.deletePlanningException({}, form({ id: slotId }));
 
   expect(table.remove).toHaveBeenCalledWith("planning_exceptions", "id", slotId);
+});
+
+test("refuses to cancel a monthly session on a week it does not take place", async () => {
+  table.select.mockResolvedValue({ data: { day: 4, recurrence: "only", month_weeks: [-1] }, error: null });
+  // 2030-01-24 is the fourth Thursday; the last one is the 31st.
+  const state = await planningActions.addPlanningException({}, form({ kind: "cancel", slotId, date: "2030-01-24", reason: "", display: "struck" }));
+
+  expect(state.fieldErrors?.date).toEqual(["Cette séance n’a pas lieu ce jour-là (le dernier jeudi du mois)."]);
+  expect(table.insert).not.toHaveBeenCalled();
+});
+
+test("says when a session is already cancelled that day", async () => {
+  table.insert.mockResolvedValue({ error: { code: "23505" } });
+  const state = await planningActions.addPlanningException({}, form({ kind: "cancel", slotId, date: "2030-01-08", reason: "", display: "struck" }));
+
+  expect(state.fieldErrors?.date).toEqual(["Cette séance est déjà annulée ce jour-là."]);
 });

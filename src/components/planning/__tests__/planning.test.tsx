@@ -101,6 +101,13 @@ test("says the GEM is closed today and gives the next opening day", () => {
   expect(next).toHaveTextContent("Jeudi 12 novembre");
 });
 
+test("still says the GEM is closed when no opening day is in sight", () => {
+  const planning = withExceptions({ id: "f1", kind: "closure", date: "2026-08-03", endDate: "2027-08-03", reason: "Travaux" });
+  render(<TodayAtGem planning={planning} now="2026-08-04T09:00:00Z" />);
+
+  expect(screen.getByRole("region", { name: "Aujourd'hui au GEM" })).toHaveTextContent("Le GEM est fermé aujourd’hui : Travaux.");
+});
+
 test("opens a window with everything about an activity, and closes it", () => {
   render(<WeekPlanning planning={bundledPlanning} monday="2026-10-19" />);
 

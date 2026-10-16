@@ -1,5 +1,5 @@
 begin;
-select plan(16);
+select plan(19);
 
 select has_table('public', 'planning_exceptions', 'planning_exceptions exists');
 select is(
@@ -58,6 +58,18 @@ select throws_ok(
 select throws_ok(
   $$insert into public.planning_exceptions (kind, date, starts_at, ends_at, title, family) values ('extra', '2030-01-13', '14:00', '16:00', 'Dimanche', 'creer')$$,
   '23514', null, 'no session on a Sunday'
+);
+select throws_ok(
+  $$insert into public.planning_exceptions (kind, date, starts_at, title, family) values ('extra', '2030-01-09', '14:00', 'Sans fin', 'creer')$$,
+  '23514', null, 'an exceptional session has an end'
+);
+select throws_ok(
+  $$insert into public.planning_exceptions (kind, date, slot_id) select 'cancel', '2030-01-08', id from public.planning_slots where title = 'Qi Gong'$$,
+  '23505', null, 'a session is cancelled once per date'
+);
+select throws_ok(
+  $$insert into public.planning_exceptions (kind, date, end_date, created_by) values ('closure', '2030-03-01', '2030-03-01', null)$$,
+  '42501', null, 'a change is signed by its author'
 );
 reset role;
 

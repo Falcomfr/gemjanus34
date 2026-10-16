@@ -39,17 +39,19 @@ create table public.planning_exceptions (
   created_at timestamptz not null default now(),
   check (kind <> 'cancel' or slot_id is not null),
   check ((kind = 'closure') = (end_date is not null) and (end_date is null or end_date >= date)),
-  check (kind <> 'extra' or (starts_at is not null and ends_at > starts_at and title is not null and family is not null)),
+  check (kind <> 'extra' or (starts_at is not null and ends_at is not null and ends_at > starts_at and title is not null and family is not null)),
   check (kind = 'closure' or extract(isodow from date) between 1 and 6)
 );
 
 create index planning_exceptions_last_date_idx on public.planning_exceptions (last_date);
+-- One cancellation per session and date: deleting it must bring the session back.
+create unique index planning_exceptions_cancel_once_idx on public.planning_exceptions (slot_id, date) where kind = 'cancel';
 
 alter table public.planning_exceptions enable row level security;
 
 create policy planning_exceptions_public_read on public.planning_exceptions for select to anon, authenticated using (true);
 create policy planning_exceptions_editor_insert on public.planning_exceptions for insert to authenticated
-  with check (public.is_active_editor());
+  with check (public.is_active_editor() and created_by = auth.uid());
 create policy planning_exceptions_editor_delete on public.planning_exceptions for delete to authenticated
   using (public.is_active_editor());
 
