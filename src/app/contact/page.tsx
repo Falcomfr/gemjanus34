@@ -1,7 +1,9 @@
 import { Bus, Clock, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact/contact-form";
+import { ClickToLoad } from "@/components/content/click-to-load";
 import { contact } from "@/content/contact";
+import { fr } from "@/lib/text/french";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -48,6 +50,15 @@ export default function ContactPage() {
             L&apos;équipe répond l&apos;après-midi. Si personne ne décroche, laissez un message avec
             vos coordonnées : nous vous rappellerons.
           </p>
+          <ClickToLoad
+            variant="map"
+            title="Janus34, 405 rue des Grèzes à Montpellier"
+            src={contact.mapEmbedSrc}
+            actionLabel="Afficher la carte"
+            notice={fr("Carte fournie par Google Maps : l’afficher charge leur service.")}
+            linkHref={contact.mapHref}
+            linkLabel="Ouvrir dans Google Maps"
+          />
         </section>
 
         <section className="contact-form-section" aria-labelledby="contact-form-title">

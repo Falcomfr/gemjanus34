@@ -1,5 +1,5 @@
 begin;
-select plan(2);
+select plan(3);
 
 select is(
   (select count(*) from public.pages
@@ -11,6 +11,11 @@ select is(
 select ok(
   (select public.is_valid_rich_content(content) from public.pages where slug = 'ressources'),
   'stored site pages hold valid editor content'
+);
+
+select ok(
+  (select content::text like '%"Vidéos et carte"%' from public.pages where slug = 'confidentialite'),
+  'the privacy page explains the videos and the map loaded on request'
 );
 
 select * from finish();

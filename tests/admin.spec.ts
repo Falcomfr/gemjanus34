@@ -50,7 +50,13 @@ test("an uploaded document shows on the matching page, then can be removed", asy
   await expect(page.getByRole("status")).toContainText("est en ligne");
 
   await page.goto("/qui-sommes-nous");
-  const link = page.getByRole("link", { name: `Télécharger ${title} (PDF)` });
+  const item = page.getByRole("listitem").filter({ hasText: title });
+  await item.getByText("Afficher le document").click();
+  const frame = item.locator("iframe");
+  await expect(frame).toBeVisible();
+  const storageUrl = (await frame.getAttribute("src"))!;
+  await expect.poll(() => page.frames().some((child) => child.url() === storageUrl)).toBe(true);
+  const link = item.getByRole("link", { name: `Télécharger ${title} (PDF)` });
   await expect(link).toBeVisible();
   const pdf = await request.get((await link.getAttribute("href"))!);
   expect(pdf.status()).toBe(200);

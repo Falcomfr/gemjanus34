@@ -156,3 +156,30 @@ test("shows a header visual and an eyebrow chosen by the route", () => {
   expect(screen.getByText("L'association")).toBeInTheDocument();
   expect(screen.getByRole("img", { name: "Buste de Janus" })).toBeInTheDocument();
 });
+
+test("turns a paragraph holding only a video link into a player, and keeps a link inside a sentence", () => {
+  const link = (text: string) => ({ type: "text" as const, text, marks: [{ type: "link" as const, attrs: { href: "https://www.youtube.com/watch?v=5PN11L4wXKA" } }] });
+  render(
+    <ContentPage
+      page={{
+        slug: "exemple",
+        title: "Titre",
+        introduction: "Intro",
+        sections: [],
+        content: {
+          type: "doc",
+          content: [
+            { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Vidéos" }] },
+            { type: "paragraph", content: [link("TCC et troubles bipolaires")] },
+            { type: "paragraph", content: [{ type: "text", text: "Voir aussi " }, link("cet entretien"), { type: "text", text: "." }] },
+          ],
+        },
+      }}
+    />,
+  );
+
+  expect(screen.getByRole("button", { name: "Lire la vidéo : TCC et troubles bipolaires" })).toBeInTheDocument();
+  expect(screen.getByText(/hébergée par YouTube/)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /cet entretien/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=5PN11L4wXKA");
+  expect(screen.getAllByRole("button")).toHaveLength(1);
+});

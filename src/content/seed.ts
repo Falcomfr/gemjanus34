@@ -310,6 +310,11 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         body: "Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Comme pour tout site web, l'hébergeur Vercel enregistre des journaux techniques (adresse IP, page demandée, date et heure) nécessaires à la sécurité et au bon fonctionnement du service.",
       },
       {
+        id: "videos-carte",
+        title: "Vidéos et carte",
+        body: "Les vidéos (YouTube, Vimeo) et la carte (Google Maps) ne se chargent que si vous cliquez dessus. Ces services peuvent alors déposer des cookies et recevoir votre adresse IP, selon leurs propres règles de confidentialité. Avant le clic, seule l'image d'aperçu d'une vidéo YouTube est chargée depuis ses serveurs, sans cookie.",
+      },
+      {
         id: "administration",
         title: "Espace d'administration",
         body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe, les contenus publiés et les messages reçus sont hébergés par le service Supabase.",

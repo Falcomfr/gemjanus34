@@ -143,10 +143,10 @@ test("all public responses include every configured security header", async ({ r
     const headers = response.headers();
 
     expect(headers["content-security-policy"]).toContain("default-src 'self'");
-    expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
+    expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
     expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["x-content-type-options"]).toBe("nosniff");
-    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
     expect(headers["permissions-policy"]).toBe(
       "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
     );
@@ -167,4 +167,51 @@ test("an activity of the planning opens a window with its details", async ({ pag
   expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
+});
+
+function collectCspViolations(page: import("@playwright/test").Page): string[] {
+  const violations: string[] = [];
+  page.on("console", (message) => {
+    if (/Content Security Policy/i.test(message.text())) violations.push(message.text());
+  });
+  // Third-party players stay offline in tests: only the request they would make matters.
+  void page.route(/youtube-nocookie|ytimg|google\.com|vimeo/, (route) => route.abort());
+  return violations;
+}
+
+test("a video of the resources loads its player only on click", async ({ page }) => {
+  const violations = collectCspViolations(page);
+  await page.goto("/ressources");
+
+  await expect(page.locator("iframe")).toHaveCount(0);
+  await page.getByRole("button", { name: /lire la vidéo : tcc et troubles bipolaires/i }).click();
+
+  await expect(page.locator("iframe")).toHaveAttribute("src", /^https:\/\/www\.youtube-nocookie\.com\/embed\/5PN11L4wXKA/);
+  expect(violations).toEqual([]);
+});
+
+test("a document opens in its panel with links to open in full and download", async ({ page }) => {
+  const violations = collectCspViolations(page);
+  await page.goto("/ressources");
+
+  const panel = page.locator(".document-preview").first();
+  await panel.getByText("Afficher le document").click();
+
+  const frame = panel.locator("iframe");
+  await expect(frame).toBeVisible();
+  const src = (await frame.getAttribute("src"))!;
+  await expect.poll(() => page.frames().some((child) => child.url().endsWith(src))).toBe(true);
+  await expect(panel.getByRole("link", { name: /ouvrir en grand/i })).toHaveAttribute("href", src);
+  await expect(panel.getByRole("link", { name: /^télécharger/i })).toHaveAttribute("download", "");
+  expect(violations).toEqual([]);
+});
+
+test("the contact page shows the Google map on request", async ({ page }) => {
+  const violations = collectCspViolations(page);
+  await page.goto("/contact");
+
+  await page.getByRole("button", { name: /afficher la carte/i }).click();
+
+  await expect(page.locator("iframe")).toHaveAttribute("src", /^https:\/\/www\.google\.com\/maps\?q=/);
+  expect(violations).toEqual([]);
 });

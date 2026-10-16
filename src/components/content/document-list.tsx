@@ -1,5 +1,5 @@
-import { Download } from "lucide-react";
 import type { JSX } from "react";
+import { DocumentPreview } from "@/components/content/document-preview";
 import type { PublicDocument } from "@/content/types";
 import { fr } from "@/lib/text/french";
 
@@ -22,10 +22,7 @@ export function DocumentList({ documents }: DocumentListProps): JSX.Element | nu
               <h3>{fr(document.title)}</h3>
               <p>{fr(document.description)}</p>
             </div>
-            <a className="button button--dark" href={document.downloadUrl} aria-label={`Télécharger ${document.title} (PDF)`}>
-              <Download aria-hidden="true" size={20} />
-              Télécharger
-            </a>
+            <DocumentPreview title={document.title} url={document.downloadUrl} />
           </li>
         ))}
       </ul>
