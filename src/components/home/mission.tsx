@@ -1,17 +1,23 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Footprints, MessagesSquare, Palette } from "lucide-react";
 import Link from "next/link";
 import type { JSX } from "react";
 
 const families = [
   {
+    icon: Palette,
+    tone: "sun",
     title: "Créer et s'exprimer",
     examples: "Expression créatrice, écriture poétique, « Les mots qui volent », linogravure, collage.",
   },
   {
+    icon: Footprints,
+    tone: "coral",
     title: "Bouger et prendre l'air",
     examples: "Qi Gong, yoga en douceur, et le GEM « Hors les murs » : expositions, balades, pique-niques.",
   },
   {
+    icon: MessagesSquare,
+    tone: "blue",
     title: "Échanger et agir ensemble",
     examples: "Groupes d'échange et de parole, goûters, repas, projections et la vie de l'association.",
   },
@@ -38,7 +44,8 @@ export function Mission(): JSX.Element {
           </p>
           <ul className="activity-families">
             {families.map((family) => (
-              <li key={family.title}>
+              <li className={`activity-families__item activity-families__item--${family.tone}`} key={family.title}>
+                <family.icon aria-hidden="true" size={30} />
                 <h3>{family.title}</h3>
                 <p>{family.examples}</p>
               </li>

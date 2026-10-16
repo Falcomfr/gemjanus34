@@ -11,7 +11,9 @@ export function Hero(): JSX.Element {
           <p className="home-hero__label">
             <span>Janus34</span> Groupe d&apos;Entraide Mutuelle · Montpellier
           </p>
-          <h1 id="home-title">Rompre les solitudes, créer des liens</h1>
+          <h1 id="home-title">
+            Rompre les solitudes, <span className="home-hero__highlight">créer des liens</span>
+          </h1>
           <p className="home-hero__copy">
             Depuis 2006, Janus34 est un lieu convivial porté par ses adhérents, où les personnes
             concernées par des troubles psychiques peuvent se retrouver, s&apos;entraider et
@@ -27,14 +29,19 @@ export function Hero(): JSX.Element {
             </Link>
           </div>
         </div>
-        <div className="home-hero__stamp">
+        <div className="home-hero__visual">
           <Image
-            src="/images/janus34-logo.png"
-            alt="Logo de l'association Janus34"
-            width={200}
-            height={200}
+            className="home-hero__painting"
+            src="/images/peinture-gem.jpg"
+            alt="Peinture aux couleurs vives : un visage aux yeux clos, des oiseaux et des formes rouges, bleues et jaunes"
+            width={1280}
+            height={960}
+            sizes="(min-width: 48rem) 34rem, 100vw"
             priority
           />
+          <div className="home-hero__stamp">
+            <Image src="/images/janus34-logo.png" alt="Logo de l'association Janus34" width={512} height={512} />
+          </div>
         </div>
       </div>
     </section>

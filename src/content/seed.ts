@@ -78,6 +78,13 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         title: "Créer et s'exprimer",
         body: "Les ateliers d'expression stimulent l'imagination et la concentration. Ils permettent de se décentrer des difficultés et de s'ouvrir à de nouveaux centres d'intérêt.",
         items: ["Expression créatrice", "« Les mots qui volent »", "Écriture poétique", "Linogravure", "Collage"],
+        image: {
+          src: "/images/peinture-gem.jpg",
+          alt: "Peinture aux couleurs vives : un visage aux yeux clos, des oiseaux et des formes rouges, bleues et jaunes",
+          caption: "Une peinture issue des archives de Janus34.",
+          width: 1280,
+          height: 960,
+        },
       },
       {
         id: "bouger",
@@ -332,6 +339,35 @@ export const publicPages: ReadonlyArray<PublicPage> = [
 ];
 
 export const newsItems: ReadonlyArray<NewsItem> = [
+  {
+    id: "hors-les-murs-musee-fabre",
+    title: "GEM Hors les murs au musée Fabre",
+    excerpt:
+      "Après le temps d'accueil au café The Little Italy Shop (4 bis cours Gambetta, près de l'arrêt Saint-Denis du tram 3), visite de l'exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d'entrée ; pensez à vos justificatifs pour les réductions.",
+    startsAt: "2026-10-08T10:00:00+02:00",
+    endsAt: "2026-10-08T13:00:00+02:00",
+    featured: true,
+    status: "published",
+  },
+  {
+    id: "groupe-de-parole-annule-6-octobre",
+    title: "Groupe de parole annulé le 6 octobre",
+    excerpt:
+      "Le groupe de parole du mardi 6 octobre est exceptionnellement annulé. L'atelier Qi Gong a lieu comme prévu à 14 h 30.",
+    startsAt: "2026-10-06T16:00:00+02:00",
+    endsAt: null,
+    featured: false,
+    status: "published",
+  },
+  {
+    id: "atelier-collage-3-octobre",
+    title: "Atelier collage du samedi 3 octobre",
+    excerpt: "L'atelier collage a lieu à 14 h. Ce samedi, le GEM est ouvert par une animatrice.",
+    startsAt: "2026-10-03T14:00:00+02:00",
+    endsAt: "2026-10-03T15:00:00+02:00",
+    featured: false,
+    status: "published",
+  },
   {
     id: "compte-rendu-ag-2025",
     title: "Assemblée générale 2025",

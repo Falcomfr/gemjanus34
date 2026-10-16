@@ -103,3 +103,30 @@ test("refreshes hourly so news status follows the calendar", async () => {
 
   expect(home.revalidate).toBe(3600);
 });
+
+test("shows a painting from the GEM in the opening screen", async () => {
+  render(await HomePage());
+  const hero = screen.getByRole("region", { name: "Rompre les solitudes, créer des liens" });
+  const painting = within(hero).getByRole("img", { name: /peinture/i });
+
+  expect(painting).toHaveAttribute("src", expect.stringContaining("peinture-gem"));
+});
+
+test("sums up Janus34 in three sourced key figures", async () => {
+  render(await HomePage());
+  const figures = screen.getByRole("region", { name: "Janus34 en quelques repères" });
+
+  expect(within(figures).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
+    "2006année de création de l'association",
+    "Lundi → samediouverture du GEM à 13 h",
+    "100 %d'adhérents au Conseil d'Administration",
+  ]);
+});
+
+test("quotes the association's own objective", async () => {
+  const { container } = render(await HomePage());
+
+  expect(container.querySelector("blockquote")?.textContent).toContain(
+    "Rompre les solitudes, favoriser l'entraide, la solidarité et le partage entre les membres.",
+  );
+});

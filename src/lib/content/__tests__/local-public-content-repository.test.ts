@@ -41,6 +41,9 @@ test("returns only news records with verified public dates", async () => {
   const news = await publicContentRepository.getNews();
 
   expect(news.map(({ title, startsAt }) => ({ title, startsAt }))).toEqual([
+    { title: "GEM Hors les murs au musée Fabre", startsAt: "2026-10-08T10:00:00+02:00" },
+    { title: "Groupe de parole annulé le 6 octobre", startsAt: "2026-10-06T16:00:00+02:00" },
+    { title: "Atelier collage du samedi 3 octobre", startsAt: "2026-10-03T14:00:00+02:00" },
     { title: "Assemblée générale 2025", startsAt: "2025-05-10" },
   ]);
 });

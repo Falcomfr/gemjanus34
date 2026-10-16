@@ -104,6 +104,9 @@ describe("public content contracts", () => {
       "/images/janus-vatican.jpg",
     );
     expect(JSON.stringify(getPage("nous-rejoindre"))).toContain("https://www.google.com/maps/search/?api=1&query=");
+    expect(getPage("activites").sections.find((section) => section.id === "creer")?.image?.src).toBe(
+      "/images/peinture-gem.jpg",
+    );
   });
 
   test("gives complete phone-first information for a first visit", () => {

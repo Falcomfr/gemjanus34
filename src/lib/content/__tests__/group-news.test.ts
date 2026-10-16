@@ -39,3 +39,15 @@ test("sorts upcoming soonest first and past news latest first, published only", 
   expect(groups.upcoming.map((item) => item.id)).toEqual(["sooner", "later"]);
   expect(groups.recent.map((item) => item.id)).toEqual(["older", "old"]);
 });
+
+test("classifies Supabase timestamps ended last week as recent", () => {
+  const groups = groupNews(
+    [
+      news("fabre", "2026-10-08T08:00:00+00:00", { endsAt: "2026-10-08T11:00:00+00:00" }),
+      news("parole", "2026-10-06T14:00:00+00:00"),
+    ],
+    "2026-10-16T12:41:23.456Z",
+  );
+
+  expect(groups.recent.map((item) => item.id)).toEqual(["fabre", "parole"]);
+});

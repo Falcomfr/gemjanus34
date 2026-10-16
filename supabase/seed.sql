@@ -100,3 +100,40 @@ values (
   '00000000-0000-4000-8000-000000000001',
   now()
 );
+
+-- Announcements taken from the "Quoi de neuf" page of the original site (October 2026).
+insert into public.news (id, title, excerpt, starts_at, ends_at, featured, status, created_by, updated_by)
+values
+  (
+    '00000000-0000-4000-8000-000000000201',
+    'GEM Hors les murs au musée Fabre',
+    'Après le temps d''accueil au café The Little Italy Shop (4 bis cours Gambetta, près de l''arrêt Saint-Denis du tram 3), visite de l''exposition « Le Design selon Pierre Paulin » au musée Fabre. Le GEM prend en charge les billets d''entrée ; pensez à vos justificatifs pour les réductions.',
+    '2026-10-08T10:00:00+02:00',
+    '2026-10-08T13:00:00+02:00',
+    true,
+    'published',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000001'
+  ),
+  (
+    '00000000-0000-4000-8000-000000000202',
+    'Groupe de parole annulé le 6 octobre',
+    'Le groupe de parole du mardi 6 octobre est exceptionnellement annulé. L''atelier Qi Gong a lieu comme prévu à 14 h 30.',
+    '2026-10-06T16:00:00+02:00',
+    null,
+    false,
+    'published',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000001'
+  ),
+  (
+    '00000000-0000-4000-8000-000000000203',
+    'Atelier collage du samedi 3 octobre',
+    'L''atelier collage a lieu à 14 h. Ce samedi, le GEM est ouvert par une animatrice.',
+    '2026-10-03T14:00:00+02:00',
+    '2026-10-03T15:00:00+02:00',
+    false,
+    'published',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000001'
+  );
