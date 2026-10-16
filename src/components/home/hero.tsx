@@ -1,16 +1,32 @@
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { JSX } from "react";
 
-type HeroProps = {
-  planningHref?: string;
-};
-
-export function Hero({ planningHref }: HeroProps): JSX.Element {
+export function Hero(): JSX.Element {
   return (
     <section className="home-hero" aria-labelledby="home-title">
       <div className="content-container home-hero__inner">
+        <div className="home-hero__content">
+          <p className="home-hero__label">
+            <span>Janus34</span> Groupe d&apos;Entraide Mutuelle · Montpellier
+          </p>
+          <h1 id="home-title">Rompre les solitudes, créer des liens</h1>
+          <p className="home-hero__copy">
+            Depuis 2006, Janus34 est un lieu convivial porté par ses adhérents, où les personnes
+            concernées par des troubles psychiques peuvent se retrouver, s&apos;entraider et
+            participer à des activités.
+          </p>
+          <div className="home-hero__actions">
+            <Link className="button button--sun" href="/qui-sommes-nous">
+              Découvrir Janus34
+              <ArrowRight aria-hidden="true" size={20} />
+            </Link>
+            <Link className="button button--secondary" href="/nous-rejoindre">
+              Préparer une première visite
+            </Link>
+          </div>
+        </div>
         <Image
           className="home-hero__logo"
           src="/images/janus34-logo.png"
@@ -19,30 +35,6 @@ export function Hero({ planningHref }: HeroProps): JSX.Element {
           height={200}
           priority
         />
-        <div className="home-hero__content">
-          <p className="eyebrow">Groupe d&apos;Entraide Mutuelle à Montpellier</p>
-          <h1 id="home-title">Janus34</h1>
-          <p className="home-hero__copy">
-            Un lieu d&apos;accueil, de partage et d&apos;activités pour créer du lien à son rythme.
-          </p>
-          <div className="home-hero__actions">
-            <Link className="button button--primary" href="/nous-rejoindre">
-              Nous rejoindre
-              <ArrowRight aria-hidden="true" size={20} />
-            </Link>
-            {planningHref ? (
-              <Link className="button button--secondary" href={planningHref}>
-                <CalendarDays aria-hidden="true" size={20} />
-                Voir le planning
-              </Link>
-            ) : (
-              <Link className="button button--secondary" href="/activites">
-                <CalendarDays aria-hidden="true" size={20} />
-                Découvrir les activités
-              </Link>
-            )}
-          </div>
-        </div>
       </div>
     </section>
   );
