@@ -24,9 +24,9 @@ function Status({ state }: { state: PlanningActionState }): JSX.Element | null {
   return null;
 }
 
-function Field({ label, error, wide = false, children }: { label: string; error?: string[]; wide?: boolean; children: ReactNode }) {
+function Field({ label, error, wide = false, className = "", children }: { label: string; error?: string[]; wide?: boolean; className?: string; children: ReactNode }) {
   return (
-    <label className={`admin-field${wide ? " admin-field--wide" : ""}`}>
+    <label className={`admin-field${wide ? " admin-field--wide" : ""}${className ? ` ${className}` : ""}`}>
       <span>{label}</span>
       {children}
       {error ? <small>{error.join(" ")}</small> : null}
@@ -128,7 +128,7 @@ export function PlanningSlotForm({ day, slot }: { day: number; slot?: PlanningSl
           ))}
         </select>
       </Field>
-      <Field label="Récurrence" error={errors.recurrence}>
+      <Field label="Récurrence" error={errors.recurrence} className="planning-admin__recurrence">
         <select name="recurrence" defaultValue={slot?.recurrence ?? "weekly"}>
           <option value="weekly">Chaque semaine</option>
           <option value="only">Seulement certaines semaines du mois</option>
@@ -145,10 +145,10 @@ export function PlanningSlotForm({ day, slot }: { day: number; slot?: PlanningSl
         ))}
         {errors.monthWeeks ? <small>{errors.monthWeeks.join(" ")}</small> : null}
       </fieldset>
-      <Field label="Précision (facultatif)" error={errors.note} wide>
+      <Field label="Précision (facultatif)" error={errors.note} wide className="planning-admin__note">
         <input name="note" maxLength={300} defaultValue={slot?.note ?? ""} placeholder="Sur inscription, une fois par mois…" />
       </Field>
-      <Field label="Description (fenêtre d’information)" error={errors.description} wide>
+      <Field label="Description (fenêtre d’information)" error={errors.description} wide className="planning-admin__description">
         <textarea name="description" maxLength={600} rows={2} defaultValue={slot?.description ?? ""} />
       </Field>
       <div className="planning-admin__slot-actions">

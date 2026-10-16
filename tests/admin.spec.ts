@@ -1,3 +1,4 @@
+import { addDays, currentMonday } from "../src/lib/planning/week";
 import { expect, test, type Page } from "@playwright/test";
 
 // These journeys need the local Supabase stack (supabase start) and its variables at build time.
@@ -220,6 +221,67 @@ test("a slot added in the admin planning shows on the site and the printable ver
   await expect(page.getByRole("button", { name: "Supprimer Atelier E2E" })).toHaveCount(0);
   await page.goto("/actualites");
   await expect(page.getByText("Atelier E2E")).toHaveCount(0);
+});
+
+test("the team cancels, closes and adds sessions on given dates, and the site follows", async ({ page }) => {
+  const monday = addDays(currentMonday(new Date().toISOString()), 7);
+  await login(page);
+  await page.goto("/admin/planning");
+  const changes = page.getByRole("region", { name: "Changements à venir" });
+  const panel = (summary: string) => changes.locator("details", { hasText: summary }).locator("form");
+
+  await changes.getByText("Annuler une séance").click();
+  const cancel = panel("Annuler une séance");
+  await cancel.getByLabel("Séance").selectOption({ label: "Mardi · 14 h 30 · Qi Gong" });
+  await cancel.getByLabel("Date").fill(addDays(monday, 1));
+  await cancel.getByLabel(/^Motif/).fill("Absence E2E");
+  await cancel.getByRole("button", { name: "Annuler la séance" }).click();
+  await expect(cancel.getByRole("status")).toContainText("Séance annulée");
+
+  await cancel.getByLabel("Séance").selectOption({ label: "Jeudi · 15 h · Yoga en douceur" });
+  await cancel.getByLabel("Date").fill(addDays(monday, 3));
+  await cancel.getByLabel("Masquée").check();
+  await cancel.getByRole("button", { name: "Annuler la séance" }).click();
+  await expect(changes.getByRole("listitem").filter({ hasText: "Yoga en douceur" })).toContainText("Annulée, masquée");
+
+  await changes.getByText("Fermer le GEM").click();
+  const closure = panel("Fermer le GEM");
+  await closure.getByLabel("Du").fill(addDays(monday, 4));
+  await closure.getByLabel(/^Motif/).fill("Fermeture E2E");
+  await closure.getByRole("button", { name: "Enregistrer la fermeture" }).click();
+  await expect(closure.getByRole("status")).toContainText("Fermeture enregistrée");
+
+  await changes.getByText("Ajouter une séance exceptionnelle").click();
+  const extra = panel("Ajouter une séance exceptionnelle");
+  await extra.getByLabel("Date").fill(addDays(monday, 2));
+  await extra.getByLabel("Début").fill("10:00");
+  await extra.getByLabel("Fin").fill("11:00");
+  await extra.getByLabel("Activité").fill("Séance E2E");
+  await extra.getByRole("button", { name: "Ajouter la séance" }).click();
+  await expect(extra.getByRole("status")).toContainText("Séance exceptionnelle ajoutée");
+
+  await page.goto(`/actualites?semaine=${monday}`);
+  const qiGong = page.getByRole("region", { name: /^mardi/i }).locator("li", { hasText: "Qi Gong" });
+  await expect(qiGong).toHaveClass(/planning-slot--cancelled/);
+  await expect(qiGong).toContainText("Absence E2E");
+  await expect(page.getByRole("region", { name: /^jeudi/i })).not.toContainText("Yoga en douceur");
+  await expect(page.getByRole("region", { name: /^vendredi/i })).toContainText("GEM fermé");
+  await expect(page.getByRole("region", { name: /^vendredi/i })).toContainText("Fermeture E2E");
+  await expect(page.getByRole("region", { name: /^mercredi/i }).locator("li", { hasText: "Séance E2E" })).toContainText("Exceptionnel");
+  await page.getByRole("link", { name: /version imprimable/i }).click();
+  await expect(page).toHaveURL(new RegExp(`/planning/imprimer\\?semaine=${monday}$`));
+  await expect(page.getByText("Séance E2E")).toBeVisible();
+
+  await page.goto("/admin/planning");
+  page.on("dialog", (dialog) => dialog.accept());
+  for (const what of ["Qi Gong", "Yoga en douceur", "GEM fermé", "Séance E2E"]) {
+    const remove = changes.getByRole("button", { name: new RegExp(`^Supprimer : .*${what}`) });
+    await remove.click();
+    await expect(remove).toHaveCount(0);
+  }
+  await page.goto(`/actualites?semaine=${monday}`);
+  await expect(page.getByText("Séance E2E")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: /^jeudi/i })).toContainText("Yoga en douceur");
 });
 
 test("an administrator manages an account from creation to deletion", async ({ page, browser }) => {

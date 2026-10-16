@@ -3591,3 +3591,226 @@ body:has(.admin-area) > .skip-link {
     display: block;
   }
 }
+
+/* Dated planning: week range, navigation, cancelled, exceptional and closed */
+
+.week-planning__header p.week-planning__range {
+  margin: 0.25rem 0 0.35rem;
+  color: var(--forest-dark);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.week-planning__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.week-planning__nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.planning-day__date {
+  color: var(--muted);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.planning-day--closed {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 0.75rem, rgb(200 79 59 / 6%) 0.75rem 1.5rem),
+    var(--surface);
+}
+
+.planning-day__header p.planning-day__closed {
+  margin-top: -0.6rem;
+  color: var(--coral-dark);
+}
+
+.planning-slot__badge {
+  justify-self: start;
+  margin-bottom: 0.15rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--coral);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planning-slot__badge--extra {
+  background: var(--sun);
+  color: var(--forest-dark);
+}
+
+.planning-slot--cancelled {
+  border-left-style: dashed;
+  background: repeating-linear-gradient(135deg, transparent 0 0.5rem, rgb(31 41 36 / 4%) 0.5rem 1rem), var(--tone-soft);
+}
+
+.planning-slot--cancelled .planning-slot__time,
+.planning-slot--cancelled .planning-slot__title,
+.planning-slot--cancelled .planning-slot__leader {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.planning-slot--cancelled .planning-slot__note {
+  color: var(--coral-dark);
+  font-weight: 700;
+}
+
+.planning-slot--extra {
+  box-shadow: inset 0 0 0 2px var(--sun);
+}
+
+.slot-dialog__cancelled {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  background: var(--coral-soft);
+  color: var(--coral-dark);
+  font-weight: 700;
+}
+
+.today-at-gem__heading > p.today-at-gem__closed {
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.5rem;
+  background: var(--coral-soft);
+  color: var(--coral-dark);
+  font-weight: 700;
+}
+
+/* Admin: planned changes and recurrence */
+
+.planning-changes__list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planning-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 0.35rem solid var(--coral);
+  border-radius: 0.5rem;
+  background: var(--coral-soft);
+}
+
+.planning-change--extra {
+  border-left-color: var(--sun);
+  background: var(--sun-soft);
+}
+
+.planning-change > div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.planning-change small {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.planning-change .form-status {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.planning-changes__empty {
+  color: var(--muted);
+}
+
+.planning-changes__forms {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.planning-admin__weeks,
+.planning-admin__display {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.planning-admin__weeks legend,
+.planning-admin__display legend {
+  margin-bottom: 0.3rem;
+  padding: 0;
+  font-weight: 700;
+}
+
+.planning-admin__weeks label,
+.planning-admin__display label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.planning-admin__weeks small {
+  flex-basis: 100%;
+  color: var(--coral-dark);
+}
+
+.planning-day__date {
+  flex-basis: 100%;
+}
+
+.planning-changes__forms summary {
+  justify-self: start;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.planning-changes__forms summary::before {
+  content: "+";
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.planning-changes__forms details[open] summary::before {
+  content: "−";
+}
+
+.planning-changes__forms details {
+  display: grid;
+}
+
+@media (min-width: 64rem) {
+  .planning-admin__slot .planning-admin__recurrence,
+  .planning-admin__slot .planning-admin__note {
+    grid-column: 1 / 3;
+  }
+
+  .planning-admin__slot .planning-admin__weeks {
+    grid-column: 3 / -1;
+    align-self: end;
+  }
+
+  .planning-admin__slot .admin-field--wide.planning-admin__description {
+    grid-column: 3 / -1;
+  }
+}

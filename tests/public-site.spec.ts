@@ -159,7 +159,7 @@ test("an activity of the planning opens a window with its details", async ({ pag
 
   const dialog = page.getByRole("dialog", { name: "Yoga en douceur" });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("Jeudi, 15 h – 16 h 30");
+  await expect(dialog).toContainText(/Jeudi \S+ \S+, 15 h – 16 h 30/);
   await expect(dialog).toContainText("avec Sévérine");
   const box = (await dialog.boundingBox())!;
   const viewport = page.viewportSize()!;
@@ -221,4 +221,20 @@ test("the contact page shows the Google map on request", async ({ page }) => {
 
   await expect(page.locator("iframe")).toHaveAttribute("src", /^https:\/\/www\.google\.com\/maps\?q=/);
   expect(violations).toEqual([]);
+});
+
+test("the planning moves from week to week, within the next eight weeks", async ({ page }) => {
+  await page.goto("/actualites");
+  const range = page.locator(".week-planning__range");
+  const current = await range.textContent();
+
+  await page.getByRole("link", { name: /semaine suivante/i }).click();
+  await expect(page).toHaveURL(/\?semaine=\d{4}-\d{2}-\d{2}#planning$/);
+  await expect(range).not.toHaveText(current!);
+  await page.getByRole("link", { name: /semaine précédente/i }).click();
+  await expect(range).toHaveText(current!);
+  await expect(page.getByRole("link", { name: /semaine précédente/i })).toHaveCount(0);
+
+  await page.goto("/actualites?semaine=1999-01-04");
+  await expect(range).toHaveText(current!);
 });
