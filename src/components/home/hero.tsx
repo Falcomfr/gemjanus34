@@ -27,14 +27,15 @@ export function Hero(): JSX.Element {
             </Link>
           </div>
         </div>
-        <Image
-          className="home-hero__logo"
-          src="/images/janus34-logo.png"
-          alt="Logo de l'association Janus34"
-          width={200}
-          height={200}
-          priority
-        />
+        <div className="home-hero__stamp">
+          <Image
+            src="/images/janus34-logo.png"
+            alt="Logo de l'association Janus34"
+            width={200}
+            height={200}
+            priority
+          />
+        </div>
       </div>
     </section>
   );

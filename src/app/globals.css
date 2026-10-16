@@ -378,7 +378,7 @@ h3 {
   margin-top: 2rem;
 }
 
-.home-hero__logo {
+.home-hero__stamp {
   display: none;
 }
 
@@ -1913,18 +1913,23 @@ body:has(.admin-area) > .skip-link {
   }
 
   .home-hero__inner {
-    grid-template-columns: minmax(0, 1fr) 11rem;
+    grid-template-columns: minmax(0, 1fr) 10rem;
   }
 
-  .home-hero__logo {
-    display: block;
-    width: 100%;
-    height: auto;
-    padding: 1.25rem;
+  .home-hero__stamp {
+    display: grid;
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 12%;
     border-radius: 50%;
     background: var(--background);
     box-shadow: 0 0 0 0.5rem var(--sun), 0 1rem 2rem rgb(0 0 0 / 25%);
     transform: rotate(3deg);
+  }
+
+  .home-hero__stamp img {
+    width: 100%;
+    height: auto;
   }
 
   .quick-access {
