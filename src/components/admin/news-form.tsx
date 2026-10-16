@@ -16,6 +16,7 @@ import {
 import type { Profile } from "@/lib/auth/require-profile";
 import type { Database } from "@/lib/database.types";
 import { RichTextEditor } from "./rich-text-editor";
+import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 
 type NewsRow = Pick<
   Database["public"]["Tables"]["news"]["Row"],
@@ -76,7 +77,7 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
 
   return (
     <div className="admin-editor-layout">
-      <form className="admin-page-form" action={formAction}>
+      <form className="admin-page-form" onSubmit={submitWithoutReset(formAction)}>
         {news ? <input type="hidden" name="newsId" value={news.id} /> : null}
         {!editable ? (
           <p className="admin-notice">Archivez ou restaurez cette actualité avec les actions dédiées.</p>

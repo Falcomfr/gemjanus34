@@ -3,6 +3,7 @@
 import { LogIn } from "lucide-react";
 import { useActionState } from "react";
 import { login, type LoginState } from "./actions";
+import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 
 const initialState: LoginState = {};
 
@@ -16,7 +17,7 @@ export default function LoginPage() {
         <h1>Connexion à l’administration</h1>
         <p>Utilisez votre compte personnel Janus34.</p>
 
-        <form className="admin-login__form" action={formAction}>
+        <form className="admin-login__form" onSubmit={submitWithoutReset(formAction)}>
           <div className="field">
             <label htmlFor="email">Adresse e-mail</label>
             <input id="email" name="email" type="email" autoComplete="email" required />

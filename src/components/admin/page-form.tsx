@@ -15,6 +15,7 @@ import {
 import type { Profile } from "@/lib/auth/require-profile";
 import type { Database } from "@/lib/database.types";
 import { RichTextEditor } from "./rich-text-editor";
+import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 
 type PageRow = Pick<
   Database["public"]["Tables"]["pages"]["Row"],
@@ -108,7 +109,10 @@ export function PageForm({
 
   return (
     <div className="admin-editor-layout">
-      <form className="admin-page-form" action={structureUnavailable ? undefined : formAction}>
+      <form
+        className="admin-page-form"
+        onSubmit={structureUnavailable ? (event) => event.preventDefault() : submitWithoutReset(formAction)}
+      >
         {page ? <input type="hidden" name="pageId" value={page.id} /> : null}
         <input type="hidden" name="status" value={page?.status ?? "draft"} />
 
