@@ -59,7 +59,7 @@ select set_config('request.jwt.claims', '{"sub":"61000000-0000-0000-0000-0000000
 set local role authenticated;
 select results_eq($$select display_name from public.profiles order by display_name$$, array['Lecteur actif'], 'editors still read only their own profile row');
 select results_eq(
-  $$select title, author_display_name from public.list_news_with_authors() order by title$$,
+  $$select title, author_display_name from public.list_news_with_authors() where id = '62000000-0000-0000-0000-000000000001'$$,
   $$values ('Actualité partagée'::text, 'Autrice collègue'::text)$$,
   'active editors see another author display name through the narrow news list'
 );

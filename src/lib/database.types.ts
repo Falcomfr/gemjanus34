@@ -61,6 +61,91 @@ export type Database = {
           },
         ];
       };
+      contact_messages: {
+        Row: {
+          created_at: string;
+          email: string;
+          handled_at: string | null;
+          handled_by: string | null;
+          id: string;
+          message: string;
+          name: string;
+          subject: string;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          handled_at?: string | null;
+          handled_by?: string | null;
+          id?: string;
+          message: string;
+          name: string;
+          subject: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          handled_at?: string | null;
+          handled_by?: string | null;
+          id?: string;
+          message?: string;
+          name?: string;
+          subject?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_handled_by_fkey";
+            columns: ["handled_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      documents: {
+        Row: {
+          category: string;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          document_date: string;
+          id: string;
+          storage_path: string | null;
+          title: string;
+          url: string;
+        };
+        Insert: {
+          category: string;
+          created_at?: string;
+          created_by?: string | null;
+          description: string;
+          document_date: string;
+          id?: string;
+          storage_path?: string | null;
+          title: string;
+          url: string;
+        };
+        Update: {
+          category?: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          document_date?: string;
+          id?: string;
+          storage_path?: string | null;
+          title?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "documents_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       news: {
         Row: {
           content: NonNullable<Json>;
@@ -274,6 +359,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      archive_news: { Args: { news_id: string }; Returns: undefined };
       current_app_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
@@ -292,7 +378,6 @@ export type Database = {
           updated_at: string;
         }[];
       };
-      archive_news: { Args: { news_id: string }; Returns: undefined };
       publish_news: { Args: { news_id: string }; Returns: undefined };
       publish_page: { Args: { page_id: string }; Returns: undefined };
       restore_news: { Args: { news_id: string }; Returns: undefined };
