@@ -7,10 +7,10 @@ import { useFormStatus } from "react-dom";
 import {
   archivePage,
   createPage,
-  initialPageActionState,
   publishPage,
   restorePageRevision,
   updatePage,
+  type PageActionState,
 } from "@/app/admin/pages/actions";
 import type { Profile } from "@/lib/auth/require-profile";
 import type { Database } from "@/lib/database.types";
@@ -39,6 +39,7 @@ type PageFormProps = {
 };
 
 const emptyContent: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
+const initialPageActionState: PageActionState = {};
 
 function FieldErrors({
   className,

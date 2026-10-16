@@ -17,8 +17,6 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export type { PageActionState } from "@/lib/admin/page-lifecycle-actions";
 
-export const initialPageActionState: PageActionState = {};
-
 const pageIdSchema = z.object({ pageId: z.uuid() });
 
 function stringValue(formData: FormData, name: string) {
