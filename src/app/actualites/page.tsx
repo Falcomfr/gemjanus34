@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
-import { publicContentRepository } from "@/lib/content/local-public-content-repository";
+import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
 
 export const metadata: Metadata = {
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function NewsPage() {
+  const publicContentRepository = getPublicContentRepository();
   const [items, planningDocuments] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),

@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { ContentPage } from "@/components/content/content-page";
-import { publicContentRepository } from "@/lib/content/local-public-content-repository";
+import { getPublicContentRepository } from "@/lib/content/public-repository";
 
 export default async function ActivitiesPage() {
+  const publicContentRepository = getPublicContentRepository();
   const page = await publicContentRepository.getPage("activites");
 
   if (!page) {

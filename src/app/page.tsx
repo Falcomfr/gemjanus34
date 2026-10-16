@@ -4,10 +4,11 @@ import { CurrentPlanning } from "@/components/home/current-planning";
 import { Hero } from "@/components/home/hero";
 import { UpcomingNews } from "@/components/home/upcoming-news";
 import { VisitPanel } from "@/components/home/visit-panel";
-import { publicContentRepository } from "@/lib/content/local-public-content-repository";
+import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
 
 export default async function HomePage() {
+  const publicContentRepository = getPublicContentRepository();
   const [news, planningDocuments] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),

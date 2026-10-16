@@ -1170,6 +1170,22 @@ body:has(.admin-area) > .skip-link {
   font-weight: 700;
 }
 
+.admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-checkbox input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--forest);
+}
+
 .admin-form-actions {
   display: flex;
   justify-content: flex-end;

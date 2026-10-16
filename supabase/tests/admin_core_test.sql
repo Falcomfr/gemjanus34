@@ -544,14 +544,14 @@ select throws_like(
       title, excerpt, starts_at, status, created_by, updated_by
     ) values (
       'Directly published news',
-      'This must remain an administrator action',
+      'This must remain a deliberate publication action',
       now(),
       'published',
       '10000000-0000-0000-0000-000000000002',
       '10000000-0000-0000-0000-000000000002'
     )
   $$,
-  '%administrator%',
+  '%publication RPC%',
   'editors cannot insert already-published news'
 );
 select throws_like(
@@ -562,7 +562,7 @@ select throws_like(
       updated_by = '10000000-0000-0000-0000-000000000002'
     where id = '40000000-0000-0000-0000-000000000001'
   $$,
-  '%administrator%',
+  '%draft%',
   'editors cannot change published news'
 );
 select throws_like(
@@ -573,7 +573,7 @@ select throws_like(
       updated_by = '10000000-0000-0000-0000-000000000002'
     where id = '40000000-0000-0000-0000-000000000003'
   $$,
-  '%administrator%',
+  '%restoration RPC%',
   'editors cannot unarchive news'
 );
 select throws_like(
@@ -584,7 +584,7 @@ select throws_like(
       updated_by = '10000000-0000-0000-0000-000000000002'
     where id = '40000000-0000-0000-0000-000000000002'
   $$,
-  '%administrator%',
+  '%publication RPC%',
   'editors cannot publish news'
 );
 select throws_like(
@@ -779,14 +779,8 @@ select lives_ok(
   'admins can publish pages through the RPC'
 );
 select lives_ok(
-  $$
-    update public.news
-    set
-      status = 'published',
-      updated_by = '10000000-0000-0000-0000-000000000001'
-    where id = '40000000-0000-0000-0000-000000000005'
-  $$,
-  'admins can publish news'
+  $$select public.publish_news('40000000-0000-0000-0000-000000000005')$$,
+  'admins can publish news through the RPC'
 );
 select throws_like(
   $$delete from public.pages where id = '20000000-0000-0000-0000-000000000002'$$,
