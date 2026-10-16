@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import * as planningActions from "../actions";
 
-const table = vi.hoisted(() => ({ insert: vi.fn(), update: vi.fn(), remove: vi.fn() }));
+const table = vi.hoisted(() => ({ insert: vi.fn(), update: vi.fn(), remove: vi.fn(), select: vi.fn() }));
 const revalidatePath = vi.hoisted(() => vi.fn());
 const updateTag = vi.hoisted(() => vi.fn());
 
@@ -13,6 +13,7 @@ vi.mock("@/lib/supabase/server", () => ({
       insert: (values: unknown) => table.insert(name, values),
       update: (values: unknown) => ({ eq: (column: string, value: unknown) => table.update(name, values, column, value) }),
       delete: () => ({ eq: (column: string, value: unknown) => table.remove(name, column, value) }),
+      select: () => ({ eq: (column: string, value: unknown) => ({ maybeSingle: () => table.select(name, column, value) }) }),
     }),
   })),
 }));
@@ -29,6 +30,7 @@ beforeEach(() => {
   table.insert.mockResolvedValue({ error: null });
   table.update.mockResolvedValue({ error: null });
   table.remove.mockResolvedValue({ error: null });
+  table.select.mockResolvedValue({ data: { day: 2 }, error: null });
 });
 
 test("exports only async server actions", () => {
@@ -40,6 +42,7 @@ test("adds a new slot and refreshes the public pages", async () => {
 
   expect(table.insert).toHaveBeenCalledWith("planning_slots", {
     day: 2, starts_at: "14:30", ends_at: "15:30", title: "Qi Gong", leader: "Adrien", note: "", description: "", family: "bouger",
+    recurrence: "weekly", month_weeks: [],
   });
   expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
   expect(state.success).toBeDefined();
@@ -71,4 +74,42 @@ test("returns field errors without writing", async () => {
 
   expect(state.fieldErrors?.endsAt).toBeDefined();
   expect(table.insert).not.toHaveBeenCalled();
+});
+
+const slotId = "50000000-0000-4000-8000-000000000001";
+
+test("cancels a session on a date of its weekday", async () => {
+  // 2030-01-08 is a Tuesday, like the slot.
+  const state = await planningActions.addPlanningException({}, form({ kind: "cancel", slotId, date: "2030-01-08", reason: "Absent", display: "hidden" }));
+
+  expect(table.select).toHaveBeenCalledWith("planning_slots", "id", slotId);
+  expect(table.insert).toHaveBeenCalledWith("planning_exceptions", { kind: "cancel", slot_id: slotId, date: "2030-01-08", reason: "Absent", hidden: true });
+  expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
+  expect(state.success).toBeDefined();
+});
+
+test("refuses to cancel a session on another weekday", async () => {
+  const state = await planningActions.addPlanningException({}, form({ kind: "cancel", slotId, date: "2030-01-09", reason: "", display: "struck" }));
+
+  expect(state.fieldErrors?.date).toEqual(["Cette séance a lieu le mardi : choisissez un mardi."]);
+  expect(table.insert).not.toHaveBeenCalled();
+});
+
+test("closes the GEM and adds an exceptional session", async () => {
+  await planningActions.addPlanningException({}, form({ kind: "closure", date: "2030-12-24", endDate: "2031-01-02", reason: "Fêtes" }));
+  expect(table.insert).toHaveBeenCalledWith("planning_exceptions", { kind: "closure", date: "2030-12-24", end_date: "2031-01-02", reason: "Fêtes" });
+
+  await planningActions.addPlanningException(
+    {},
+    form({ kind: "extra", date: "2030-01-09", startsAt: "10:00", endsAt: "12:00", title: "Atelier invité", leader: "Lou", description: "", family: "creer" }),
+  );
+  expect(table.insert).toHaveBeenCalledWith("planning_exceptions", {
+    kind: "extra", date: "2030-01-09", starts_at: "10:00", ends_at: "12:00", title: "Atelier invité", leader: "Lou", description: "", family: "creer",
+  });
+});
+
+test("removes a planned change", async () => {
+  await planningActions.deletePlanningException({}, form({ id: slotId }));
+
+  expect(table.remove).toHaveBeenCalledWith("planning_exceptions", "id", slotId);
 });

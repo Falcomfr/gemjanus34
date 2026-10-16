@@ -1,5 +1,11 @@
 import { Printer } from "lucide-react";
-import { PlanningDayForm, PlanningSettingsForm, PlanningSlotForm } from "@/components/admin/planning-forms";
+import {
+  PlanningDayForm,
+  PlanningExceptionForms,
+  PlanningExceptionList,
+  PlanningSettingsForm,
+  PlanningSlotForm,
+} from "@/components/admin/planning-forms";
 import { dayNames } from "@/components/planning/planning-format";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { mapPlanning } from "@/lib/content/supabase-public-content-repository";
@@ -27,7 +33,7 @@ export default async function AdminPlanningPage() {
         <div>
           <p className="eyebrow eyebrow--dark">Contenu</p>
           <h1>Planning</h1>
-          <p>La semaine type affichée sur le site. Chaque modification est visible dès l’enregistrement.</p>
+          <p>La semaine type et ses changements datés. Chaque modification est visible sur le site dès l’enregistrement.</p>
         </div>
         <a className="button button--dark" href="/planning/imprimer" target="_blank" rel="noopener noreferrer">
           <Printer aria-hidden="true" size={18} />
@@ -37,6 +43,13 @@ export default async function AdminPlanningPage() {
 
       {planning ? (
         <>
+          <section className="admin-form-section planning-changes" aria-labelledby="planning-changes-title">
+            <h2 id="planning-changes-title">Changements à venir</h2>
+            <p>Annulations, fermetures et séances exceptionnelles : ils s’affichent sur le site à leur date, puis disparaissent une fois passés.</p>
+            <PlanningExceptionList exceptions={planning.exceptions} slots={planning.slots} />
+            <PlanningExceptionForms slots={planning.slots} />
+          </section>
+
           <section className="admin-form-section planning-admin__settings" aria-labelledby="planning-settings-title">
             <h2 id="planning-settings-title">Informations générales</h2>
             <PlanningSettingsForm effectiveFrom={planning.effectiveFrom} note={planning.note} />

@@ -100,6 +100,13 @@ export function dayDateLabel(date: string): string {
   return `${dayNumber(date)} ${monthName(date)}`;
 }
 
+const weekdayTitles = ["", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
+/** "Mardi 8 janvier 2030". */
+export function fullDateLabel(date: string): string {
+  return `${weekdayTitles[isoWeekday(date)]} ${dayDateLabel(date)} ${date.slice(0, 4)}`;
+}
+
 export function weekRangeLabel(monday: string): string {
   const saturday = addDays(monday, 5);
   const end = `${dayDateLabel(saturday)} ${saturday.slice(0, 4)}`;
