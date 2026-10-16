@@ -7,6 +7,7 @@ import { requireProfile } from "@/lib/auth/require-profile";
 import type { Json } from "@/lib/database.types";
 import {
   buildPageUpdate,
+  FIXED_PAGE_SLUGS,
   parsePageFormData,
 } from "@/lib/admin/page-input";
 import {
@@ -139,6 +140,9 @@ export async function updatePage(
   }
 
   const update = buildPageUpdate(profile.role, parsed.data, existing);
+  if ((FIXED_PAGE_SLUGS as readonly string[]).includes(existing.slug) && update.slug !== existing.slug) {
+    return { fieldErrors: { slug: ["L’adresse des pages du site ne peut pas changer."] } };
+  }
 
   if (existing.status === "published") {
     // Content of a published page changes through the audited RPC, which keeps a revision.

@@ -2,6 +2,19 @@ import { z } from "zod";
 import type { Database } from "@/lib/database.types";
 import { richContentSchema } from "@/lib/content/rich-content-schema";
 
+// Routes a stored page can never take over.
+export const RESERVED_SLUGS = ["admin", "contact", "actualites", "documents", "images"] as const;
+
+// Site pages with their own route: their address must not change.
+export const FIXED_PAGE_SLUGS = [
+  "qui-sommes-nous",
+  "activites",
+  "nous-rejoindre",
+  "ressources",
+  "mentions-legales",
+  "confidentialite",
+] as const;
+
 export const pageInputSchema = z.object({
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   title: z.string().trim().min(1).max(160),
@@ -57,6 +70,12 @@ export function parsePageFormData(formData: FormData): PageFormResult {
   });
 
   if (result.success) {
+    if ((RESERVED_SLUGS as readonly string[]).includes(result.data.slug)) {
+      return {
+        success: false,
+        fieldErrors: { slug: ["Cette adresse est réservée par le site. Choisissez-en une autre."] },
+      };
+    }
     return result;
   }
 

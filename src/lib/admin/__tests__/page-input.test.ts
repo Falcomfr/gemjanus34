@@ -149,3 +149,20 @@ describe("buildPageUpdate", () => {
     });
   });
 });
+
+test.each(["admin", "contact", "actualites", "documents", "images"])(
+  "refuses the reserved address %s, which a page could never use",
+  (slug) => {
+    const data = new FormData();
+    data.set("slug", slug);
+    data.set("title", "Titre");
+    data.set("summary", "");
+    data.set("content", JSON.stringify({ type: "doc", content: [] }));
+    data.set("status", "draft");
+
+    expect(parsePageFormData(data)).toEqual({
+      success: false,
+      fieldErrors: { slug: ["Cette adresse est réservée par le site. Choisissez-en une autre."] },
+    });
+  },
+);

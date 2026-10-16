@@ -15,6 +15,7 @@ import type { Profile } from "@/lib/auth/require-profile";
 import type { Database } from "@/lib/database.types";
 import { RichTextEditor } from "./rich-text-editor";
 import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
+import { FIXED_PAGE_SLUGS } from "@/lib/admin/page-input";
 
 type PageRow = Pick<
   Database["public"]["Tables"]["pages"]["Row"],
@@ -105,6 +106,7 @@ export function PageForm({
   const isPublished = page?.status === "published";
   const isEditable = mode === "create" || isAdmin || page?.status === "draft";
   const canEditSlug = mode === "create" || isAdmin;
+  const slugLocked = Boolean(page && (FIXED_PAGE_SLUGS as readonly string[]).includes(page.slug));
   const content = (page?.content as JSONContent | undefined) ?? emptyContent;
   const structureUnavailable = isAdmin && parentOptionsError;
 
@@ -156,18 +158,24 @@ export function PageForm({
               <FieldErrors id="title-error" errors={state.fieldErrors?.title} />
             </label>
             <label className="admin-field admin-field--wide">
-              <span id="slug-label">Slug</span>
+              <span id="slug-label">Adresse de la page</span>
               <input
                 name="slug"
                 defaultValue={page?.slug ?? ""}
-                disabled={!isEditable || !canEditSlug}
+                disabled={!isEditable || !canEditSlug || slugLocked}
                 required
                 pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Minuscules, chiffres et tirets, par exemple sortie-au-musee"
                 aria-labelledby="slug-label"
                 aria-invalid={Boolean(state.fieldErrors?.slug)}
-                aria-describedby={state.fieldErrors?.slug ? "slug-error" : undefined}
+                aria-describedby={["slug-hint", state.fieldErrors?.slug ? "slug-error" : ""].filter(Boolean).join(" ")}
               />
-              {!canEditSlug && page ? <input type="hidden" name="slug" value={page.slug} /> : null}
+              <small className="admin-field__hint" id="slug-hint">
+                {slugLocked
+                  ? "Adresse fixe des pages du site."
+                  : "Minuscules, chiffres et tirets, par exemple sortie-au-musee. La page sera visible à /adresse."}
+              </small>
+              {(!canEditSlug || slugLocked) && page ? <input type="hidden" name="slug" value={page.slug} /> : null}
               <FieldErrors id="slug-error" errors={state.fieldErrors?.slug} />
             </label>
             <label className="admin-field admin-field--wide">

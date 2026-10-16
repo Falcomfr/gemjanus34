@@ -1779,6 +1779,11 @@ body:has(.admin-area) > .skip-link {
   opacity: 1;
 }
 
+.admin-field .admin-field__hint {
+  color: var(--muted);
+  font-weight: 400;
+}
+
 .admin-field small,
 .admin-field-error {
   color: #76291f;

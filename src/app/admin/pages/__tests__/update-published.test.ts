@@ -63,3 +63,13 @@ test("tells an editor that only an administrator corrects a published page", asy
   expect(rpc).not.toHaveBeenCalled();
   expect(state.formError).toMatch(/administrateur/);
 });
+
+test("keeps the address of a site page fixed", async () => {
+  const data = form();
+  data.set("slug", "nos-activites");
+
+  const state = await updatePage({}, data);
+
+  expect(rpc).not.toHaveBeenCalled();
+  expect(state.fieldErrors?.slug?.[0]).toMatch(/ne peut pas changer/);
+});
