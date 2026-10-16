@@ -1708,6 +1708,121 @@ body:has(.admin-area) > .skip-link {
   }
 }
 
+.admin-sidebar__me {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.25rem;
+  color: white;
+  text-decoration: none;
+}
+
+.admin-sidebar__me:hover {
+  background: #287866;
+}
+
+.admin-sidebar__me > span {
+  display: grid;
+}
+
+.admin-sidebar__me > span > span {
+  color: #c7ddd5;
+  font-size: 0.8rem;
+}
+
+.account-create {
+  margin-top: 2rem;
+}
+
+.account-create h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display), serif;
+  font-size: 1.3rem;
+}
+
+.account-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.account-row {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.account-row--inactive {
+  background: #f0f3f1;
+}
+
+.account-row h3 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: 1.2rem;
+}
+
+.account-row header p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+.account-row__last {
+  font-size: 0.85rem;
+}
+
+.account-row__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.account-row__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.account-row__form .form-status,
+.account-form .form-status {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.account-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0.5rem 0 0;
+}
+
+.account-password code {
+  padding: 0.35rem 0.65rem;
+  border: 1px dashed var(--forest);
+  border-radius: 0.25rem;
+  background: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.account-password small {
+  flex-basis: 100%;
+  color: var(--muted);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -2227,7 +2342,7 @@ body:has(.admin-area) > .skip-link {
   .admin-sidebar__brand > span:last-child,
   .admin-navigation a span,
   .admin-sidebar__site > span:not(.sr-only),
-  .admin-sidebar__account p,
+  .admin-sidebar__me > span,
   .admin-sidebar__account button span {
     position: absolute;
     width: 1px;

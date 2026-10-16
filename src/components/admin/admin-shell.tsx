@@ -7,6 +7,8 @@ import {
   LogOut,
   Mail,
   Newspaper,
+  UserRound,
+  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +23,7 @@ const navigation = [
   { href: "/admin/planning", label: "Planning", icon: CalendarDays },
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
   { href: "/admin/messages", label: "Messages", icon: Mail },
+  { href: "/admin/comptes", label: "Comptes", icon: Users, adminOnly: true },
 ];
 
 type AdminShellProps = {
@@ -46,7 +49,7 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
 
         <nav aria-label="Navigation de l’administration">
           <ul className="admin-navigation">
-            {navigation.map(({ href, label, icon: Icon }) => (
+            {navigation.filter((item) => !("adminOnly" in item) || profile.role === "admin").map(({ href, label, icon: Icon }) => (
               <li key={href}>
                 <Link
                   href={href}
@@ -68,10 +71,13 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
         </a>
 
         <div className="admin-sidebar__account">
-          <p>
-            <strong>{profile.displayName}</strong>
-            <span>{profile.role === "admin" ? "Administrateur" : "Éditeur"}</span>
-          </p>
+          <Link className="admin-sidebar__me" href="/admin/mon-compte" title="Mon compte">
+            <UserRound aria-hidden="true" size={20} />
+            <span>
+              <strong>{profile.displayName}</strong>
+              <span>Mon compte · {profile.role === "admin" ? "Administrateur" : "Éditeur"}</span>
+            </span>
+          </Link>
           <form action={logout}>
             <button type="submit">
               <LogOut aria-hidden="true" size={20} />

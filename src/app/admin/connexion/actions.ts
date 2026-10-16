@@ -29,10 +29,21 @@ export async function login(
   }
 
   const supabase = await createServerClient();
-  const { error } = await supabase.auth.signInWithPassword(credentials.data);
+  const { data, error } = await supabase.auth.signInWithPassword(credentials.data);
 
-  if (error) {
+  if (error || !data.user) {
     return { error: genericLoginError };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", data.user.id)
+    .eq("active", true)
+    .maybeSingle();
+  if (!profile) {
+    await supabase.auth.signOut({ scope: "local" });
+    return { error: "Ce compte est désactivé. Contactez un administrateur de Janus34." };
   }
 
   redirect("/admin");

@@ -93,3 +93,22 @@ test("shows the two faces of the logo, which fit a small round badge", () => {
 
   expect(container.querySelector(".admin-sidebar__logo")).toHaveAttribute("src", expect.stringContaining("janus34-visages.svg"));
 });
+
+test("offers account management to administrators and 'Mon compte' to everyone", () => {
+  const { unmount } = render(
+    <AdminShell pathname="/admin" profile={{ ...profile, role: "admin" }}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+  expect(screen.getByRole("link", { name: "Comptes" })).toHaveAttribute("href", "/admin/comptes");
+  expect(screen.getByRole("link", { name: /mon compte/i })).toHaveAttribute("href", "/admin/mon-compte");
+  unmount();
+
+  render(
+    <AdminShell pathname="/admin" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+  expect(screen.queryByRole("link", { name: "Comptes" })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /mon compte/i })).toBeInTheDocument();
+});
