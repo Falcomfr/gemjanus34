@@ -60,14 +60,21 @@ function richContentToSections(content: Json): PublicPage["sections"] {
   }
 
   const sections: PublicPage["sections"] = [];
-  const idCounts = new Map<string, number>();
+  const usedIds = new Set<string>();
   let current: PublicPage["sections"][number] | undefined;
 
   const nextSectionId = (title: string) => {
     const base = sectionId(title, sections.length);
-    const count = (idCounts.get(base) ?? 0) + 1;
-    idCounts.set(base, count);
-    return count === 1 ? base : `${base}-${count}`;
+    let candidate = base;
+    let suffix = 2;
+
+    while (usedIds.has(candidate)) {
+      candidate = `${base}-${suffix}`;
+      suffix += 1;
+    }
+
+    usedIds.add(candidate);
+    return candidate;
   };
 
   for (const node of doc.content as RichNode[]) {

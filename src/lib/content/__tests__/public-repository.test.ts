@@ -108,6 +108,8 @@ describe("Supabase public content mapping", () => {
       content: [
         { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
         { type: "paragraph", content: [{ type: "text", text: "Premier." }] },
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil-2" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Intermédiaire." }] },
         { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
         { type: "paragraph", content: [{ type: "text", text: "Second." }] },
       ],
@@ -122,7 +124,8 @@ describe("Supabase public content mapping", () => {
     await expect(repository.getPage("doublons")).resolves.toEqual(expect.objectContaining({
       sections: [
         expect.objectContaining({ id: "accueil", body: "Premier." }),
-        expect.objectContaining({ id: "accueil-2", body: "Second." }),
+        expect.objectContaining({ id: "accueil-2", body: "Intermédiaire." }),
+        expect.objectContaining({ id: "accueil-3", body: "Second." }),
       ],
     }));
   });
