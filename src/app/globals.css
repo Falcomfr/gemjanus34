@@ -1699,7 +1699,7 @@ body:has(.admin-area) > .skip-link {
 
 @media (min-width: 64rem) {
   .planning-admin__slot {
-    grid-template-columns: 7rem 7rem minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: 8.5rem 8.5rem minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
   }
 
   .planning-admin__slot .admin-field--wide {
@@ -2672,6 +2672,11 @@ body:has(.admin-area) > .skip-link {
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.planning-day__header p.planning-day__team {
+  margin-top: -0.6rem;
+  font-weight: 600;
 }
 
 .planning-day__slots {

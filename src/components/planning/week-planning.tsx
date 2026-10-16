@@ -60,8 +60,8 @@ export function WeekPlanning({ planning, today, printable = false }: WeekPlannin
                     <p>
                       <CalendarDays aria-hidden="true" size={16} />
                       {formatRange(day.opensAt, day.closesAt) || "Fermé"}
-                      {day.team ? <span> · {day.team}</span> : null}
                     </p>
+                    {day.team ? <p className="planning-day__team">{day.team}</p> : null}
                   </header>
                   {slots.length > 0 ? (
                     <ul className="planning-day__slots">
