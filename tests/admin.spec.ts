@@ -99,3 +99,29 @@ test("logging out in one browser keeps the other one signed in", async ({ browse
   await second.goto("/admin/documents");
   await expect(second.getByRole("heading", { level: 1, name: "Documents" })).toBeVisible();
 });
+
+test("a published news item shows on the public pages at once, and leaves when archived", async ({ page }) => {
+  const title = `Sortie E2E ${Date.now()}`;
+  await login(page);
+  await page.goto("/admin/actualites/nouvelle");
+  await page.getByLabel("Titre").fill(title);
+  await page.getByLabel("Résumé").fill("Une sortie créée par le test de bout en bout.");
+  await page.getByLabel("Date et heure de début").fill("2030-03-10T14:00");
+  await page.getByRole("button", { name: "Créer le brouillon" }).click();
+  await page.waitForURL(/\/admin\/actualites\/[0-9a-f-]{36}$/);
+  await page.getByRole("button", { name: "Publier" }).click();
+  await expect(page.locator(".form-status--success").last()).toContainText(/publiée/);
+
+  await page.goto("/actualites");
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+
+  await page.goto("/admin/actualites");
+  await page.getByRole("link", { name: `Ouvrir ${title}` }).click();
+  await page.getByRole("button", { name: "Archiver" }).click();
+  await expect(page.locator(".form-status--success").last()).toContainText(/archivée/i);
+
+  await page.goto("/actualites");
+  await expect(page.getByRole("heading", { name: title })).toHaveCount(0);
+});
