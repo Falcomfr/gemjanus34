@@ -12,7 +12,7 @@ select lives_ok(
   $$insert into public.contact_messages (name, email, subject, message) values ('Camille', 'camille@example.test', 'Première visite', 'Bonjour, je voudrais venir découvrir le GEM.')$$,
   'visitors can send a message'
 );
-select is((select count(*) from public.contact_messages), 0::bigint, 'visitors cannot read messages');
+select throws_ok($$select count(*) from public.contact_messages$$, '42501', null, 'visitors cannot read messages');
 select throws_ok(
   $$insert into public.contact_messages (name, email, subject, message, handled_at) values ('Camille', 'camille@example.test', 'Sujet', 'Un message suffisamment long.', now())$$,
   '42501', null, 'visitors cannot mark a message as handled'
