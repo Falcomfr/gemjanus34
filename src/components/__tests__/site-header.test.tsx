@@ -63,3 +63,16 @@ test("shows the association logo in the home link", () => {
   expect(home.querySelector("img")).toHaveAttribute("src", expect.stringContaining("janus34-logo"));
   expect(home).not.toHaveTextContent("J34");
 });
+
+test("closes the mobile menu with Escape or a tap outside", () => {
+  const { container } = render(<SiteHeader />);
+  const details = container.querySelector("details")!;
+
+  details.open = true;
+  fireEvent.keyDown(document, { key: "Escape" });
+  expect(details.open).toBe(false);
+
+  details.open = true;
+  fireEvent.pointerDown(document.body);
+  expect(details.open).toBe(false);
+});
