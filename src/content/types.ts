@@ -69,6 +69,7 @@ export type PlanningSlot = {
   title: string;
   leader: string;
   note: string;
+  description: string;
   family: PlanningFamily;
 };
 

@@ -126,6 +126,9 @@ export function PlanningSlotForm({ day, slot }: { day: number; slot?: PlanningSl
       <Field label="Précision (facultatif)" error={errors.note} wide>
         <input name="note" maxLength={300} defaultValue={slot?.note ?? ""} placeholder="Sur inscription, une fois par mois…" />
       </Field>
+      <Field label="Description (fenêtre d’information)" error={errors.description} wide>
+        <textarea name="description" maxLength={600} rows={2} defaultValue={slot?.description ?? ""} />
+      </Field>
       <div className="planning-admin__slot-actions">
         <button className="button button--dark" type="submit" name="intent" value="save" disabled={pending}>
           {slot ? <Save aria-hidden="true" size={18} /> : <Plus aria-hidden="true" size={18} />}

@@ -24,9 +24,9 @@ test("reads the planning from Supabase, sorted by day then time", async () => {
       days: { data: [{ day: 2, opens_at: "13:00:00", closes_at: "18:00:00", team: "Mona" }, { day: 1, opens_at: null, closes_at: null, team: "" }], error: null },
       slots: {
         data: [
-          { id: "b", day: 2, starts_at: "16:00:00", ends_at: "17:00:00", title: "Tard", leader: "", note: "", family: "echanger" },
-          { id: "a", day: 2, starts_at: "14:00:00", ends_at: "15:00:00", title: "Tôt", leader: "Elif", note: "", family: "creer" },
-          { id: "c", day: 1, starts_at: "14:00:00", ends_at: "15:00:00", title: "Lundi", leader: "", note: "", family: "bouger" },
+          { id: "b", day: 2, starts_at: "16:00:00", ends_at: "17:00:00", title: "Tard", leader: "", note: "", description: "Fin de journée.", family: "echanger" },
+          { id: "a", day: 2, starts_at: "14:00:00", ends_at: "15:00:00", title: "Tôt", leader: "Elif", note: "", description: "", family: "creer" },
+          { id: "c", day: 1, starts_at: "14:00:00", ends_at: "15:00:00", title: "Lundi", leader: "", note: "", description: "", family: "bouger" },
         ],
         error: null,
       },
@@ -43,9 +43,9 @@ test("reads the planning from Supabase, sorted by day then time", async () => {
       { day: 2, opensAt: "13:00", closesAt: "18:00", team: "Mona" },
     ],
     slots: [
-      { id: "c", day: 1, startsAt: "14:00", endsAt: "15:00", title: "Lundi", leader: "", note: "", family: "bouger" },
-      { id: "a", day: 2, startsAt: "14:00", endsAt: "15:00", title: "Tôt", leader: "Elif", note: "", family: "creer" },
-      { id: "b", day: 2, startsAt: "16:00", endsAt: "17:00", title: "Tard", leader: "", note: "", family: "echanger" },
+      { id: "c", day: 1, startsAt: "14:00", endsAt: "15:00", title: "Lundi", leader: "", note: "", description: "", family: "bouger" },
+      { id: "a", day: 2, startsAt: "14:00", endsAt: "15:00", title: "Tôt", leader: "Elif", note: "", description: "", family: "creer" },
+      { id: "b", day: 2, startsAt: "16:00", endsAt: "17:00", title: "Tard", leader: "", note: "", description: "Fin de journée.", family: "echanger" },
     ],
   });
 });

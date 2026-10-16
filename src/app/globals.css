@@ -2693,6 +2693,113 @@ body:has(.admin-area) > .skip-link {
   background: var(--tone-soft);
 }
 
+.planning-slot--interactive {
+  padding: 0;
+}
+
+.planning-slot__button {
+  width: 100%;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.planning-slot__button:hover {
+  background: rgb(255 255 255 / 55%);
+  transform: translateX(2px);
+}
+
+.slot-dialog {
+  width: min(100% - 2rem, 32rem);
+  padding: 0;
+  border: 0;
+  border-top: 0.4rem solid var(--tone);
+  border-radius: 1rem;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1.5rem 3rem rgb(31 41 36 / 30%);
+}
+
+.slot-dialog::backdrop {
+  background: rgb(15 58 49 / 55%);
+}
+
+.slot-dialog__body {
+  position: relative;
+  padding: 1.5rem;
+}
+
+.slot-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--forest-soft);
+  color: var(--forest-dark);
+  cursor: pointer;
+}
+
+.slot-dialog__family {
+  margin: 0;
+  color: var(--coral-dark);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.slot-dialog h3 {
+  margin: 0.35rem 3rem 0.5rem 0;
+  color: var(--forest);
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+.slot-dialog__when {
+  margin: 0 0 1rem;
+  font-weight: 800;
+}
+
+.slot-dialog__note {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--tone-soft);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.slot-dialog__body > p:not([class]),
+.slot-dialog__family-text {
+  margin: 0 0 1rem;
+}
+
+.slot-dialog__family-text {
+  color: var(--muted);
+}
+
+.slot-dialog__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
 .planning-slot__time {
   color: var(--forest);
   font-size: 0.85rem;

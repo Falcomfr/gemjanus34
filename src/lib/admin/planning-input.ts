@@ -12,6 +12,7 @@ const slotSchema = z
     title: z.string().trim().min(1).max(120),
     leader: z.string().trim().max(120),
     note: z.string().trim().max(300),
+    description: z.string().trim().max(600),
     family: z.enum(["creer", "bouger", "echanger"]),
   })
   .refine(({ startsAt, endsAt }) => endsAt > startsAt, { path: ["endsAt"] });
@@ -37,6 +38,7 @@ const messages: Record<string, string> = {
   title: "Indiquez le nom de l’activité (120 caractères au plus).",
   leader: "120 caractères au plus.",
   note: "300 caractères au plus.",
+  description: "600 caractères au plus.",
   family: "Choisissez une famille d’activité.",
   opensAt: "Indiquez l’heure d’ouverture (hh:mm) ou laissez vide si fermé.",
   closesAt: "La fermeture doit suivre l’ouverture.",
@@ -69,7 +71,7 @@ function parse<T>(schema: z.ZodType<T>, formData: FormData, fields: string[], or
 }
 
 export const parsePlanningSlot = (formData: FormData) =>
-  parse(slotSchema, formData, ["id", "day", "startsAt", "endsAt", "title", "leader", "note", "family"], ["startsAt", "endsAt"]);
+  parse(slotSchema, formData, ["id", "day", "startsAt", "endsAt", "title", "leader", "note", "description", "family"], ["startsAt", "endsAt"]);
 export const parsePlanningDay = (formData: FormData) =>
   parse(daySchema, formData, ["day", "opensAt", "closesAt", "team"], ["opensAt", "closesAt"]);
 export const parsePlanningSettings = (formData: FormData) => parse(settingsSchema, formData, ["effectiveFrom", "note"]);

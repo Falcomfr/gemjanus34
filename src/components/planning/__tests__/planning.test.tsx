@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { bundledPlanning } from "@/content/planning";
 import { formatHour, parisWeekday } from "../planning-format";
 import { TodayAtGem } from "../today-at-gem";
@@ -46,4 +46,27 @@ test("announces the next opening day on Sunday", () => {
   render(<TodayAtGem planning={bundledPlanning} now="2026-10-18T10:00:00Z" />);
 
   expect(screen.getByRole("region", { name: "Lundi au GEM" })).toHaveTextContent("Expression créatrice");
+});
+
+test("opens a window with everything about an activity, and closes it", () => {
+  render(<WeekPlanning planning={bundledPlanning} today={5} />);
+
+  fireEvent.click(screen.getByRole("button", { name: /qi gong/i }));
+
+  const dialog = screen.getByRole("dialog", { name: "Qi Gong" });
+  expect(dialog).toHaveTextContent("Mardi, 14 h 30 – 15 h 30");
+  expect(dialog).toHaveTextContent("avec Adrien");
+  expect(dialog).toHaveTextContent("Bouger et prendre l'air");
+  expect(dialog).toHaveTextContent("Une gymnastique douce d'origine chinoise");
+  expect(within(dialog).getByRole("link", { name: /toutes les activités/i })).toHaveAttribute("href", "/activites");
+  expect(within(dialog).getByRole("link", { name: /04 67 04 87 68/ })).toHaveAttribute("href", "tel:+33467048768");
+
+  fireEvent.click(within(dialog).getByRole("button", { name: "Fermer" }));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
+test("keeps the printable planning free of buttons", () => {
+  render(<WeekPlanning planning={bundledPlanning} printable />);
+
+  expect(screen.queryAllByRole("button")).toHaveLength(0);
 });

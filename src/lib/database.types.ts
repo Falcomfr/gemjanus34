@@ -369,6 +369,7 @@ export type Database = {
       planning_slots: {
         Row: {
           day: number;
+          description: string;
           ends_at: string;
           family: string;
           id: string;
@@ -380,6 +381,7 @@ export type Database = {
         };
         Insert: {
           day: number;
+          description?: string;
           ends_at: string;
           family: string;
           id?: string;
@@ -391,6 +393,7 @@ export type Database = {
         };
         Update: {
           day?: number;
+          description?: string;
           ends_at?: string;
           family?: string;
           id?: string;

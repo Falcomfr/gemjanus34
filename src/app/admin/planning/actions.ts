@@ -19,8 +19,8 @@ export async function savePlanningSlot(_previous: PlanningActionState, formData:
   const parsed = parsePlanningSlot(formData);
   if (!parsed.success) return { fieldErrors: parsed.fieldErrors };
 
-  const { id, day, startsAt, endsAt, title, leader, note, family } = parsed.data;
-  const values = { day, starts_at: startsAt, ends_at: endsAt, title, leader, note, family };
+  const { id, day, startsAt, endsAt, title, leader, note, description, family } = parsed.data;
+  const values = { day, starts_at: startsAt, ends_at: endsAt, title, leader, note, description, family };
   const supabase = await createServerClient();
   const { error } = id
     ? await supabase.from("planning_slots").update(values).eq("id", id)

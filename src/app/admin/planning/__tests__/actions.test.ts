@@ -22,7 +22,7 @@ function form(values: Record<string, string>) {
   for (const [key, value] of Object.entries(values)) data.set(key, value);
   return data;
 }
-const slot = { day: "2", startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger" };
+const slot = { day: "2", startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", description: "", family: "bouger" };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -39,7 +39,7 @@ test("adds a new slot and refreshes the public pages", async () => {
   const state = await planningActions.savePlanningSlot({}, form(slot));
 
   expect(table.insert).toHaveBeenCalledWith("planning_slots", {
-    day: 2, starts_at: "14:30", ends_at: "15:30", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger",
+    day: 2, starts_at: "14:30", ends_at: "15:30", title: "Qi Gong", leader: "Adrien", note: "", description: "", family: "bouger",
   });
   expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
   expect(state.success).toBeDefined();

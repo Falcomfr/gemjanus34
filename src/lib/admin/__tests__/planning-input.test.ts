@@ -6,12 +6,12 @@ function form(values: Record<string, string>) {
   return data;
 }
 
-const slot = { day: "2", startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger" };
+const slot = { day: "2", startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", description: "Gymnastique douce.", family: "bouger" };
 
 test("accepts a complete slot", () => {
   expect(parsePlanningSlot(form(slot))).toEqual({
     success: true,
-    data: { id: null, day: 2, startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger" },
+    data: { id: null, day: 2, startsAt: "14:30", endsAt: "15:30", title: "Qi Gong", leader: "Adrien", note: "", description: "Gymnastique douce.", family: "bouger" },
   });
 });
 

@@ -25,7 +25,7 @@ export type PlanningRows = {
   settings: { data: Array<{ effective_from: string; note: string }> | null; error: Error | null };
   days: { data: Array<{ day: number; opens_at: string | null; closes_at: string | null; team: string }> | null; error: Error | null };
   slots: {
-    data: Array<{ id: string; day: number; starts_at: string; ends_at: string; title: string; leader: string; note: string; family: string }> | null;
+    data: Array<{ id: string; day: number; starts_at: string; ends_at: string; title: string; leader: string; note: string; description: string; family: string }> | null;
     error: Error | null;
   };
 };
@@ -116,6 +116,7 @@ export function mapPlanning(rows: PlanningRows): Planning | null {
         title: slot.title,
         leader: slot.leader,
         note: slot.note,
+        description: slot.description,
         // The database check constraint restricts family to PlanningFamily values.
         family: slot.family as PlanningFamily,
       }))
@@ -204,7 +205,7 @@ export function createSupabasePublicQueryClient(
       const [settings, days, slots] = await Promise.all([
         client.from("planning_settings").select("effective_from, note").limit(1),
         client.from("planning_days").select("day, opens_at, closes_at, team"),
-        client.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, family"),
+        client.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family"),
       ]);
       return {
         settings: { data: settings.data, error: settings.error },

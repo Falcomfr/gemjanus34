@@ -65,7 +65,7 @@ export function WeekPlanning({ planning, today, printable = false }: WeekPlannin
                   </header>
                   {slots.length > 0 ? (
                     <ul className="planning-day__slots">
-                      {slots.map((slot) => <PlanningSlot key={slot.id} slot={slot} />)}
+                      {slots.map((slot) => <PlanningSlot key={slot.id} slot={slot} interactive={!printable} />)}
                     </ul>
                   ) : (
                     <p className="planning-day__empty">Accueil et temps libre</p>

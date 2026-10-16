@@ -11,7 +11,7 @@ export default async function AdminPlanningPage() {
   const [settings, days, slots] = await Promise.all([
     supabase.from("planning_settings").select("effective_from, note").limit(1),
     supabase.from("planning_days").select("day, opens_at, closes_at, team"),
-    supabase.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, family"),
+    supabase.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family"),
   ]);
   const planning = mapPlanning({ settings, days, slots } as Parameters<typeof mapPlanning>[0]);
 

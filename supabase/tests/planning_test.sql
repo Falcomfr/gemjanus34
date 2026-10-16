@@ -1,10 +1,12 @@
 begin;
-select plan(8);
+select plan(10);
 
 select has_table('public', 'planning_slots', 'planning_slots exists');
 select is((select count(*) from public.planning_slots), 11::bigint, 'the current planning is imported');
 select is((select count(*) from public.planning_days), 6::bigint, 'Monday to Saturday are described');
 select is((select effective_from from public.planning_settings), '2026-06-22'::date, 'the planning is in force from 22 June 2026');
+select has_column('public', 'planning_slots', 'description', 'slots carry a description');
+select is((select count(*) from public.planning_slots where description = ''), 0::bigint, 'every imported slot is described');
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values ('00000000-0000-0000-0000-000000000000', '91000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'planning-editor@gemjanus34.local', crypt('test-only-password', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
