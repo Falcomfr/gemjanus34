@@ -117,6 +117,18 @@ select:focus-visible,
   object-fit: contain;
 }
 
+.wordmark__mark {
+  width: 2.65rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--forest);
+  border-radius: 50%;
+  background: var(--sun);
+  color: var(--forest-dark);
+  font-size: 0.8rem;
+}
+
 .navigation-list {
   display: flex;
   align-items: center;
@@ -310,7 +322,7 @@ h3 {
   right: -1.5rem;
   bottom: -2.25rem;
   color: var(--watermark);
-  content: "JANUS";
+  content: "JANUS" / "";
   font-family: var(--font-display), serif;
   font-size: 6rem;
   font-weight: 700;
@@ -1034,8 +1046,7 @@ h3 {
   resize: vertical;
 }
 
-.field__hint,
-.contact-form__submit p {
+.field__hint {
   margin: 0;
   color: var(--muted);
   font-size: 1rem;
@@ -1065,19 +1076,16 @@ h3 {
   accent-color: var(--forest);
 }
 
-.contact-form__submit {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 1rem;
+.contact-form__notice {
+  margin: 0;
   padding: 1rem;
   border-left: 0.35rem solid var(--sun);
   background: var(--sun-soft);
+  font-weight: 700;
 }
 
-.contact-form__submit p {
-  color: var(--text);
-  font-weight: 700;
+.contact-form__submit {
+  display: flex;
 }
 
 .contact-form__submit .button:disabled {
@@ -1970,11 +1978,6 @@ body:has(.admin-area) > .skip-link {
   .timeline-item {
     grid-template-columns: 11rem minmax(12rem, 0.55fr) minmax(16rem, 1fr);
     gap: 1.5rem;
-  }
-
-  .contact-form__submit {
-    flex-direction: row;
-    align-items: center;
   }
 }
 

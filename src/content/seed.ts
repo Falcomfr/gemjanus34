@@ -22,7 +22,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "histoire",
         title: "Janus34 depuis 2006",
-        body: "Janus34 a été fondée en 2006 par des personnes et des proches concernés par des troubles bipolaires. L'association s'est donné pour objectif de rompre les solitudes et de favoriser l'entraide, la solidarité et le partage entre ses membres.\n\nElle informe et soutient aussi les personnes qui présentent des troubles de l'humeur et d'autres difficultés psychiques. Son nom vient de Janus, le dieu romain des commencements, des passages et des portes.",
+        body: "Janus34 a été fondée en 2006 par des personnes et des proches concernés par des troubles bipolaires. L'association s'est donné pour objectif de rompre les solitudes et de favoriser l'entraide, la solidarité et le partage entre ses membres.\n\nElle informe et soutient aussi les personnes qui présentent des troubles de l'humeur et d'autres difficultés psychiques. Dans la mythologie romaine, Janus est le dieu des commencements, des passages et des portes.",
       },
       {
         id: "valeurs",
@@ -32,7 +32,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
           "L'entraide : chacun apporte son expérience et peut s'appuyer sur celle des autres.",
           "Le lien social : se retrouver, discuter, sortir ensemble.",
           "L'autonomie : la participation aux activités n'est jamais obligatoire.",
-          "La participation : les adhérents proposent des projets et prennent part à la vie de l'association.",
+          "La participation : chacun peut prendre part à la vie de l'association.",
         ],
       },
       {
@@ -94,7 +94,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "programme",
         title: "Un programme qui évolue",
-        body: "Le planning change au fil des saisons et des propositions des adhérents. Certaines activités demandent une inscription, comme la « Soupe au caillou » ou les conférences.\n\nLe planning en vigueur reste la référence pour connaître les jours et les horaires. En cas de doute, appelez l'équipe au 04 67 04 87 68.",
+        body: "Le planning évolue au fil du temps. Certaines activités demandent une inscription, comme la « Soupe au caillou » ou les conférences.\n\nLe planning en vigueur reste la référence pour connaître les jours et les horaires. En cas de doute, appelez l'équipe au 04 67 04 87 68.",
         links: [{ label: "Voir le planning de la semaine", href: "/actualites#planning" }],
       },
     ],
@@ -122,7 +122,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "public",
         title: "À qui s'adresse Janus34 ?",
-        body: "Janus34 accueille des personnes concernées par des troubles psychiques qui souhaitent rompre l'isolement, rencontrer d'autres personnes et partager des activités.\n\nLes proches et les professionnels peuvent aussi appeler l'équipe pour mieux connaître l'association.",
+        body: "Janus34 accueille des personnes concernées par des troubles psychiques qui souhaitent rompre l'isolement, rencontrer d'autres personnes et partager des activités.",
       },
       {
         id: "adresse-transports",

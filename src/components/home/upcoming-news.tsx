@@ -23,7 +23,7 @@ export function UpcomingNews({ items, now }: UpcomingNewsProps): JSX.Element {
         <div className="section-heading">
           <div>
             <p className="eyebrow eyebrow--dark">Actualités</p>
-            <h2 id="news-title">Les prochains rendez-vous</h2>
+            <h2 id="news-title">{recent.length > 0 && upcoming.length < 3 ? "Rendez-vous et nouvelles" : "Les prochains rendez-vous"}</h2>
           </div>
           <Link className="text-link" href="/actualites">
             Toutes les actualités

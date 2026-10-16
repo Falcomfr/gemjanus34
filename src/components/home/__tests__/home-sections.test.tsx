@@ -54,6 +54,7 @@ test("labels upcoming and recent news with their status", () => {
     />,
   );
 
+  expect(screen.getByRole("heading", { level: 2 }).textContent).not.toMatch(/prochains/i);
   expect(screen.getByRole("heading", { name: "Sortie au musée" }).closest("article")).toHaveTextContent("À venir");
   expect(screen.getByRole("heading", { name: "Goûter" }).closest("article")).toHaveTextContent("Passé");
 });

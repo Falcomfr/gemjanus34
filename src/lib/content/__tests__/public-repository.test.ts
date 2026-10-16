@@ -171,6 +171,42 @@ describe("Supabase public content mapping", () => {
     }));
   });
 
+  test("accepts hard breaks and nested lists allowed by the editor", async () => {
+    const text = (value: string) => ({ type: "paragraph", content: [{ type: "text", text: value }] });
+    const content: Json = {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Horaires" }] },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Lundi" }, { type: "hardBreak" }, { type: "text", text: "Mardi" }],
+        },
+        {
+          type: "bulletList",
+          content: [
+            {
+              type: "listItem",
+              content: [
+                text("Ateliers"),
+                { type: "bulletList", content: [{ type: "listItem", content: [text("Collage")] }] },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getPublishedPages: vi.fn().mockResolvedValue({
+        data: [{ slug: "editeur", title: "Éditeur", summary: "Résumé", content }],
+        error: null,
+      }),
+    }));
+
+    await expect(repository.getPage("editeur")).resolves.toEqual(expect.objectContaining({
+      sections: [{ id: "horaires", title: "Horaires", body: "Lundi Mardi", items: ["Ateliers", "Collage"] }],
+    }));
+  });
+
   test("propagates configured query failures instead of using local seed data", async () => {
     const repository = createSupabasePublicContentRepository(queryClient({
       getPublishedNews: vi.fn().mockResolvedValue({ data: null, error: new Error("database unavailable") }),

@@ -31,7 +31,7 @@ export function VisitPanel(): JSX.Element {
             <ArrowRight aria-hidden="true" size={20} />
           </Link>
           <Link className="button button--outline-light" href="/contact">
-            Écrire à l&apos;équipe
+            Toutes nos coordonnées
           </Link>
         </div>
       </div>

@@ -28,3 +28,10 @@ test("states plainly that no message can be sent yet", () => {
   expect(screen.getByText(/aucun message ne peut être envoyé depuis cette page/i)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /04 67 04 87 68/ })).toHaveAttribute("href", "tel:+33467048768");
 });
+
+test("warns that the form is closed before the visitor starts typing", () => {
+  render(<ContactForm />);
+  const notice = screen.getByText(/aucun message ne peut être envoyé depuis cette page/i);
+
+  expect(notice.compareDocumentPosition(screen.getByLabelText("Nom"))).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+});

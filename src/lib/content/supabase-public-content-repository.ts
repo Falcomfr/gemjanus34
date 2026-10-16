@@ -32,6 +32,7 @@ type RichNode = {
 function textContent(node: RichNode): string {
   if (!Array.isArray(node.content)) return "";
   return node.content.map((child: RichNode) => {
+    if (child.type === "hardBreak") return " ";
     if (child.type !== "text" || typeof child.text !== "string") {
       throw new Error("Unsupported public page content");
     }
@@ -39,18 +40,23 @@ function textContent(node: RichNode): string {
   }).join("");
 }
 
+// Public sections hold one flat list: nested list items follow their parent item.
 function listItems(list: RichNode): string[] {
   if (!Array.isArray(list.content) || list.content.length === 0) {
     throw new Error("Unsupported public page content");
   }
-  return list.content.map((item: RichNode) => {
+  return list.content.flatMap((item: RichNode) => {
     if (item.type !== "listItem" || !Array.isArray(item.content)) {
       throw new Error("Unsupported public page content");
     }
-    return item.content.map((child: RichNode) => {
-      if (child.type !== "paragraph") throw new Error("Unsupported public page content");
-      return textContent(child);
-    }).join(" ");
+    const text: string[] = [];
+    const nested: string[] = [];
+    for (const child of item.content as RichNode[]) {
+      if (child.type === "paragraph") text.push(textContent(child));
+      else if (child.type === "bulletList" || child.type === "orderedList") nested.push(...listItems(child));
+      else throw new Error("Unsupported public page content");
+    }
+    return [text.join(" "), ...nested].filter(Boolean);
   });
 }
 

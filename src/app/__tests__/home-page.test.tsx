@@ -88,7 +88,8 @@ test("ends with an invitation to visit or write", async () => {
     "href",
     "/nous-rejoindre",
   );
-  expect(within(invitation).getByRole("link", { name: /écrire à l'équipe/i })).toHaveAttribute("href", "/contact");
+  expect(within(invitation).getByRole("link", { name: "Toutes nos coordonnées" })).toHaveAttribute("href", "/contact");
+  expect(within(invitation).queryByRole("link", { name: /écrire/i })).not.toBeInTheDocument();
 });
 
 test("shows no migration vocabulary", async () => {

@@ -6,6 +6,10 @@ import { contact } from "@/content/contact";
 export function ContactForm(): JSX.Element {
   return (
     <form className="contact-form" noValidate onSubmit={(event) => event.preventDefault()}>
+      <p className="contact-form__notice">
+        Le formulaire en ligne n&apos;est pas encore ouvert : aucun message ne peut être envoyé
+        depuis cette page. Appelez-nous au <a href={contact.phoneHref}>{contact.phone}</a>.
+      </p>
       <div className="contact-form__grid">
         <div className="field">
           <label htmlFor="contact-name">Nom</label>
@@ -60,10 +64,6 @@ export function ContactForm(): JSX.Element {
         <button className="button button--primary" type="submit" disabled>
           Envoyer le message
         </button>
-        <p>
-          Le formulaire en ligne n&apos;est pas encore ouvert : aucun message ne peut être envoyé
-          depuis cette page. Appelez-nous au <a href={contact.phoneHref}>{contact.phone}</a>.
-        </p>
       </div>
     </form>
   );
