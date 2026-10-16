@@ -33,7 +33,7 @@ export default async function AdminNewsPage() {
             <tbody>
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td><strong>{item.title}</strong><span>Modifiée le {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(new Date(item.updated_at))}</span></td>
+                  <td><Link href={`/admin/actualites/${item.id}`}><strong>{item.title}</strong></Link><span>Modifiée le {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(new Date(item.updated_at))}</span></td>
                   <td><span className={`status-badge status-badge--${item.status}`}>{statusLabels[item.status]}</span></td>
                   <td><time dateTime={item.starts_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(item.starts_at))}</time></td>
                   <td>{item.author_display_name}</td>

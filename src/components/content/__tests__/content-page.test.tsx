@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { ContentPage } from "../content-page";
 
 test("renders structured sections and document downloads", () => {

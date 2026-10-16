@@ -1271,6 +1271,8 @@ body:has(.admin-area) > .skip-link {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 15rem minmax(0, 1fr);
+  /* Keeps the dark column below the sticky sidebar on long pages. */
+  background: linear-gradient(90deg, var(--forest-dark) 15rem, transparent 15rem);
 }
 
 .admin-sidebar {
@@ -1683,6 +1685,15 @@ body:has(.admin-area) > .skip-link {
   display: grid;
 }
 
+.admin-table td:first-child a {
+  color: var(--forest-dark);
+  text-decoration: none;
+}
+
+.admin-table td:first-child a:hover {
+  text-decoration: underline;
+}
+
 .admin-table td:first-child span {
   color: var(--muted);
   font-size: 0.85rem;
@@ -1976,6 +1987,20 @@ body:has(.admin-area) > .skip-link {
   outline: none;
 }
 
+.tiptap ul,
+.tiptap ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.tiptap ul {
+  list-style: disc;
+}
+
+.tiptap ol {
+  list-style: decimal;
+}
+
 .tiptap > :first-child {
   margin-top: 0;
 }
@@ -2073,6 +2098,32 @@ body:has(.admin-area) > .skip-link {
 @media (max-width: 42rem) {
   .admin-shell {
     grid-template-columns: 4.25rem minmax(0, 1fr);
+    background: linear-gradient(90deg, var(--forest-dark) 4.25rem, transparent 4.25rem);
+  }
+
+  .admin-table {
+    min-width: 0;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.35rem 0.75rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .admin-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .admin-table td:first-child {
+    grid-column: 1 / -1;
   }
 
   .admin-sidebar {

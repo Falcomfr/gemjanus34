@@ -50,7 +50,7 @@ export default async function AdminPagesPage() {
               {pages.map((page) => (
                 <tr key={page.id}>
                   <td>
-                    <strong>{page.title}</strong>
+                    <Link href={`/admin/pages/${page.id}`}><strong>{page.title}</strong></Link>
                     <span>/{page.slug}</span>
                   </td>
                   <td><span className={`status-badge status-badge--${page.status}`}>{statusLabels[page.status]}</span></td>

@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import type { JSX } from "react";
 import type { PublicDocument } from "@/content/types";
+import { fr } from "@/lib/text/french";
 
 type DocumentListProps = {
   documents: PublicDocument[];
@@ -18,12 +19,12 @@ export function DocumentList({ documents }: DocumentListProps): JSX.Element | nu
         {documents.map((document) => (
           <li className="document-list__item" key={document.id}>
             <div>
-              <h3>{document.title}</h3>
-              <p>{document.description}</p>
+              <h3>{fr(document.title)}</h3>
+              <p>{fr(document.description)}</p>
             </div>
-            <a className="button button--dark" href={document.downloadUrl}>
+            <a className="button button--dark" href={document.downloadUrl} aria-label={`Télécharger ${document.title} (PDF)`}>
               <Download aria-hidden="true" size={20} />
-              Télécharger {document.title}
+              Télécharger
             </a>
           </li>
         ))}
