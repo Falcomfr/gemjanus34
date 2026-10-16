@@ -86,3 +86,16 @@ test("a visitor message reaches the admin inbox and can be handled", async ({ pa
   await message.getByRole("button", { name: "Supprimer" }).click();
   await expect(page.getByRole("article", { name: subject })).toHaveCount(0);
 });
+
+test("logging out in one browser keeps the other one signed in", async ({ browser }) => {
+  const first = await browser.newPage();
+  const second = await browser.newPage({ storageState: undefined });
+  await login(first);
+  await login(second);
+
+  await first.getByRole("button", { name: "Déconnexion" }).click();
+  await expect(first).toHaveURL(/\/admin\/connexion$/);
+
+  await second.goto("/admin/documents");
+  await expect(second.getByRole("heading", { level: 1, name: "Documents" })).toBeVisible();
+});

@@ -40,6 +40,7 @@ export async function login(
 
 export async function logout(): Promise<never> {
   const supabase = await createServerClient();
-  await supabase.auth.signOut();
+  // "local" ends this browser session only; the default "global" would log out every device.
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/admin/connexion");
 }
