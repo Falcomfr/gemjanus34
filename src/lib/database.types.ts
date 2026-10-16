@@ -281,6 +281,17 @@ export type Database = {
       is_active_editor: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_valid_rich_content: { Args: { value: Json }; Returns: boolean };
+      list_news_with_authors: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          author_display_name: string;
+          id: string;
+          starts_at: string;
+          status: Database["public"]["Enums"]["content_status"];
+          title: string;
+          updated_at: string;
+        }[];
+      };
       archive_news: { Args: { news_id: string }; Returns: undefined };
       publish_news: { Args: { news_id: string }; Returns: undefined };
       publish_page: { Args: { page_id: string }; Returns: undefined };

@@ -102,6 +102,31 @@ describe("Supabase public content mapping", () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
+  test("makes repeated heading IDs deterministic and unique", async () => {
+    const repeatedHeadings: Json = {
+      type: "doc",
+      content: [
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Premier." }] },
+        { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Accueil" }] },
+        { type: "paragraph", content: [{ type: "text", text: "Second." }] },
+      ],
+    };
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getPublishedPages: vi.fn().mockResolvedValue({
+        data: [{ slug: "doublons", title: "Doublons", summary: "Résumé", content: repeatedHeadings }],
+        error: null,
+      }),
+    }));
+
+    await expect(repository.getPage("doublons")).resolves.toEqual(expect.objectContaining({
+      sections: [
+        expect.objectContaining({ id: "accueil", body: "Premier." }),
+        expect.objectContaining({ id: "accueil-2", body: "Second." }),
+      ],
+    }));
+  });
+
   test("propagates configured query failures instead of using local seed data", async () => {
     const repository = createSupabasePublicContentRepository(queryClient({
       getPublishedNews: vi.fn().mockResolvedValue({ data: null, error: new Error("database unavailable") }),

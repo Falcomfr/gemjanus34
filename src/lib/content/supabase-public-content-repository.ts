@@ -60,12 +60,20 @@ function richContentToSections(content: Json): PublicPage["sections"] {
   }
 
   const sections: PublicPage["sections"] = [];
+  const idCounts = new Map<string, number>();
   let current: PublicPage["sections"][number] | undefined;
+
+  const nextSectionId = (title: string) => {
+    const base = sectionId(title, sections.length);
+    const count = (idCounts.get(base) ?? 0) + 1;
+    idCounts.set(base, count);
+    return count === 1 ? base : `${base}-${count}`;
+  };
 
   for (const node of doc.content as RichNode[]) {
     if (node.type === "heading" && (node.attrs?.level === 2 || node.attrs?.level === 3)) {
       const title = textContent(node);
-      current = { id: sectionId(title, sections.length), title, body: "" };
+      current = { id: nextSectionId(title), title, body: "" };
       sections.push(current);
       continue;
     }
@@ -73,7 +81,7 @@ function richContentToSections(content: Json): PublicPage["sections"] {
     if (node.type === "paragraph") {
       const body = textContent(node);
       if (!current) {
-        current = { id: "contenu", title: "Contenu", body: "" };
+        current = { id: nextSectionId("Contenu"), title: "Contenu", body: "" };
         sections.push(current);
       }
       current.body = [current.body, body].filter(Boolean).join("\n\n");

@@ -8,10 +8,7 @@ const statusLabels = { draft: "Brouillon", published: "Publiée", archived: "Arc
 export default async function AdminNewsPage() {
   await requireProfile();
   const supabase = await createServerClient();
-  const { data: items, error } = await supabase
-    .from("news")
-    .select("id, title, status, starts_at, updated_at, author:profiles!news_created_by_fkey(display_name)")
-    .order("starts_at", { ascending: false });
+  const { data: items, error } = await supabase.rpc("list_news_with_authors");
 
   return (
     <div className="admin-pages-index">
@@ -39,7 +36,7 @@ export default async function AdminNewsPage() {
                   <td><strong>{item.title}</strong><span>Modifiée le {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(new Date(item.updated_at))}</span></td>
                   <td><span className={`status-badge status-badge--${item.status}`}>{statusLabels[item.status]}</span></td>
                   <td><time dateTime={item.starts_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(item.starts_at))}</time></td>
-                  <td>{item.author?.display_name ?? "Compte inconnu"}</td>
+                  <td>{item.author_display_name}</td>
                   <td><Link href={`/admin/actualites/${item.id}`} aria-label={`Ouvrir ${item.title}`} title="Ouvrir l’actualité"><ArrowRight aria-hidden="true" size={20} /></Link></td>
                 </tr>
               ))}

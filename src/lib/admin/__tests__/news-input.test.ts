@@ -50,6 +50,22 @@ describe("newsInputSchema", () => {
     },
   );
 
+  test.each([
+    "2026-02-30T08:30:00+01:00",
+    "2026-13-01T08:30:00+01:00",
+  ])("rejects the impossible calendar timestamp %s", (startsAt) => {
+    expect(
+      newsInputSchema.safeParse({
+        title: "Atelier",
+        excerpt: "Description",
+        content,
+        startsAt,
+        endsAt: null,
+        featured: false,
+      }).success,
+    ).toBe(false);
+  });
+
   test("requires title and excerpt and validates content", () => {
     const result = newsInputSchema.safeParse({
       title: "",

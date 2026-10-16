@@ -5,7 +5,14 @@ import { richContentSchema } from "@/lib/content/rich-content-schema";
 const explicitOffsetTimestamp = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/)
-  .refine((value) => !Number.isNaN(Date.parse(value)));
+  .refine((value) => {
+    try {
+      Temporal.Instant.from(value);
+      return true;
+    } catch {
+      return false;
+    }
+  });
 
 export const newsInputSchema = z
   .object({
@@ -17,7 +24,14 @@ export const newsInputSchema = z
     featured: z.boolean(),
   })
   .refine(
-    ({ startsAt, endsAt }) => endsAt === null || Date.parse(endsAt) >= Date.parse(startsAt),
+    ({ startsAt, endsAt }) => {
+      if (endsAt === null) return true;
+      try {
+        return Temporal.Instant.compare(endsAt, startsAt) >= 0;
+      } catch {
+        return true;
+      }
+    },
     { path: ["endsAt"], message: "La fin doit suivre le début." },
   );
 
