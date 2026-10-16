@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { publicDocuments, publicPages } from "../seed";
 
@@ -18,12 +20,30 @@ describe("public content contracts", () => {
       publicDocuments
         .filter((document) => document.category === "institutional")
         .map((document) => document.slug),
-    ).toEqual(["statuts-association", "reglement-interieur"]);
+    ).toEqual([
+      "statuts-association",
+      "reglement-interieur",
+      "regles-de-vie",
+      "compte-rendu-ag-2025",
+    ]);
     expect(
       publicDocuments
         .filter((document) => document.category === "health")
         .map((document) => document.slug),
-    ).toEqual(["reperes-trouble-bipolaire", "orientation-professionnel-sante"]);
+    ).toEqual([
+      "questions-reponses-troubles-bipolaires",
+      "connaitre-trouble-bipolaire",
+      "vivre-avec-troubles-bipolaires",
+      "conseils-entourage",
+      "diagramme-humeur",
+    ]);
+  });
+
+  test("points every document download to a bundled file", () => {
+    for (const document of publicDocuments) {
+      expect(document.downloadUrl).toBe(`/documents/${document.slug}.pdf`);
+      expect(existsSync(join(process.cwd(), "public", document.downloadUrl)), document.slug).toBe(true);
+    }
   });
 
   test("keeps the healthcare disclaimer explicit", () => {

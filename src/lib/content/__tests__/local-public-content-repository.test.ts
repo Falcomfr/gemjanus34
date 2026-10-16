@@ -41,8 +41,7 @@ test("returns only news records with verified public dates", async () => {
   const news = await publicContentRepository.getNews();
 
   expect(news.map(({ title, startsAt }) => ({ title, startsAt }))).toEqual([
-    { title: "Planning 19 06 2026", startsAt: "2026-06-19" },
-    { title: "Compte rendu AG 2025", startsAt: "2025-05-10" },
+    { title: "Assemblée générale 2025", startsAt: "2025-05-10" },
   ]);
 });
 

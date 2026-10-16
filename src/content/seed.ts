@@ -113,18 +113,10 @@ export const publicPages: ReadonlyArray<PublicPage> = [
 
 export const newsItems: ReadonlyArray<NewsItem> = [
   {
-    id: "planning-2026-06-19",
-    title: "Planning 19 06 2026",
-    excerpt: "Le PDF intitulé « Planning 19 06 2026 » est daté du 19 juin 2026.",
-    startsAt: "2026-06-19",
-    endsAt: null,
-    featured: false,
-    status: "published",
-  },
-  {
     id: "compte-rendu-ag-2025",
-    title: "Compte rendu AG 2025",
-    excerpt: "L'assemblée générale s'est tenue le 10 mai 2025.",
+    title: "Assemblée générale 2025",
+    excerpt:
+      "L'assemblée générale de Janus34 s'est tenue le 10 mai 2025. Son compte rendu est disponible dans la présentation du GEM.",
     startsAt: "2025-05-10",
     endsAt: null,
     featured: false,
@@ -132,55 +124,65 @@ export const newsItems: ReadonlyArray<NewsItem> = [
   },
 ];
 
+function pdf(
+  slug: string,
+  title: string,
+  description: string,
+  category: PublicDocument["category"],
+  updatedAt = "2026-10-16",
+): PublicDocument {
+  return {
+    id: slug,
+    title,
+    slug,
+    description,
+    category,
+    mimeType: "application/pdf",
+    updatedAt,
+    downloadUrl: `/documents/${slug}.pdf`,
+  };
+}
+
 export const publicDocuments: ReadonlyArray<PublicDocument> = [
-  {
-    id: "current-planning",
-    title: "Planning des activités",
-    slug: "planning-des-activites",
-    description: "Le planning public des activités proposé par Janus34.",
-    category: "planning",
-    mimeType: "application/pdf",
-    updatedAt: "2026-10-11",
-    downloadUrl: "/documents/planning-des-activites",
-  },
-  {
-    id: "association-statutes",
-    title: "Statuts de l'association",
-    slug: "statuts-association",
-    description: "Les statuts de l'association Janus34.",
-    category: "institutional",
-    mimeType: "application/pdf",
-    updatedAt: "2026-10-11",
-    downloadUrl: "/documents/statuts-association",
-  },
-  {
-    id: "internal-rules",
-    title: "Règlement intérieur",
-    slug: "reglement-interieur",
-    description: "Le règlement intérieur de l'association Janus34.",
-    category: "institutional",
-    mimeType: "application/pdf",
-    updatedAt: "2026-10-11",
-    downloadUrl: "/documents/reglement-interieur",
-  },
-  {
-    id: "bipolar-disorder-guide",
-    title: "Repères sur le trouble bipolaire",
-    slug: "reperes-trouble-bipolaire",
-    description: "Un document d'information générale sur le trouble bipolaire, sans conseil médical personnalisé.",
-    category: "health",
-    mimeType: "application/pdf",
-    updatedAt: "2026-10-11",
-    downloadUrl: "/documents/reperes-trouble-bipolaire",
-  },
-  {
-    id: "professional-support-guide",
-    title: "S'orienter vers un professionnel de santé",
-    slug: "orientation-professionnel-sante",
-    description: "Des repères généraux pour identifier les interlocuteurs du soin, distincts des activités de Janus34.",
-    category: "health",
-    mimeType: "application/pdf",
-    updatedAt: "2026-10-11",
-    downloadUrl: "/documents/orientation-professionnel-sante",
-  },
+  pdf(
+    "planning-des-activites",
+    "Planning des activités",
+    "Le planning hebdomadaire des ateliers et des temps collectifs, en vigueur à partir du 22 juin 2026.",
+    "planning",
+    "2026-06-22",
+  ),
+  pdf("statuts-association", "Statuts de l'association", "Les statuts de Janus34, version d'avril 2009.", "institutional"),
+  pdf("reglement-interieur", "Règlement intérieur", "Le règlement intérieur de l'association, version de mai 2021.", "institutional"),
+  pdf("regles-de-vie", "Règles de vie", "Les rappels pour faciliter le vivre ensemble au GEM.", "institutional"),
+  pdf(
+    "compte-rendu-ag-2025",
+    "Compte rendu de l'assemblée générale 2025",
+    "Le compte rendu de l'assemblée générale du 10 mai 2025.",
+    "institutional",
+  ),
+  pdf(
+    "questions-reponses-troubles-bipolaires",
+    "Questions et réponses sur les troubles bipolaires",
+    "Un document d'information générale pour mieux comprendre les troubles bipolaires.",
+    "health",
+  ),
+  pdf(
+    "connaitre-trouble-bipolaire",
+    "Le trouble bipolaire : le connaître pour mieux le reconnaître",
+    "Un document de sensibilisation sur les signes du trouble bipolaire.",
+    "health",
+  ),
+  pdf(
+    "vivre-avec-troubles-bipolaires",
+    "Apprendre à vivre avec des troubles bipolaires",
+    "Un guide à l'usage des personnes concernées et de leurs proches.",
+    "health",
+  ),
+  pdf("conseils-entourage", "Conseils à l'entourage", "Des repères pour les proches d'une personne concernée.", "health"),
+  pdf(
+    "diagramme-humeur",
+    "Diagramme de l'humeur",
+    "Un outil, avec ses instructions, pour suivre l'évolution de l'humeur.",
+    "health",
+  ),
 ];
