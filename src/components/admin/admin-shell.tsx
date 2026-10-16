@@ -7,6 +7,7 @@ import {
   Mail,
   Newspaper,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { logout } from "@/app/admin/connexion/actions";
@@ -37,7 +38,7 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <Link className="admin-sidebar__brand" href="/admin">
-          <span aria-hidden="true" className="wordmark__mark">J34</span>
+          <Image className="admin-sidebar__logo" src="/images/janus34-logo.png" alt="" width={40} height={40} />
           <span>Administration</span>
         </Link>
 

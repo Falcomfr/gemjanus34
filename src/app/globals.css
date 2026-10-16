@@ -121,18 +121,6 @@ select:focus-visible,
   object-fit: contain;
 }
 
-.wordmark__mark {
-  width: 2.65rem;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--forest);
-  border-radius: 50%;
-  background: var(--sun);
-  color: var(--forest-dark);
-  font-size: 0.8rem;
-}
-
 .navigation-list {
   display: flex;
   align-items: center;
@@ -1243,8 +1231,13 @@ body:has(.admin-area) > .skip-link {
   text-decoration: none;
 }
 
-.admin-sidebar__brand .wordmark__mark {
-  color: var(--forest-dark);
+.admin-sidebar__logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  padding: 0.2rem;
+  border-radius: 50%;
+  background: var(--background);
 }
 
 .admin-navigation {
