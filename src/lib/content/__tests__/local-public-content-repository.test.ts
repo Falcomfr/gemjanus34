@@ -29,7 +29,7 @@ test("returns all public content from getSiteData", async () => {
 test("returns a page matching its slug", async () => {
   await expect(publicContentRepository.getPage("qui-sommes-nous")).resolves.toMatchObject({
     slug: "qui-sommes-nous",
-    title: "Qui sommes-nous ?",
+    title: "Le GEM Janus34",
   });
 });
 

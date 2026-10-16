@@ -31,3 +31,41 @@ test("renders structured sections and document downloads", () => {
     "/documents/statuts",
   );
 });
+
+test("renders paragraphs, lists, links and leading content", () => {
+  const { container } = render(
+    <ContentPage
+      page={{
+        slug: "exemple",
+        title: "Titre",
+        introduction: "Introduction",
+        sections: [
+          {
+            id: "ateliers",
+            title: "Ateliers",
+            body: "Premier paragraphe.\n\nSecond paragraphe.",
+            items: ["Écriture", "Qi Gong"],
+            links: [
+              { label: "Voir le planning", href: "/actualites#planning" },
+              { label: "Psycom", href: "https://www.psycom.org/" },
+            ],
+          },
+          { id: "etapes", title: "Étapes", body: "", items: ["Appeler", "Venir"], ordered: true },
+        ],
+      }}
+    >
+      <p>Encadré en tête</p>
+    </ContentPage>,
+  );
+
+  expect(screen.getByText("Premier paragraphe.").tagName).toBe("P");
+  expect(screen.getByText("Second paragraphe.").tagName).toBe("P");
+  expect(container.querySelector("ul")?.textContent).toContain("Qi Gong");
+  expect(container.querySelector("ol")?.textContent).toBe("AppelerVenir");
+  expect(screen.getByRole("link", { name: "Voir le planning" })).not.toHaveAttribute("target");
+  expect(screen.getByRole("link", { name: /psycom/i })).toHaveAttribute("target", "_blank");
+  expect(screen.getByRole("link", { name: /psycom/i })).toHaveAttribute("rel", "noopener noreferrer");
+  expect(screen.getByText("Encadré en tête").compareDocumentPosition(screen.getByText("Premier paragraphe.")))
+    .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  expect(container.querySelector("p:empty")).toBeNull();
+});

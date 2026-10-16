@@ -1,6 +1,7 @@
-import { MapPin, Phone } from "lucide-react";
+import { Bus, Clock, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact/contact-form";
+import { contact } from "@/content/contact";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -12,27 +13,41 @@ export default function ContactPage() {
     <>
       <header className="content-page__header">
         <div className="content-container content-page__header-inner">
-          <p className="eyebrow eyebrow--light">Échanger avec l&apos;équipe</p>
+          <p className="eyebrow">Échanger avec l&apos;équipe</p>
           <h1>Contact</h1>
-          <p>Avant une première visite, téléphonez à Janus34 pour convenir d&apos;un accueil.</p>
+          <p>
+            Une première visite se prépare de préférence par téléphone : l&apos;équipe convient avec
+            vous d&apos;un entretien d&apos;accueil.
+          </p>
         </div>
       </header>
 
       <div className="content-container contact-layout">
         <section className="contact-details" aria-labelledby="contact-details-title">
-          <p className="eyebrow">Informations pratiques</p>
+          <p className="eyebrow eyebrow--dark">Informations pratiques</p>
           <h2 id="contact-details-title">Joindre Janus34</h2>
           <address>
-            <a href="tel:+33467048768">
+            <a href={contact.phoneHref}>
               <Phone aria-hidden="true" size={20} />
-              04 67 04 87 68
+              {contact.phone}
             </a>
             <span>
               <MapPin aria-hidden="true" size={20} />
-              405 rue des Grèzes, Montpellier
+              {contact.street}, {contact.city}
+            </span>
+            <span>
+              <Bus aria-hidden="true" size={20} />
+              {contact.transport}
+            </span>
+            <span>
+              <Clock aria-hidden="true" size={20} />
+              {contact.openingHours}
             </span>
           </address>
-          <p>Ligne de bus 11, arrêt La Martelle.</p>
+          <p>
+            L&apos;équipe répond l&apos;après-midi. Si personne ne décroche, laissez un message avec
+            vos coordonnées : nous vous rappellerons.
+          </p>
         </section>
 
         <section className="contact-form-section" aria-labelledby="contact-form-title">

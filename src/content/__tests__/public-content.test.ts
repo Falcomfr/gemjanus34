@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { publicDocuments, publicPages } from "../seed";
+import { newsItems, publicDocuments, publicPages } from "../seed";
 
 function getPage(slug: string) {
   const page = publicPages.find((candidate) => candidate.slug === slug);
@@ -11,7 +11,10 @@ function getPage(slug: string) {
 
 function getPageCopy(slug: string) {
   const page = getPage(slug);
-  return [page.introduction, ...page.sections.map((section) => section.body)].join(" ");
+  return [
+    page.introduction,
+    ...page.sections.flatMap((section) => [section.body, ...(section.items ?? [])]),
+  ].join(" ");
 }
 
 describe("public content contracts", () => {
@@ -53,16 +56,41 @@ describe("public content contracts", () => {
     expect(copy).toMatch(/ne constituent pas des conseils médicaux/i);
   });
 
-  test.each(["mentions-legales", "confidentialite"])(
-    "keeps %s provisional pending association validation",
+  test.each(["qui-sommes-nous", "activites", "nous-rejoindre", "ressources", "mentions-legales", "confidentialite"])(
+    "gives %s substantial content",
     (slug) => {
       const page = getPage(slug);
+      const copy = getPageCopy(slug);
 
-      expect(page.introduction).toMatch(/contenu provisoire/i);
-      expect(page.introduction).toMatch(/validation par l'association/i);
-      expect(page.introduction).toMatch(/avant la mise en production/i);
+      expect(page.sections.length).toBeGreaterThanOrEqual(4);
+      expect(copy.length).toBeGreaterThanOrEqual(1000);
     },
   );
+
+  test("shows no migration or placeholder vocabulary on any page", () => {
+    const allCopy = JSON.stringify([publicPages, publicDocuments, newsItems]);
+
+    expect(allCopy).not.toMatch(
+      /import|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation|validation requise/i,
+    );
+    expect(allCopy).not.toContain("\u2014");
+    expect(allCopy).not.toContain("—");
+  });
+
+  test("names the actual host and publisher in the legal notice", () => {
+    const copy = JSON.stringify(getPage("mentions-legales"));
+
+    expect(copy).toContain("Vercel Inc.");
+    expect(copy).toContain("405 rue des Grèzes, 34070 Montpellier");
+    expect(copy).toContain("04 67 04 87 68");
+  });
+
+  test("describes what the contact form really does with data", () => {
+    const copy = getPageCopy("confidentialite");
+
+    expect(copy).toMatch(/aucune information saisie[^.]*n'est envoyée ni enregistrée/i);
+    expect(copy).toMatch(/CNIL/);
+  });
 
   test("gives complete phone-first information for a first visit", () => {
     const page = getPage("nous-rejoindre");

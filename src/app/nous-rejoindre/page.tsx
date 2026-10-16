@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ContentPage } from "@/components/content/content-page";
+import { PracticalInfo } from "@/components/content/practical-info";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
 
 export default async function JoinPage() {
@@ -10,5 +11,9 @@ export default async function JoinPage() {
     notFound();
   }
 
-  return <ContentPage page={page} />;
+  return (
+    <ContentPage page={page}>
+      <PracticalInfo />
+    </ContentPage>
+  );
 }

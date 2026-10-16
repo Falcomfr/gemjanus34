@@ -1,6 +1,7 @@
 "use client";
 
 import type { JSX } from "react";
+import { contact } from "@/content/contact";
 
 export function ContactForm(): JSX.Element {
   return (
@@ -60,8 +61,8 @@ export function ContactForm(): JSX.Element {
           Envoyer le message
         </button>
         <p>
-          L&apos;envoi sécurisé sera activé après la configuration de la messagerie. Pour le
-          moment, contactez Janus34 par téléphone.
+          Le formulaire en ligne n&apos;est pas encore ouvert : aucun message ne peut être envoyé
+          depuis cette page. Appelez-nous au <a href={contact.phoneHref}>{contact.phone}</a>.
         </p>
       </div>
     </form>
