@@ -1302,9 +1302,6 @@ body:has(.admin-area) > .skip-link {
   width: 2.5rem;
   height: 2.5rem;
   flex: 0 0 auto;
-  padding: 0.2rem;
-  border-radius: 50%;
-  background: var(--background);
 }
 
 .admin-navigation {

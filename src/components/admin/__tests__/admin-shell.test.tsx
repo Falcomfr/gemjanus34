@@ -83,3 +83,13 @@ test("offers a way back to the public site", () => {
 
   expect(screen.getByRole("link", { name: /voir le site/i })).toHaveAttribute("href", "/");
 });
+
+test("shows the two faces of the logo, which fit a small round badge", () => {
+  const { container } = render(
+    <AdminShell pathname="/admin" profile={profile}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+
+  expect(container.querySelector(".admin-sidebar__logo")).toHaveAttribute("src", expect.stringContaining("janus34-visages.svg"));
+});

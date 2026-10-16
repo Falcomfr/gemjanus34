@@ -40,7 +40,7 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <Link className="admin-sidebar__brand" href="/admin">
-          <Image className="admin-sidebar__logo" src="/images/janus34-logo.png" alt="" width={40} height={40} />
+          <Image className="admin-sidebar__logo" src="/images/janus34-visages.svg" alt="" width={40} height={40} unoptimized />
           <span>Administration</span>
         </Link>
 
