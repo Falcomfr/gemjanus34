@@ -1,5 +1,6 @@
 import {
   formatPublicDate,
+  formatPublicDateRange,
   isCurrentOrFuturePublicDate,
   publicDateTimestamp,
 } from "../public-date";
@@ -57,4 +58,16 @@ test("orders timestamps by their instant when offsets differ", () => {
   expect(publicDateTimestamp("2026-10-15T10:00:00+02:00")).toBeLessThan(
     publicDateTimestamp("2026-10-15T09:00:00Z"),
   );
+});
+
+describe("formatPublicDateRange", () => {
+  test.each([
+    ["2026-10-12", null, "12 octobre 2026"],
+    ["2026-10-08T08:00:00Z", null, "8 octobre 2026 à 10 h"],
+    ["2026-10-08T08:00:00Z", "2026-10-08T11:30:00Z", "8 octobre 2026, de 10 h à 13 h 30"],
+    ["2026-10-08T08:00:00Z", "2026-10-10T16:00:00Z", "du 8 octobre 2026 à 10 h au 10 octobre 2026 à 18 h"],
+    ["2026-09-01", "2026-11-01", "du 1 septembre 2026 au 1 novembre 2026"],
+  ])("formats %s → %s in Paris time", (startsAt, endsAt, expected) => {
+    expect(formatPublicDateRange(startsAt, endsAt)).toBe(expected);
+  });
 });

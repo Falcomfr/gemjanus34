@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { JSX } from "react";
 import type { NewsItem } from "@/content/types";
 import { groupNews } from "@/lib/content/group-news";
-import { formatPublicDate } from "@/lib/date/public-date";
+import { formatPublicDateRange } from "@/lib/date/public-date";
 
 type UpcomingNewsProps = {
   items: NewsItem[];
@@ -13,7 +13,7 @@ type UpcomingNewsProps = {
 export function UpcomingNews({ items, now }: UpcomingNewsProps): JSX.Element {
   const { upcoming, recent } = groupNews(items, now);
   const shown = [
-    ...upcoming.map((item) => ({ item, status: "À venir" })),
+    ...upcoming.toSorted((left, right) => Number(right.featured) - Number(left.featured)).map((item) => ({ item, status: "À venir" })),
     ...recent.map((item) => ({ item, status: "Passé" })),
   ].slice(0, 3);
 
@@ -37,8 +37,8 @@ export function UpcomingNews({ items, now }: UpcomingNewsProps): JSX.Element {
               <article className="news-card" key={item.id}>
                 <p className="news-card__date">
                   <CalendarDays aria-hidden="true" size={18} />
-                  <time dateTime={item.startsAt}>{formatPublicDate(item.startsAt)}</time>
-                  <span className="news-card__status">{status}</span>
+                  <time dateTime={item.startsAt}>{formatPublicDateRange(item.startsAt, item.endsAt)}</time>
+                  <span className="news-card__status">{item.featured && status === "À venir" ? "À la une" : status}</span>
                 </p>
                 <h3>{item.title}</h3>
                 <p>{item.excerpt}</p>

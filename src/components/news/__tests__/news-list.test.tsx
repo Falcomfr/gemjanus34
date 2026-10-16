@@ -127,3 +127,29 @@ test("orders announcements by instant across differing and equivalent offsets", 
       .map((heading) => heading.textContent),
   ).toEqual(["Plus tôt avec décalage", "Même instant UTC", "Même instant décalé"]);
 });
+
+test("shows the time, the highlight and the details of an announcement, and no empty archives", () => {
+  const { container } = render(
+    <NewsList
+      now="2026-10-01T12:00:00+02:00"
+      items={[
+        {
+          id: "fabre",
+          title: "Musée Fabre",
+          excerpt: "Sortie au musée",
+          startsAt: "2026-10-08T08:00:00Z",
+          endsAt: "2026-10-08T11:00:00Z",
+          featured: true,
+          status: "published",
+          content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Rendez-vous au café." }] }] },
+        },
+      ]}
+    />,
+  );
+
+  const item = screen.getByRole("heading", { name: "Musée Fabre" }).closest("article")!;
+  expect(item).toHaveTextContent("8 octobre 2026, de 10 h à 13 h");
+  expect(item).toHaveTextContent("À la une");
+  expect(item).toHaveTextContent("Rendez-vous au café.");
+  expect(container.textContent).not.toMatch(/Archives/);
+});

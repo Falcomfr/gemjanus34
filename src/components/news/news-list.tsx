@@ -39,15 +39,17 @@ export function NewsList({ items, now }: NewsListProps): JSX.Element {
         <Timeline items={recent} empty="Aucune information publiée ces deux derniers mois." />
       </section>
 
-      <section className="timeline__section" aria-labelledby="archives-title">
-        <details className="timeline__archives">
-          <summary>
-            <span id="archives-title">Archives</span>
-            <span aria-hidden="true">{archived.length}</span>
-          </summary>
-          <Timeline items={archived} empty="Aucune archive pour le moment." />
-        </details>
-      </section>
+      {archived.length > 0 ? (
+        <section className="timeline__section" aria-labelledby="archives-title">
+          <details className="timeline__archives">
+            <summary>
+              <span id="archives-title">Archives</span>
+              <span aria-hidden="true">{archived.length}</span>
+            </summary>
+            <Timeline items={archived} empty="" />
+          </details>
+        </section>
+      ) : null}
     </div>
   );
 }

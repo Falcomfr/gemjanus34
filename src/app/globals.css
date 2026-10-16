@@ -784,8 +784,58 @@ h3 {
   color: white;
 }
 
-.content-page__header-inner > * {
+.content-page__header-inner {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+}
+
+.content-page__header-inner > div {
   max-width: 48rem;
+}
+
+.content-page__visual {
+  max-width: 24rem;
+  margin: 0;
+}
+
+.content-page__visual img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 999px 999px 1rem 1rem;
+  box-shadow: 0 0 0 0.35rem var(--sun), 0 1rem 2rem rgb(0 0 0 / 25%);
+}
+
+.content-page__visual figcaption {
+  margin-top: 0.85rem;
+  color: #d6e4dd;
+  font-size: 0.85rem;
+}
+
+.content-page__intro {
+  max-width: 44rem;
+  margin-bottom: 2.5rem;
+}
+
+.content-page__intro p,
+.content-page__section-body li > p {
+  margin: 0 0 0.5rem;
+}
+
+.content-page__section-body h3 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.content-page__section-body a:not(.text-link):not(.button) {
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.content-list .content-list {
+  margin: 0.5rem 0 0;
 }
 
 .content-page__header h1 {
@@ -794,7 +844,7 @@ h3 {
   line-height: 1.1;
 }
 
-.content-page__header-inner > p:last-child {
+.content-page__header-inner > div > p:last-child {
   margin: 1.25rem 0 0;
   color: #ecf3ef;
   font-size: 1.125rem;
@@ -2448,11 +2498,6 @@ body:has(.admin-area) > .skip-link {
     font-size: 2.4rem;
   }
 
-  .content-page__header::before,
-  .content-page__header::after {
-    display: block;
-  }
-
   .home-hero {
     padding: 4.5rem 0 6.5rem;
   }
@@ -2574,6 +2619,12 @@ body:has(.admin-area) > .skip-link {
     gap: 3rem;
   }
 
+  .content-page__header-inner--visual {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+    align-items: center;
+    gap: 4rem;
+  }
+
   .content-page__section h2 {
     font-size: 1.9rem;
   }
@@ -2595,6 +2646,11 @@ body:has(.admin-area) > .skip-link {
 }
 
 @media (min-width: 68rem) {
+  .content-page__header:not(:has(.content-page__header-inner--visual))::before,
+  .content-page__header:not(:has(.content-page__header-inner--visual))::after {
+    display: block;
+  }
+
   .home-hero {
     padding: 5.5rem 0 7.5rem;
   }

@@ -13,7 +13,7 @@ type PublicPageRow = Pick<
 
 type PublicNewsRow = Pick<
   Database["public"]["Tables"]["news"]["Row"],
-  "id" | "title" | "excerpt" | "starts_at" | "ends_at" | "featured" | "status"
+  "id" | "title" | "excerpt" | "starts_at" | "ends_at" | "featured" | "status" | "content"
 >;
 
 type PublicDocumentRow = Pick<
@@ -60,6 +60,8 @@ function mapNews(row: PublicNewsRow): NewsItem {
     endsAt: row.ends_at,
     featured: row.featured,
     status: row.status,
+    // Details are optional: an unreadable body hides the details, not the announcement.
+    content: richContentSchema.safeParse(row.content).data,
   };
 }
 
@@ -147,7 +149,7 @@ export function createSupabasePublicQueryClient(
     async getPublishedNews() {
       const result = await client
         .from("news")
-        .select("id, title, excerpt, starts_at, ends_at, featured, status")
+        .select("id, title, excerpt, starts_at, ends_at, featured, status, content")
         .eq("status", "published")
         .order("starts_at", { ascending: false });
       return { data: result.data, error: result.error };

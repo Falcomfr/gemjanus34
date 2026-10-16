@@ -22,6 +22,7 @@ export type NewsItem = {
   endsAt: string | null;
   featured: boolean;
   status: ContentStatus;
+  content?: RichContent;
 };
 
 export type PageLink = { label: string; href: string };

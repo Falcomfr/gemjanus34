@@ -110,3 +110,29 @@ export function isCurrentOrFuturePublicDate(value: string, now: string): boolean
 
   return publicDateTimestamp(value) >= currentInstant.getTime();
 }
+
+const parisTimeFormatter = new Intl.DateTimeFormat("fr-FR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: PARIS_TIME_ZONE,
+});
+
+function publicTime(value: string): string {
+  const [hour, minute] = parisTimeFormatter.format(parsePublicDate(value)).split(":");
+  return `${Number(hour)} h${minute === "00" ? "" : ` ${minute}`}`;
+}
+
+function publicMoment(value: string): string {
+  return DATE_ONLY_PATTERN.test(value) ? formatPublicDate(value) : `${formatPublicDate(value)} à ${publicTime(value)}`;
+}
+
+// "8 octobre 2026 à 10 h", "8 octobre 2026, de 10 h à 13 h 30", "du … au …", in Paris time.
+export function formatPublicDateRange(startsAt: string, endsAt: string | null): string {
+  if (!endsAt) return publicMoment(startsAt);
+  const timed = !DATE_ONLY_PATTERN.test(startsAt) && !DATE_ONLY_PATTERN.test(endsAt);
+  if (timed && formatPublicDate(startsAt) === formatPublicDate(endsAt)) {
+    return `${formatPublicDate(startsAt)}, de ${publicTime(startsAt)} à ${publicTime(endsAt)}`;
+  }
+  return `du ${publicMoment(startsAt)} au ${publicMoment(endsAt)}`;
+}
