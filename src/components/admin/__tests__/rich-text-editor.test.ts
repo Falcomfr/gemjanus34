@@ -47,7 +47,14 @@ describe("createRichTextExtensions", () => {
       const link = editorJson.content?.[0].content?.[0].marks?.[0];
 
       expect(link?.attrs).toEqual(expect.objectContaining({ title: null }));
-      expect(() => serializeRichContent(editorJson)).not.toThrow();
+      const serializedLink = JSON.parse(serializeRichContent(editorJson))
+        .content[0].content[0].marks[0];
+      expect(serializedLink.attrs).toEqual({
+        href: "https://janus34.fr",
+        target: "_blank",
+        rel: "noopener noreferrer nofollow",
+        class: null,
+      });
     } finally {
       editor.destroy();
     }

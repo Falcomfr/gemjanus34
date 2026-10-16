@@ -1262,6 +1262,13 @@ body:has(.admin-area) > .skip-link {
   content: "";
 }
 
+.editor-toolbar__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--coral-dark);
+  font-size: 0.85rem;
+}
+
 .tiptap {
   min-height: 20rem;
   padding: 1rem;

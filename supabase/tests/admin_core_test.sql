@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = extensions, public;
 
-select plan(93);
+select plan(96);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'pages', 'pages table exists');
@@ -144,6 +144,12 @@ select ok(
     '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Courriel","marks":[{"type":"link","attrs":{"href":"mailto:contact@gemjanus34.fr"}}]}]}]}'::jsonb
   ),
   'the database accepts mail links'
+);
+select ok(
+  not public.is_valid_rich_content(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Site","marks":[{"type":"link","attrs":{"href":"https://gemjanus34.fr","target":"_blank","rel":"noopener noreferrer nofollow","class":null,"title":null}}]}]}]}'::jsonb
+  ),
+  'the database rejects the automatic Tiptap link title attribute'
 );
 select ok(
   not public.is_valid_rich_content(
@@ -315,6 +321,20 @@ values (
   '{"type":"doc","content":[{"type":"paragraph"}]}',
   'published',
   '10000000-0000-0000-0000-000000000001'
+);
+
+select lives_ok(
+  $$
+    update public.pages
+    set content = '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Site","marks":[{"type":"link","attrs":{"href":"https://gemjanus34.fr","target":"_blank","rel":"noopener noreferrer nofollow","class":null}}]}]}]}'::jsonb
+    where id = '20000000-0000-0000-0000-000000000002'
+  $$,
+  'the persistence boundary accepts normalized Tiptap link attributes'
+);
+select is(
+  (select content from public.pages where id = '20000000-0000-0000-0000-000000000002'),
+  '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Site","marks":[{"type":"link","attrs":{"href":"https://gemjanus34.fr","target":"_blank","rel":"noopener noreferrer nofollow","class":null}}]}]}]}'::jsonb,
+  'normalized Tiptap link attributes persist unchanged'
 );
 
 insert into public.news (
@@ -857,6 +877,8 @@ select is(
 
 select fail('anonymous users read only published pages');
 select fail('anonymous users read only published news');
+select fail('the persistence boundary accepts normalized Tiptap link attributes');
+select fail('normalized Tiptap link attributes persist unchanged');
 select fail('anonymous users cannot create pages');
 select fail('editor role is resolved');
 select fail('active editors pass the editor check');

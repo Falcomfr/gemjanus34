@@ -166,4 +166,43 @@ describe("richContentSchema", () => {
     });
     expect(richContentSchema.safeParse(JSON.parse(serialized)).success).toBe(true);
   });
+
+  test("normalizes Tiptap link attributes to the exact database allowlist", () => {
+    const tiptapDocument = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Contact",
+              marks: [
+                {
+                  type: "link",
+                  attrs: {
+                    href: "https://gemjanus34.fr/contact",
+                    target: "_blank",
+                    rel: "noopener noreferrer nofollow",
+                    class: null,
+                    title: null,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const serialized = JSON.parse(serializeRichContent(tiptapDocument));
+
+    expect(serialized.content[0].content[0].marks[0].attrs).toEqual({
+      href: "https://gemjanus34.fr/contact",
+      target: "_blank",
+      rel: "noopener noreferrer nofollow",
+      class: null,
+    });
+    expect(richContentSchema.parse(serialized)).toEqual(serialized);
+  });
 });

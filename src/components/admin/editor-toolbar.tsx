@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   Bold,
@@ -12,7 +12,10 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from "lucide-react";
-import { richTextColors } from "@/lib/content/rich-content-schema";
+import {
+  isSafeRichTextHref,
+  richTextColors,
+} from "@/lib/content/rich-content-schema";
 
 const colorLabels: Record<(typeof richTextColors)[number], string> = {
   "#202521": "Texte",
@@ -26,6 +29,7 @@ type EditorToolbarProps = {
 };
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+  const [linkError, setLinkError] = useState<string | null>(null);
   const heading = editor.isActive("heading", { level: 2 })
     ? "2"
     : editor.isActive("heading", { level: 3 })
@@ -36,11 +40,20 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
     const currentHref = editor.getAttributes("link").href as string | undefined;
     const href = window.prompt("Adresse du lien", currentHref ?? "https://");
     if (href === null) return;
-    if (href.trim() === "") {
+    const trimmedHref = href.trim();
+    if (trimmedHref === "") {
+      setLinkError(null);
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: href.trim() }).run();
+    if (!isSafeRichTextHref(trimmedHref)) {
+      setLinkError(
+        "L’adresse du lien doit commencer par https://, http://, mailto:, / ou #.",
+      );
+      return;
+    }
+    setLinkError(null);
+    editor.chain().focus().extendMarkRange("link").setLink({ href: trimmedHref }).run();
   }
 
   return (
@@ -149,6 +162,11 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
           />
         ))}
       </div>
+      {linkError ? (
+        <p className="editor-toolbar__error" role="alert" aria-live="assertive">
+          {linkError}
+        </p>
+      ) : null}
     </div>
   );
 }

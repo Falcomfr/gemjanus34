@@ -4,6 +4,10 @@ export const richTextColors = ["#202521", "#185c4c", "#c84f3b", "#5b655f"] as co
 
 const safeHrefPattern = /^(?:\/[^\u0000-\u0020]*|#[^\u0000-\u0020]*|https?:\/\/[^\u0000-\u0020]+|mailto:[^\u0000-\u0020]+)$/i;
 
+export function isSafeRichTextHref(value: string) {
+  return safeHrefPattern.test(value);
+}
+
 const simpleMarkSchema = z.object({
   type: z.enum(["bold", "italic", "underline"]),
 }).strict();
@@ -11,11 +15,10 @@ const simpleMarkSchema = z.object({
 const linkMarkSchema = z.object({
   type: z.literal("link"),
   attrs: z.object({
-    href: z.string().min(1).regex(safeHrefPattern),
+    href: z.string().min(1).refine(isSafeRichTextHref),
     target: z.string().nullable().optional(),
     rel: z.string().nullable().optional(),
     class: z.string().nullable().optional(),
-    title: z.string().nullable().optional(),
   }).strict(),
 }).strict();
 
@@ -88,9 +91,9 @@ export const richContentSchema = z.object({
 
 export type RichContent = z.infer<typeof richContentSchema>;
 
-function normalizeOrderedListAttributes(value: unknown): unknown {
+function normalizeRichContentAttributes(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(normalizeOrderedListAttributes);
+    return value.map(normalizeRichContentAttributes);
   }
   if (!value || typeof value !== "object") {
     return value;
@@ -98,7 +101,7 @@ function normalizeOrderedListAttributes(value: unknown): unknown {
 
   const record = value as Record<string, unknown>;
   const normalized = Object.fromEntries(
-    Object.entries(record).map(([key, child]) => [key, normalizeOrderedListAttributes(child)]),
+    Object.entries(record).map(([key, child]) => [key, normalizeRichContentAttributes(child)]),
   );
 
   if (record.type === "orderedList" && record.attrs && typeof record.attrs === "object") {
@@ -106,9 +109,17 @@ function normalizeOrderedListAttributes(value: unknown): unknown {
     normalized.attrs = typeof start === "number" ? { start } : {};
   }
 
+  if (record.type === "link" && normalized.attrs && typeof normalized.attrs === "object") {
+    const databaseAttributes = {
+      ...(normalized.attrs as Record<string, unknown>),
+    };
+    delete databaseAttributes.title;
+    normalized.attrs = databaseAttributes;
+  }
+
   return normalized;
 }
 
 export function serializeRichContent(value: unknown): string {
-  return JSON.stringify(richContentSchema.parse(normalizeOrderedListAttributes(value)));
+  return JSON.stringify(richContentSchema.parse(normalizeRichContentAttributes(value)));
 }
