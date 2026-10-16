@@ -27,6 +27,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  experimental: {
+    // PDF uploads from the admin: 4 MB file cap, under Vercel's 4.5 MB request limit.
+    serverActions: { bodySizeLimit: "5mb" },
+  },
   allowedDevOrigins: ["127.0.0.1"],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
