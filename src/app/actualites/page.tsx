@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
-import { parisWeekday } from "@/components/planning/planning-format";
 import { WeekPlanning } from "@/components/planning/week-planning";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
+import { parisDate, resolveWeek } from "@/lib/planning/week";
 
 export const metadata: Metadata = {
   title: "Planning et actualités",
   description: "Le planning des activités, les prochains rendez-vous et les informations de Janus34.",
 };
 
-export default async function NewsPage() {
+type NewsPageProps = { searchParams?: Promise<{ semaine?: string | string[] }> };
+
+export default async function NewsPage({ searchParams }: NewsPageProps = {}) {
   const publicContentRepository = getPublicContentRepository();
   const [items, planningDocuments, planning] = await Promise.all([
     publicContentRepository.getNews(),
@@ -19,6 +21,8 @@ export default async function NewsPage() {
     publicContentRepository.getPlanning(),
   ]);
   const now = new Date().toISOString();
+  const requested = (await searchParams)?.semaine;
+  const { monday, ...navigation } = resolveWeek(typeof requested === "string" ? requested : undefined, now);
 
   return (
     <>
@@ -33,7 +37,7 @@ export default async function NewsPage() {
         </div>
       </header>
       {planning?.slots.length ? (
-        <WeekPlanning planning={planning} today={parisWeekday(now)} />
+        <WeekPlanning planning={planning} monday={monday} today={parisDate(now)} navigation={navigation} />
       ) : (
         <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
       )}

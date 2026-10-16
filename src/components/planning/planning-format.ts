@@ -24,11 +24,3 @@ export function formatHour(time: string): string {
 export function formatRange(start: string | null, end: string | null): string {
   return start && end ? `${formatHour(start)} – ${formatHour(end)}` : "";
 }
-
-const weekdayFormatter = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "Europe/Paris" });
-const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-// 1 = Monday … 7 = Sunday, in Paris time.
-export function parisWeekday(instant: string): number {
-  return weekdays.indexOf(weekdayFormatter.format(new Date(instant))) + 1;
-}

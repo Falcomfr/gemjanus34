@@ -7,20 +7,25 @@ import { PrintButton } from "@/components/planning/print-button";
 import { WeekPlanning } from "@/components/planning/week-planning";
 import { contact } from "@/content/contact";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
+import { resolveWeek } from "@/lib/planning/week";
 
 export const metadata: Metadata = {
   title: "Planning imprimable",
   description: "Le planning de la semaine de Janus34, à imprimer ou enregistrer en PDF.",
 };
 
-export default async function PrintablePlanningPage() {
+type PrintablePlanningPageProps = { searchParams?: Promise<{ semaine?: string | string[] }> };
+
+export default async function PrintablePlanningPage({ searchParams }: PrintablePlanningPageProps = {}) {
   const planning = await getPublicContentRepository().getPlanning();
   if (!planning?.slots.length) notFound();
+  const requested = (await searchParams)?.semaine;
+  const { monday } = resolveWeek(typeof requested === "string" ? requested : undefined, new Date().toISOString());
 
   return (
     <div className="printable-planning">
       <div className="content-container printable-planning__actions">
-        <Link className="text-link" href="/actualites#planning">
+        <Link className="text-link" href={`/actualites?semaine=${monday}#planning`}>
           <ArrowLeft aria-hidden="true" size={20} />
           Retour au planning
         </Link>
@@ -35,7 +40,7 @@ export default async function PrintablePlanningPage() {
             {contact.phone}
           </p>
         </header>
-        <WeekPlanning planning={planning} printable />
+        <WeekPlanning planning={planning} monday={monday} printable />
       </div>
     </div>
   );
