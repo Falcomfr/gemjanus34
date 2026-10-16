@@ -104,6 +104,17 @@ function normalizeRichContentAttributes(value: unknown): unknown {
     Object.entries(record).map(([key, child]) => [key, normalizeRichContentAttributes(child)]),
   );
 
+  if (record.type === "text" && Array.isArray(normalized.marks)) {
+    // Pasted text carries arbitrary colours; keep the palette ones and drop the rest.
+    const marks = (normalized.marks as Array<Record<string, unknown>>).flatMap((mark) => {
+      if (mark.type !== "textStyle") return [mark];
+      const color = String((mark.attrs as Record<string, unknown> | undefined)?.color ?? "").toLowerCase();
+      return (richTextColors as readonly string[]).includes(color) ? [{ type: "textStyle", attrs: { color } }] : [];
+    });
+    if (marks.length > 0) normalized.marks = marks;
+    else delete normalized.marks;
+  }
+
   if (record.type === "orderedList" && record.attrs && typeof record.attrs === "object") {
     const start = (record.attrs as Record<string, unknown>).start;
     normalized.attrs = typeof start === "number" ? { start } : {};
@@ -122,4 +133,9 @@ function normalizeRichContentAttributes(value: unknown): unknown {
 
 export function serializeRichContent(value: unknown): string {
   return JSON.stringify(richContentSchema.parse(normalizeRichContentAttributes(value)));
+}
+
+// Removes colour declarations (not background-color) from pasted HTML styles.
+export function stripPastedColors(html: string): string {
+  return html.replace(/(?<![-\w])color\s*:\s*[^;"']*;?/gi, "");
 }

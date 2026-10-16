@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import {
   isSafeRichTextHref,
   serializeRichContent,
+  stripPastedColors,
 } from "@/lib/content/rich-content-schema";
 import { EditorToolbar } from "./editor-toolbar";
 
@@ -52,11 +53,13 @@ export function RichTextEditor({
   label = "Contenu de la page",
 }: RichTextEditorProps) {
   const [content, setContent] = useState(() => serializeRichContent(initialContent));
+  const [serializationError, setSerializationError] = useState(false);
   const editor = useEditor({
     immediatelyRender: false,
     editable: !disabled,
     content: initialContent,
     editorProps: {
+      transformPastedHTML: stripPastedColors,
       attributes: {
         "aria-label": label,
         ...(describedBy ? { "aria-describedby": describedBy } : {}),
@@ -65,7 +68,14 @@ export function RichTextEditor({
     },
     extensions: createRichTextExtensions(),
     onUpdate: ({ editor: currentEditor }) => {
-      setContent(serializeRichContent(currentEditor.getJSON()));
+      try {
+        setContent(serializeRichContent(currentEditor.getJSON()));
+        setSerializationError(false);
+      } catch {
+        // Never keep saving a stale value silently: an invalid value makes the save fail visibly.
+        setContent("");
+        setSerializationError(true);
+      }
     },
   });
 
@@ -85,6 +95,12 @@ export function RichTextEditor({
     <div className={`rich-editor${disabled ? " rich-editor--disabled" : ""}`}>
       {editor && !disabled ? <EditorToolbar editor={editor} /> : null}
       <EditorContent editor={editor} />
+      {serializationError ? (
+        <p className="editor-toolbar__error" role="alert">
+          Une mise en forme collée n’est pas prise en charge. Collez le texte sans mise en forme
+          (Ctrl+Maj+V) pour pouvoir enregistrer.
+        </p>
+      ) : null}
       <input type="hidden" name="content" value={content} />
     </div>
   );

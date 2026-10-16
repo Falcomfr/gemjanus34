@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { richContentSchema, serializeRichContent } from "../rich-content-schema";
+import { richContentSchema, serializeRichContent, stripPastedColors } from "../rich-content-schema";
 
 const validDocument = {
   type: "doc",
@@ -205,4 +205,38 @@ describe("richContentSchema", () => {
     });
     expect(richContentSchema.parse(serialized)).toEqual(serialized);
   });
+});
+
+test("keeps pasted text but drops colours outside the palette", () => {
+  const pasted = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Rouge collé", marks: [{ type: "textStyle", attrs: { color: "#ff0000" } }] },
+          { type: "text", text: " et vert du site", marks: [{ type: "textStyle", attrs: { color: "#185C4C" } }] },
+        ],
+      },
+    ],
+  };
+
+  expect(JSON.parse(serializeRichContent(pasted))).toEqual({
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Rouge collé" },
+          { type: "text", text: " et vert du site", marks: [{ type: "textStyle", attrs: { color: "#185c4c" } }] },
+        ],
+      },
+    ],
+  });
+});
+
+test("strips colour styles from pasted HTML", () => {
+  expect(stripPastedColors('<p style="color: rgb(255, 0, 0); font-weight: bold">A</p><span style="color:#f00">B</span>')).toBe(
+    '<p style=" font-weight: bold">A</p><span style="">B</span>',
+  );
 });
