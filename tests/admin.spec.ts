@@ -119,9 +119,70 @@ test("a published news item shows on the public pages at once, and leaves when a
 
   await page.goto("/admin/actualites");
   await page.getByRole("link", { name: `Ouvrir ${title}` }).click();
+  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Archiver" }).click();
   await expect(page.locator(".form-status--success").last()).toContainText(/archivée/i);
 
   await page.goto("/actualites");
   await expect(page.getByRole("heading", { name: title })).toHaveCount(0);
+});
+
+async function openPage(page: Page, title: string) {
+  await page.goto("/admin/pages");
+  await page.getByRole("link", { name: title, exact: true }).first().click();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+}
+
+test("pasting coloured text keeps it, and a published page is corrected live", async ({ page }) => {
+  // Works on its own page so the site's real content is never touched.
+  const slug = `collage-e2e-${Date.now()}`;
+  await login(page);
+  await page.goto("/admin/pages/nouveau");
+  await page.getByLabel("Titre").fill("Collage E2E");
+  await page.getByLabel("Adresse de la page").fill(slug);
+  await page.getByRole("button", { name: "Créer la page" }).click();
+  await page.waitForURL(/\/admin\/pages\/[0-9a-f-]{36}$/);
+  await page.getByRole("button", { name: "Publier" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/publiée/);
+
+  await page.locator(".tiptap").click();
+  await page.evaluate(() => {
+    const target = document.querySelector(".tiptap")!;
+    const data = new DataTransfer();
+    data.setData("text/html", '<p><span style="color:#ff0000">Texte collé</span></p>');
+    data.setData("text/plain", "Texte collé");
+    target.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }));
+  });
+  await page.keyboard.type(" puis tapé");
+  await page.getByRole("button", { name: "Enregistrer et mettre en ligne" }).click();
+  await expect(page.locator(".form-status--success")).toContainText("Modifications en ligne");
+
+  await page.goto(`/${slug}`);
+  await expect(page.getByText("Texte collé puis tapé")).toBeVisible();
+
+  await openPage(page, "Collage E2E");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archiver" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/archivée/i);
+});
+
+test("a page created and published in the admin appears in the footer site map", async ({ page }) => {
+  const slug = `page-e2e-${Date.now()}`;
+  await login(page);
+  await page.goto("/admin/pages/nouveau");
+  await page.getByLabel("Titre").fill("Page de test E2E");
+  await page.getByLabel("Adresse de la page").fill(slug);
+  await page.getByRole("button", { name: "Créer la page" }).click();
+  await page.waitForURL(/\/admin\/pages\/[0-9a-f-]{36}$/);
+  await page.getByRole("button", { name: "Publier" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/publiée/);
+
+  await page.goto("/contact");
+  await expect(page.getByRole("navigation", { name: "Plan du site" }).getByRole("link", { name: "Page de test E2E" }))
+    .toHaveAttribute("href", `/${slug}`);
+
+  await openPage(page, "Page de test E2E");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archiver" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/archivée/i);
 });
