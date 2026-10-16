@@ -29,13 +29,6 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         id: "janus",
         title: "Pourquoi Janus ?",
         body: "Dans la mythologie romaine, Janus est le dieu des commencements et des fins, des choix, du passage et des portes. Il est représenté avec une face tournée vers le passé et l'autre vers l'avenir.\n\nIl est fêté le 1er janvier : son mois, Januarius, a donné son nom à janvier.",
-        image: {
-          src: "/images/janus-vatican.jpg",
-          alt: "Buste en marbre de Janus aux deux visages opposés",
-          caption: "Buste de Janus, musées du Vatican. Photo : Fubar Obfusco, domaine public (Wikimedia Commons).",
-          width: 604,
-          height: 530,
-        },
         links: [{ label: "Janus sur Wikipédia", href: "https://fr.wikipedia.org/wiki/Janus_(mythologie)" }],
       },
       {
@@ -78,13 +71,6 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         title: "Créer et s'exprimer",
         body: "Les ateliers d'expression stimulent l'imagination et la concentration. Ils permettent de se décentrer des difficultés et de s'ouvrir à de nouveaux centres d'intérêt.",
         items: ["Expression créatrice", "« Les mots qui volent »", "Écriture poétique", "Linogravure", "Collage"],
-        image: {
-          src: "/images/peinture-gem.jpg",
-          alt: "Peinture aux couleurs vives : un visage aux yeux clos, des oiseaux et des formes rouges, bleues et jaunes",
-          caption: "Une peinture issue des archives de Janus34.",
-          width: 1280,
-          height: 960,
-        },
       },
       {
         id: "bouger",

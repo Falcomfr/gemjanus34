@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
+import { fixedPageMetadata } from "@/lib/content/fixed-page-metadata";
 import { ContentPage } from "@/components/content/content-page";
 import { PracticalInfo } from "@/components/content/practical-info";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
+
+export function generateMetadata() {
+  return fixedPageMetadata("nous-rejoindre");
+}
 
 export default async function JoinPage() {
   const publicContentRepository = getPublicContentRepository();
@@ -12,7 +17,7 @@ export default async function JoinPage() {
   }
 
   return (
-    <ContentPage page={page}>
+    <ContentPage page={page} eyebrow="Première visite">
       <PracticalInfo />
     </ContentPage>
   );

@@ -88,30 +88,6 @@ test("keeps French punctuation attached to the previous word", () => {
   expect(screen.getByText(/Appelez/).textContent).toBe("Appelez !");
 });
 
-test("renders a section image with its caption", () => {
-  render(
-    <ContentPage
-      page={{
-        slug: "exemple",
-        title: "Titre",
-        introduction: "Intro",
-        sections: [
-          {
-            id: "janus",
-            title: "Janus",
-            body: "Texte.",
-            image: { src: "/images/janus-vatican.jpg", alt: "Buste de Janus", caption: "Photo : domaine public", width: 604, height: 530 },
-          },
-        ],
-      }}
-    />,
-  );
-
-  const figure = screen.getByRole("figure");
-  expect(within(figure).getByRole("img", { name: "Buste de Janus" })).toBeInTheDocument();
-  expect(figure.querySelector("figcaption")?.textContent).toBe("Photo\u202f: domaine public");
-});
-
 test("renders editor content as written: marks, links, H3, nested lists and block order", () => {
   const { container } = render(
     <ContentPage

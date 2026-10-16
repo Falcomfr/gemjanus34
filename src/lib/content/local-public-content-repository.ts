@@ -16,7 +16,6 @@ function clonePage(page: PublicPage): PublicPage {
       ...section,
       ...(section.items ? { items: [...section.items] } : {}),
       ...(section.links ? { links: section.links.map((link) => ({ ...link })) } : {}),
-      ...(section.image ? { image: { ...section.image } } : {}),
     })),
   };
 }

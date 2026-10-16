@@ -104,17 +104,6 @@ export function ContentPage({ page, documents = [], children, eyebrow = page.eye
                   </List>
                 ) : null}
                 {section.links?.length ? <SectionLinks links={section.links} /> : null}
-                {section.image ? (
-                  <figure className="content-figure">
-                    <Image
-                      src={section.image.src}
-                      alt={section.image.alt}
-                      width={section.image.width}
-                      height={section.image.height}
-                    />
-                    <figcaption>{fr(section.image.caption)}</figcaption>
-                  </figure>
-                ) : null}
               </div>
             </section>
           );

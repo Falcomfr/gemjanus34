@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { PublicPage } from "@/content/types";
 import { publicContentRepository } from "@/lib/content/local-public-content-repository";
-import ActivitiesPage from "../activites/page";
-import PrivacyPage from "../confidentialite/page";
-import LegalNoticePage from "../mentions-legales/page";
-import JoinPage from "../nous-rejoindre/page";
-import AboutPage from "../qui-sommes-nous/page";
-import ResourcesPage from "../ressources/page";
+import ActivitiesPage, { generateMetadata as activitiesMetadata } from "../activites/page";
+import PrivacyPage, { generateMetadata as privacyMetadata } from "../confidentialite/page";
+import LegalNoticePage, { generateMetadata as legalMetadata } from "../mentions-legales/page";
+import JoinPage, { generateMetadata as joinMetadata } from "../nous-rejoindre/page";
+import AboutPage, { generateMetadata as aboutMetadata } from "../qui-sommes-nous/page";
+import ResourcesPage, { generateMetadata as resourcesMetadata } from "../ressources/page";
 
 const page: PublicPage = {
   slug: "test",
@@ -82,4 +82,31 @@ test("puts the practical information first on the first visit page", async () =>
   expect(practical).toHaveTextContent("13 h");
   expect(practical.querySelector('a[href="tel:+33467048768"]')).not.toBeNull();
   expect(practical.querySelector('a[href^="https://www.google.com/maps/search/"]')).toHaveTextContent(/carte/i);
+});
+
+test.each([
+  ["qui-sommes-nous", AboutPage, "L'association", /buste en marbre de janus/i],
+  ["activites", ActivitiesPage, "La vie au GEM", /peinture aux couleurs vives/i],
+] as const)("keeps the %s eyebrow and header image whatever the stored content", async (_slug, route, eyebrow, image) => {
+  const { render, screen } = await import("@testing-library/react");
+  vi.spyOn(publicContentRepository, "getPage").mockResolvedValue({ ...page, eyebrow: undefined });
+  vi.spyOn(publicContentRepository, "getDocuments").mockResolvedValue([]);
+
+  render(await route());
+
+  expect(screen.getByText(eyebrow)).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: image })).toBeInTheDocument();
+});
+
+test.each([
+  ["qui-sommes-nous", aboutMetadata],
+  ["activites", activitiesMetadata],
+  ["nous-rejoindre", joinMetadata],
+  ["ressources", resourcesMetadata],
+  ["mentions-legales", legalMetadata],
+  ["confidentialite", privacyMetadata],
+] as const)("gives the %s page its own title and description", async (_slug, generateMetadata) => {
+  vi.spyOn(publicContentRepository, "getPage").mockResolvedValue({ ...page, title: "Titre de la page", introduction: "Résumé de la page" });
+
+  await expect(generateMetadata()).resolves.toEqual({ title: "Titre de la page", description: "Résumé de la page" });
 });

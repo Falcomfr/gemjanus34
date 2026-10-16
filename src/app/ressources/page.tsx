@@ -1,7 +1,12 @@
 import { Info } from "lucide-react";
 import { notFound } from "next/navigation";
+import { fixedPageMetadata } from "@/lib/content/fixed-page-metadata";
 import { ContentPage } from "@/components/content/content-page";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
+
+export function generateMetadata() {
+  return fixedPageMetadata("ressources");
+}
 
 export default async function ResourcesPage() {
   const publicContentRepository = getPublicContentRepository();
@@ -15,7 +20,7 @@ export default async function ResourcesPage() {
   }
 
   return (
-    <ContentPage page={page} documents={documents}>
+    <ContentPage page={page} eyebrow="S'informer" documents={documents}>
       <aside className="health-notice" role="note">
         <Info aria-hidden="true" size={28} />
         <p>
