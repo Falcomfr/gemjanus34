@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/core";
+import { Editor, type JSONContent } from "@tiptap/core";
 import { render, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { describe, expect, test } from "vitest";
@@ -55,6 +55,22 @@ describe("createRichTextExtensions", () => {
         rel: "noopener noreferrer nofollow",
         class: null,
       });
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  test("drops unsupported links while importing HTML", () => {
+    const editor = new Editor({
+      content: '<p><a href="tel:+33412345678">Appelez-nous</a></p>',
+      extensions: createRichTextExtensions(),
+    });
+
+    try {
+      const text = editor.getJSON().content?.[0].content?.[0] as JSONContent | undefined;
+
+      expect(text?.text).toBe("Appelez-nous");
+      expect(text?.marks).toBeUndefined();
     } finally {
       editor.destroy();
     }

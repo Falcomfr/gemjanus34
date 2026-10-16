@@ -7,7 +7,10 @@ import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useState } from "react";
-import { serializeRichContent } from "@/lib/content/rich-content-schema";
+import {
+  isSafeRichTextHref,
+  serializeRichContent,
+} from "@/lib/content/rich-content-schema";
 import { EditorToolbar } from "./editor-toolbar";
 
 type RichTextEditorProps = {
@@ -30,7 +33,11 @@ export function createRichTextExtensions() {
       strike: false,
       underline: false,
     }),
-    Link.configure({ openOnClick: false, autolink: false }),
+    Link.configure({
+      openOnClick: false,
+      autolink: false,
+      isAllowedUri: (url) => isSafeRichTextHref(url),
+    }),
     Underline,
     TextStyle,
     Color,
