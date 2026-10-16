@@ -238,3 +238,21 @@ test("the planning moves from week to week, within the next eight weeks", async 
   await page.goto("/actualites?semaine=1999-01-04");
   await expect(range).toHaveText(current!);
 });
+
+test("on a phone the header stays on top, shrinks once scrolled, and the page does not jump", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/actualites");
+  const header = page.getByRole("banner");
+  const full = (await header.boundingBox())!.height;
+  const heading = page.getByRole("heading", { level: 1 });
+  const headingTop = await heading.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+
+  await page.mouse.wheel(0, 600);
+  await expect(header).toHaveClass(/site-header--compact/);
+  await expect.poll(async () => (await header.boundingBox())!.height).toBeLessThan(full - 10);
+  expect((await header.boundingBox())!.y).toBe(0);
+  await expect.poll(() => heading.evaluate((element) => element.getBoundingClientRect().top + window.scrollY)).toBe(headingTop);
+
+  await page.getByText("Menu", { exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "Navigation mobile" }).getByRole("link", { name: "Contact" })).toBeVisible();
+});

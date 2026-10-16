@@ -91,3 +91,17 @@ test("marks the current page in both navigations", () => {
     expect(within(nav).getByRole("link", { name: "Contact" })).not.toHaveAttribute("aria-current");
   }
 });
+
+test("becomes compact once the page scrolls, and full again at the top", () => {
+  render(<SiteHeader />);
+  const header = screen.getByRole("banner");
+  expect(header).not.toHaveClass("site-header--compact");
+
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 120 });
+  fireEvent.scroll(window);
+  expect(header).toHaveClass("site-header--compact");
+
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+  fireEvent.scroll(window);
+  expect(header).not.toHaveClass("site-header--compact");
+});

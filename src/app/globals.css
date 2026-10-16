@@ -28,7 +28,8 @@ html {
   min-width: 320px;
   background: var(--background);
   color: var(--text);
-  scroll-padding-top: 1rem;
+  /* Anchors land below the sticky header (compact height + breathing room). */
+  scroll-padding-top: 4.75rem;
 }
 
 body {
@@ -89,10 +90,33 @@ select:focus-visible,
 /* Header */
 
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 10;
   border-bottom: 1px solid var(--line);
   background: var(--background);
+  /* Same curve as the inner height, so the two cancel out while animating. */
+  transition: box-shadow 0.2s ease, margin-bottom 0.2s ease;
+}
+
+/* Compact once scrolled. The bottom margin gives back the height saved, so the page never
+   jumps (a page barely taller than the screen would otherwise flicker at the threshold). */
+.site-header--compact {
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0.35rem 1rem rgb(31 41 36 / 10%);
+}
+
+.site-header--compact .site-header__inner {
+  min-height: 3.5rem;
+}
+
+.site-header--compact .wordmark {
+  font-size: 1.05rem;
+}
+
+.site-header--compact .wordmark img {
+  width: 2.1rem;
+  height: 2.1rem;
 }
 
 .site-header__inner,
@@ -104,6 +128,7 @@ select:focus-visible,
 
 .site-header__inner {
   min-height: 4.75rem;
+  transition: min-height 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -128,6 +153,7 @@ select:focus-visible,
   width: 2.75rem;
   height: 2.75rem;
   object-fit: contain;
+  transition: width 0.2s ease, height 0.2s ease;
 }
 
 .navigation-list {
@@ -3124,6 +3150,11 @@ body:has(.admin-area) > .skip-link {
 
   .mobile-navigation summary::-webkit-details-marker {
     display: none;
+  }
+
+  .site-header--compact .mobile-navigation summary {
+    min-height: 2.75rem;
+    padding-block: 0.3rem;
   }
 
   .mobile-navigation nav {

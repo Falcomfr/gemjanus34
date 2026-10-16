@@ -5,10 +5,11 @@ import type { JSX } from "react";
 import { contact } from "@/content/contact";
 import { MobileNavigation } from "./mobile-navigation";
 import { NavigationLinks } from "./navigation-links";
+import { StickyHeader } from "./sticky-header";
 
 export function SiteHeader(): JSX.Element {
   return (
-    <header className="site-header">
+    <StickyHeader>
       <div className="site-header__inner">
         <Link className="wordmark" href="/" aria-label="Janus34, accueil">
           <Image src="/images/janus34-logo.png" alt="" width={44} height={44} />
@@ -27,6 +28,6 @@ export function SiteHeader(): JSX.Element {
           </a>
         </MobileNavigation>
       </div>
-    </header>
+    </StickyHeader>
   );
 }
