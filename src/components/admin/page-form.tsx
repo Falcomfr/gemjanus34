@@ -283,7 +283,7 @@ export function PageForm({
                     <LifecycleSubmit pending={pending} icon={Send} label="Publier" />
                   </form>
                 ) : null}
-                {page.status !== "archived" ? (
+                {page.status !== "archived" && !slugLocked ? (
                   <form action={dispatch} onSubmit={confirmFirst("Retirer cette page du site ?")}>
                     <input type="hidden" name="pageId" value={page.id} />
                     <input type="hidden" name="intent" value="archive" />

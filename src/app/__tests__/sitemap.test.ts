@@ -5,14 +5,10 @@ import sitemap from "../sitemap";
 afterEach(() => vi.restoreAllMocks());
 
 test("lists the fixed routes and every other published page once", async () => {
-  vi.spyOn(publicContentRepository, "getSiteData").mockResolvedValue({
-    pages: [
-      { slug: "activites", title: "Activités", introduction: "", sections: [] },
-      { slug: "sortie-au-musee", title: "Sortie", introduction: "", sections: [] },
-    ],
-    news: [],
-    documents: [],
-  });
+  vi.spyOn(publicContentRepository, "getPageLinks").mockResolvedValue([
+    { slug: "activites", title: "Activités" },
+    { slug: "sortie-au-musee", title: "Sortie" },
+  ]);
 
   const urls = (await sitemap()).map((entry) => entry.url);
 

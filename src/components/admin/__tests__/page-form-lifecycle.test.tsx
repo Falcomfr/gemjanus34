@@ -35,7 +35,7 @@ test("an administrator corrects a published page without taking it offline", () 
 
 test("asks before archiving and shows only the latest result", async () => {
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
-  render(<PageForm mode="edit" profile={admin} page={page} parentOptions={[]} revisions={revisions} />);
+  render(<PageForm mode="edit" profile={admin} page={{ ...page, slug: "sortie-au-musee" }} parentOptions={[]} revisions={revisions} />);
 
   fireEvent.submit(screen.getByLabelText("Titre").closest("form")!);
   expect(await screen.findByText("Modifications en ligne.")).toBeInTheDocument();
@@ -53,4 +53,10 @@ test("asks before restoring a revision and dates it to the second", () => {
   expect(screen.getByText(/15:12:45/)).toBeInTheDocument();
   fireEvent.submit(screen.getByRole("button", { name: /restaurer la révision/i }).closest("form")!);
   expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/remplacer le contenu en ligne/i));
+});
+
+test("does not offer to archive a site page, which would bring back the original text", () => {
+  render(<PageForm mode="edit" profile={admin} page={page} parentOptions={[]} revisions={revisions} />);
+
+  expect(screen.queryByRole("button", { name: "Archiver" })).not.toBeInTheDocument();
 });

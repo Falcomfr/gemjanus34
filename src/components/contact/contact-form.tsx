@@ -76,8 +76,8 @@ export function ContactForm(): JSX.Element {
       </div>
 
       <div className="contact-form__honeypot" aria-hidden="true">
-        <label htmlFor="contact-company">Entreprise</label>
-        <input id="contact-company" name="company" type="text" autoComplete="off" tabIndex={-1} />
+        <label htmlFor="contact-hp">Ne pas remplir</label>
+        <input id="contact-hp" name="website" type="text" autoComplete="new-password" tabIndex={-1} />
       </div>
 
       <div>

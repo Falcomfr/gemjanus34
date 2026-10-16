@@ -76,3 +76,14 @@ describe("page lifecycle actions", () => {
     },
   );
 });
+
+test("refuses to archive a site page, whose route would fall back to the original text", async () => {
+  const dependencies = createDependencies();
+  dependencies.loadPageSlug.mockResolvedValue({ data: { slug: "qui-sommes-nous" }, error: null });
+  const actions = createLifecyclePageActions(dependencies);
+
+  const state = await actions.archivePage({}, formData("pageId", "11111111-1111-4111-8111-111111111111"));
+
+  expect(dependencies.archive).not.toHaveBeenCalled();
+  expect(state.formError).toMatch(/ne peuvent pas être archivées/);
+});

@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(10);
 
 select has_table('public', 'contact_messages', 'contact_messages table exists');
 
@@ -16,6 +16,14 @@ select is((select count(*) from public.contact_messages), 0::bigint, 'visitors c
 select throws_ok(
   $$insert into public.contact_messages (name, email, subject, message, handled_at) values ('Camille', 'camille@example.test', 'Sujet', 'Un message suffisamment long.', now())$$,
   '42501', null, 'visitors cannot mark a message as handled'
+);
+select throws_ok(
+  $$insert into public.contact_messages (name, email, subject, message, created_at) values ('Camille', 'camille@example.test', 'Sujet', 'Un message suffisamment long.', '2099-01-01')$$,
+  '42501', null, 'visitors cannot choose the date of their message'
+);
+select throws_ok(
+  $$insert into public.contact_messages (name, email, subject, message) values ('Camille', 'a@b.c?cc=x@y.z', 'Sujet', 'Un message suffisamment long.')$$,
+  '23514', null, 'e-mail addresses that would inject mail headers are rejected'
 );
 select throws_ok(
   $$insert into public.contact_messages (name, email, subject, message) values ('C', 'c@e.t', 'S', 'court')$$,

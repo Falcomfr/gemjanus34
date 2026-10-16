@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/require-profile";
 import type { PageField } from "./page-input";
+import { FIXED_PAGE_SLUGS } from "./page-input";
 
 export type PageActionState = {
   success?: string;
@@ -87,6 +88,10 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
       );
       if (readError || !page) {
         return { formError: "La page demandée est introuvable." };
+      }
+
+      if ((FIXED_PAGE_SLUGS as readonly string[]).includes(page.slug)) {
+        return { formError: "Les pages du site ne peuvent pas être archivées : modifiez leur contenu." };
       }
 
       const { error } = await dependencies.archive(identity.data.pageId, profile.id);

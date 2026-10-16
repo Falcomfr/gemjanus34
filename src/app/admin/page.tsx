@@ -3,8 +3,11 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { createServerClient } from "@/lib/supabase/server";
 
-function plural(count: number, singular: string, pluralForm: string) {
-  return `${count} ${count === 1 ? singular : pluralForm}`;
+type CountResult = { count: number | null; error: unknown };
+
+// A failed count must not read as "nothing to do".
+function countLabel(result: CountResult, label: (count: number) => string) {
+  return result.error || result.count === null ? "nombre indisponible" : label(result.count);
 }
 
 export default async function AdminPage() {
@@ -19,10 +22,10 @@ export default async function AdminPage() {
   ]);
 
   const shortcuts = [
-    { href: "/admin/pages", label: "Pages", detail: plural(drafts.count ?? 0, "brouillon", "brouillons"), icon: FileText },
-    { href: "/admin/actualites", label: "Actualités", detail: `${upcoming.count ?? 0} à venir`, icon: Newspaper },
-    { href: "/admin/documents", label: "Documents", detail: `${documents.count ?? 0} en ligne`, icon: FolderOpen },
-    { href: "/admin/messages", label: "Messages", detail: `${messages.count ?? 0} à traiter`, icon: Mail },
+    { href: "/admin/pages", label: "Pages", detail: countLabel(drafts, (count) => `${count} ${count === 1 ? "brouillon" : "brouillons"}`), icon: FileText },
+    { href: "/admin/actualites", label: "Actualités", detail: countLabel(upcoming, (count) => `${count} à venir`), icon: Newspaper },
+    { href: "/admin/documents", label: "Documents", detail: countLabel(documents, (count) => `${count} en ligne`), icon: FolderOpen },
+    { href: "/admin/messages", label: "Messages", detail: countLabel(messages, (count) => `${count} à traiter`), icon: Mail },
   ];
 
   return (

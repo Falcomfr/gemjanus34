@@ -9,7 +9,10 @@ export function generateMetadata() {
 
 export default async function ActivitiesPage() {
   const publicContentRepository = getPublicContentRepository();
-  const page = await publicContentRepository.getPage("activites");
+  const [page, documents] = await Promise.all([
+    publicContentRepository.getPage("activites"),
+    publicContentRepository.getDocuments("activity"),
+  ]);
 
   if (!page) {
     notFound();
@@ -18,6 +21,7 @@ export default async function ActivitiesPage() {
   return (
     <ContentPage
       page={page}
+      documents={documents}
       eyebrow="La vie au GEM"
       visual={{
         src: "/images/peinture-gem.jpg",

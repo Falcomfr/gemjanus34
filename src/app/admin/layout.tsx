@@ -18,7 +18,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (pathname === "/admin/connexion") {
     const supabase = await createServerClient();
     const { data } = await supabase.auth.getUser();
-    if (data.user) redirect("/admin");
+    if (data.user) {
+      // Only an active profile can use the admin; anyone else must be able to switch account.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", data.user.id)
+        .eq("active", true)
+        .maybeSingle();
+      if (profile) redirect("/admin");
+    }
 
     return (
       <div className="admin-area admin-area--login">

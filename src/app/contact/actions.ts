@@ -34,7 +34,7 @@ export async function sendContactMessage(
     subject: formData.get("subject") ?? "",
     message: formData.get("message") ?? "",
     consent: formData.get("consent") === "on",
-    company: formData.get("company") ?? "",
+    company: formData.get("website") ?? "",
   });
 
   if (!parsed.success) {

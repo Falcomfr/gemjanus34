@@ -15,7 +15,7 @@ export type DocumentActionState = {
 const BUCKET = "documents";
 
 function revalidateDocumentPaths() {
-  for (const path of ["/", "/actualites", "/qui-sommes-nous", "/ressources", "/admin", "/admin/documents"]) {
+  for (const path of ["/", "/actualites", "/qui-sommes-nous", "/activites", "/ressources", "/admin", "/admin/documents"]) {
     revalidatePath(path);
   }
 }

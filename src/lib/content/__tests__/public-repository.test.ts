@@ -34,6 +34,7 @@ function queryClient(overrides: Partial<PublicContentQueryClient> = {}): PublicC
       }],
       error: null,
     }),
+    getPublishedPageLinks: vi.fn().mockResolvedValue({ data: [], error: null }),
     getDocuments: vi.fn().mockResolvedValue({
       data: [{
         id: "doc-1",
@@ -153,6 +154,17 @@ describe("Supabase public content mapping", () => {
     }));
 
     await expect(repository.getDocuments()).rejects.toThrow("storage down");
+  });
+
+  test("lists published page links with a light query", async () => {
+    const client = queryClient({
+      getPublishedPageLinks: vi.fn().mockResolvedValue({ data: [{ slug: "sortie", title: "Sortie" }], error: null }),
+    });
+
+    await expect(createSupabasePublicContentRepository(client).getPageLinks()).resolves.toEqual([
+      { slug: "sortie", title: "Sortie" },
+    ]);
+    expect(client.getPublishedPages).not.toHaveBeenCalled();
   });
 
   test("propagates configured query failures instead of using local seed data", async () => {

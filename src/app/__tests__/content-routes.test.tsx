@@ -39,6 +39,7 @@ describe("public content routes", () => {
 
   test.each([
     ["institutional", AboutPage],
+    ["activity", ActivitiesPage],
     ["health", ResourcesPage],
   ] as const)("places %s documents on the matching route", async (category, route) => {
     vi.spyOn(publicContentRepository, "getPage").mockResolvedValue(page);

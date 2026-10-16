@@ -3,12 +3,13 @@ import { vi } from "vitest";
 import AdminPage from "../page";
 
 const counts: Record<string, number> = { pages: 2, news: 3, documents: 10, contact_messages: 4 };
+const failing = vi.hoisted(() => ({ table: "" }));
 
 vi.mock("@/lib/auth/require-profile", () => ({ requireProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({
     from: (table: string) => {
-      const result = { count: counts[table], error: null };
+      const result = failing.table === table ? { count: null, error: new Error("down") } : { count: counts[table], error: null };
       const query = {
         select: () => query,
         eq: () => query,
@@ -30,4 +31,12 @@ test("turns every shortcut into a link with a useful count", async () => {
   expect(screen.getByRole("link", { name: /documents.*10 en ligne/i })).toHaveAttribute("href", "/admin/documents");
   expect(screen.getByRole("link", { name: /messages.*4 à traiter/i })).toHaveAttribute("href", "/admin/messages");
   expect(screen.getByRole("link", { name: /voir le site/i })).toHaveAttribute("href", "/");
+});
+
+test("does not pretend there is nothing to handle when a count fails", async () => {
+  failing.table = "contact_messages";
+  render(await AdminPage());
+  failing.table = "";
+
+  expect(screen.getByRole("link", { name: /messages.*nombre indisponible/i })).toBeInTheDocument();
 });

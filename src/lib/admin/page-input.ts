@@ -2,8 +2,18 @@ import { z } from "zod";
 import type { Database } from "@/lib/database.types";
 import { richContentSchema } from "@/lib/content/rich-content-schema";
 
-// Routes a stored page can never take over.
-export const RESERVED_SLUGS = ["admin", "contact", "actualites", "documents", "images"] as const;
+// Routes and permanent redirects (next.config.ts) a stored page can never take over.
+export const RESERVED_SLUGS = [
+  "admin",
+  "contact",
+  "actualites",
+  "documents",
+  "images",
+  "nous-contacter",
+  "evenements",
+  "nos-objectifs-2",
+  "le-trouble-bipolaire-2",
+] as const;
 
 // Site pages with their own route: their address must not change.
 export const FIXED_PAGE_SLUGS = [

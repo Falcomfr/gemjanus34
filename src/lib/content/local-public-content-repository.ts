@@ -58,6 +58,10 @@ export const publicContentRepository: PublicContentRepository = {
     return page ? clonePage(page) : null;
   },
 
+  async getPageLinks() {
+    return publicPages.map(({ slug, title }) => ({ slug, title }));
+  },
+
   async getNews(): Promise<NewsItem[]> {
     return getPublishedNews();
   },

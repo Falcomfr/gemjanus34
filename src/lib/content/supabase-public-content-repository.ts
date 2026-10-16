@@ -26,6 +26,7 @@ type QueryResult<T> = Promise<{ data: T[] | null; error: Error | null }>;
 export interface PublicContentQueryClient {
   getPublishedPages(slug?: string): QueryResult<PublicPageRow>;
   getPublishedNews(): QueryResult<PublicNewsRow>;
+  getPublishedPageLinks(): QueryResult<{ slug: string; title: string }>;
   getDocuments(category?: DocumentCategory): QueryResult<PublicDocumentRow>;
 }
 
@@ -107,6 +108,10 @@ export function createSupabasePublicContentRepository(
       return rows[0] ? mapPage(rows[0]) : localRepository.getPage(slug);
     },
 
+    async getPageLinks() {
+      return requireData(await client.getPublishedPageLinks());
+    },
+
     async getNews() {
       return requireData(await client.getPublishedNews()).map(mapNews);
     },
@@ -143,6 +148,15 @@ export function createSupabasePublicQueryClient(
         .order("document_date", { ascending: false });
       if (category) query = query.eq("category", category);
       const result = await query;
+      return { data: result.data, error: result.error };
+    },
+
+    async getPublishedPageLinks() {
+      const result = await client
+        .from("pages")
+        .select("slug, title")
+        .eq("status", "published")
+        .order("navigation_position", { ascending: true, nullsFirst: false });
       return { data: result.data, error: result.error };
     },
 

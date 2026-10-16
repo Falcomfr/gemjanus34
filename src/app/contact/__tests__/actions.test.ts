@@ -15,7 +15,7 @@ function form(overrides: Record<string, string> = {}) {
     subject: "Première visite",
     message: "Bonjour, je voudrais venir découvrir le GEM la semaine prochaine.",
     consent: "on",
-    company: "",
+    website: "",
     ...overrides,
   };
   for (const [key, value] of Object.entries(values)) data.set(key, value);
@@ -67,7 +67,7 @@ test("points out invalid fields and the missing consent", async () => {
 });
 
 test("silently drops submissions that fill the hidden trap field", async () => {
-  const state = await sendContactMessage({}, form({ company: "Spam SARL" }));
+  const state = await sendContactMessage({}, form({ website: "https://spam.example" }));
 
   expect(insert).not.toHaveBeenCalled();
   expect(state.success).toBeDefined();
