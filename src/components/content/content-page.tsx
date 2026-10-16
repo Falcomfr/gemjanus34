@@ -64,13 +64,13 @@ export function ContentPage({ page, documents = [], children }: ContentPageProps
                 {section.body
                   .split("\n\n")
                   .filter(Boolean)
-                  .map((paragraph) => (
-                    <p key={paragraph}>{fr(paragraph)}</p>
+                  .map((paragraph, index) => (
+                    <p key={index}>{fr(paragraph)}</p>
                   ))}
                 {section.items?.length ? (
                   <List className={section.ordered ? "content-list content-list--steps" : "content-list"}>
-                    {section.items.map((item) => (
-                      <li key={item}>{fr(item)}</li>
+                    {section.items.map((item, index) => (
+                      <li key={index}>{fr(item)}</li>
                     ))}
                   </List>
                 ) : null}
