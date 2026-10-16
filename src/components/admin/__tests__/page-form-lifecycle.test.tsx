@@ -23,7 +23,7 @@ const page = {
   navigation_position: null,
   parent_id: null,
 };
-const revisions = [{ id: "r1", title: "Activités", created_at: "2026-10-16T13:12:45Z" }];
+const revisions = [{ id: "r1", title: "Activités", status: "published" as const, created_at: "2026-10-16T13:12:45Z" }];
 
 test("an administrator corrects a published page without taking it offline", () => {
   render(<PageForm mode="edit" profile={admin} page={page} parentOptions={[]} revisions={revisions} />);
