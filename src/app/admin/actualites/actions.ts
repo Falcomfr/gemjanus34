@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { parseNewsFormData, type NewsField } from "@/lib/admin/news-input";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { refreshPublicContent } from "@/lib/content/public-cache";
 import type { Json } from "@/lib/database.types";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -21,11 +21,7 @@ function newsId(formData: FormData): string | null {
   return parsed.success ? parsed.data : null;
 }
 
-function revalidateNewsPaths() {
-  revalidatePath("/");
-  revalidatePath("/actualites");
-  revalidatePath("/admin/actualites");
-}
+const revalidateNewsPaths = refreshPublicContent;
 
 export async function createNews(
   _previousState: NewsActionState,

@@ -5,7 +5,7 @@ const rpc = vi.hoisted(() => vi.fn());
 const update = vi.hoisted(() => vi.fn());
 const profile = vi.hoisted(() => ({ current: { id: "10000000-0000-0000-0000-000000000001", role: "admin" } }));
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 vi.mock("@/lib/auth/require-profile", () => ({ requireProfile: vi.fn(async () => profile.current) }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({

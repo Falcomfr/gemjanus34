@@ -174,6 +174,8 @@ export function createSupabasePublicQueryClient(
 ): PublicContentQueryClient {
   const client = createClient<Database>(config.url, config.publishableKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    // Always fresh: the site renders per request (see app/layout.tsx).
+    global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
   });
 
   return {

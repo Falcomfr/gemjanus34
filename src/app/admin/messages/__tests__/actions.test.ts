@@ -4,7 +4,7 @@ import * as messageActions from "../actions";
 const update = vi.hoisted(() => vi.fn());
 const remove = vi.hoisted(() => vi.fn());
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 vi.mock("@/lib/auth/require-profile", () => ({
   requireProfile: vi.fn(async () => ({ id: "10000000-0000-0000-0000-000000000001", role: "editor" })),
 }));

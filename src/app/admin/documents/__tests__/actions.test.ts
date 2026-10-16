@@ -8,7 +8,7 @@ const storage = vi.hoisted(() => ({
 }));
 const table = vi.hoisted(() => ({ insert: vi.fn(), deleteResult: vi.fn(), selectResult: vi.fn() }));
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 vi.mock("@/lib/auth/require-profile", () => ({
   requireProfile: vi.fn(async () => ({ id: "10000000-0000-0000-0000-000000000001", role: "editor" })),
 }));

@@ -13,8 +13,6 @@ export const metadata: Metadata = {
   description: "Le planning de la semaine de Janus34, à imprimer ou enregistrer en PDF.",
 };
 
-export const revalidate = 3600;
-
 export default async function PrintablePlanningPage() {
   const planning = await getPublicContentRepository().getPlanning();
   if (!planning?.slots.length) notFound();

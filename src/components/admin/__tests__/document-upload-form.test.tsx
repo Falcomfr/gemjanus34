@@ -15,3 +15,11 @@ test("refuses a PDF over 4 MB before sending it", () => {
   expect(uploadDocument).not.toHaveBeenCalled();
   expect(screen.getByText("Le fichier dépasse 4 Mo.")).toBeInTheDocument();
 });
+
+test("no longer offers the planning category, which is managed in Planning", () => {
+  render(<DocumentUploadForm />);
+
+  const options = [...(screen.getByLabelText("Catégorie") as HTMLSelectElement).options].map((option) => option.value);
+  expect(options).not.toContain("planning");
+  expect(options).toContain("institutional");
+});

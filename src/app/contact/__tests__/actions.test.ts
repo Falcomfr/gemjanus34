@@ -4,7 +4,7 @@ import { sendContactMessage } from "../actions";
 const insert = vi.hoisted(() => vi.fn());
 const createServerClient = vi.hoisted(() => vi.fn());
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createServerClient }));
 
 function form(overrides: Record<string, string> = {}) {

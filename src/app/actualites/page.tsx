@@ -11,8 +11,6 @@ export const metadata: Metadata = {
   description: "Le planning des activités, les prochains rendez-vous et les informations de Janus34.",
 };
 
-export const revalidate = 3600;
-
 export default async function NewsPage() {
   const publicContentRepository = getPublicContentRepository();
   const [items, planningDocuments, planning] = await Promise.all([

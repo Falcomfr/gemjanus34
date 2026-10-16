@@ -25,7 +25,7 @@ vi.mock("@/lib/supabase/server", () => ({
 test("lists documents by category with a way to open and delete each one", async () => {
   render(await AdminDocumentsPage());
 
-  const planning = screen.getByRole("region", { name: "Planning" });
+  const planning = screen.getByRole("region", { name: /^Planning/ });
   expect(within(planning).getByRole("link", { name: /ouvrir planning des activités/i })).toHaveAttribute(
     "href",
     "/documents/planning-des-activites.pdf",

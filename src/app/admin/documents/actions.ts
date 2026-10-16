@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseDocumentFormData, type DocumentField } from "@/lib/admin/document-input";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { refreshPublicContent } from "@/lib/content/public-cache";
 import { createServerClient } from "@/lib/supabase/server";
 
 export type DocumentActionState = {
@@ -14,11 +14,7 @@ export type DocumentActionState = {
 
 const BUCKET = "documents";
 
-function revalidateDocumentPaths() {
-  for (const path of ["/", "/actualites", "/qui-sommes-nous", "/activites", "/ressources", "/admin", "/admin/documents"]) {
-    revalidatePath(path);
-  }
-}
+const revalidateDocumentPaths = refreshPublicContent;
 
 function fileSlug(title: string): string {
   const slug = title

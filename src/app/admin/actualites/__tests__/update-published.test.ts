@@ -3,7 +3,7 @@ import { updateNews } from "../actions";
 
 const rpc = vi.hoisted(() => vi.fn());
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
 vi.mock("@/lib/auth/require-profile", () => ({
   requireProfile: vi.fn(async () => ({ id: "10000000-0000-0000-0000-000000000002", role: "editor" })),
 }));

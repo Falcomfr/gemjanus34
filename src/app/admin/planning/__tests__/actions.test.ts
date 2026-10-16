@@ -3,8 +3,9 @@ import * as planningActions from "../actions";
 
 const table = vi.hoisted(() => ({ insert: vi.fn(), update: vi.fn(), remove: vi.fn() }));
 const revalidatePath = vi.hoisted(() => vi.fn());
+const updateTag = vi.hoisted(() => vi.fn());
 
-vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 vi.mock("@/lib/auth/require-profile", () => ({ requireProfile: vi.fn(async () => ({ id: "u", role: "editor" })) }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({
@@ -40,7 +41,7 @@ test("adds a new slot and refreshes the public pages", async () => {
   expect(table.insert).toHaveBeenCalledWith("planning_slots", {
     day: 2, starts_at: "14:30", ends_at: "15:30", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger",
   });
-  expect(revalidatePath.mock.calls.map(([path]) => path)).toEqual(expect.arrayContaining(["/", "/actualites", "/planning/imprimer"]));
+  expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
   expect(state.success).toBeDefined();
 });
 

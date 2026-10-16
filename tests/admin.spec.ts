@@ -37,31 +37,31 @@ test("every admin section opens and the site is one click away", async ({ page }
   await expect(page.getByRole("link", { name: /voir le site/i }).first()).toHaveAttribute("href", "/");
 });
 
-test("an uploaded planning replaces the previous one on the site, then can be removed", async ({ page, request }) => {
+test("an uploaded document shows on the matching page, then can be removed", async ({ page, request }) => {
+  const title = `Document E2E ${Date.now()}`;
   await login(page);
   await page.goto("/admin/documents");
-  await page.getByLabel("Titre").fill("Planning de test E2E");
-  await page.getByLabel("Description").fill("Planning envoyé par le test de bout en bout.");
-  await page.getByLabel("Catégorie").selectOption("planning");
+  await page.getByLabel("Titre").fill(title);
+  await page.getByLabel("Description").fill("Document envoyé par le test de bout en bout.");
+  await page.getByLabel("Catégorie").selectOption("institutional");
   await page.getByLabel("Date du document").fill("2030-01-15");
   await page.getByLabel(/fichier pdf/i).setInputFiles("public/documents/regles-de-vie.pdf");
   await page.getByRole("button", { name: "Mettre en ligne" }).click();
   await expect(page.getByRole("status")).toContainText("est en ligne");
 
-  await page.goto("/actualites");
-  await expect(page.getByText(/en vigueur depuis le 15 janvier 2030/i)).toBeVisible();
-  const href = await page.getByRole("link", { name: /consulter le planning/i }).getAttribute("href");
-  const pdf = await request.get(href!);
+  await page.goto("/qui-sommes-nous");
+  const link = page.getByRole("link", { name: `Télécharger ${title} (PDF)` });
+  await expect(link).toBeVisible();
+  const pdf = await request.get((await link.getAttribute("href"))!);
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toContain("application/pdf");
 
   await page.goto("/admin/documents");
   page.once("dialog", (dialog) => dialog.accept());
-  await page.getByRole("button", { name: "Supprimer Planning de test E2E" }).click();
-  await expect(page.getByText("Planning de test E2E")).toHaveCount(0);
-
-  await page.goto("/actualites");
-  await expect(page.getByText(/en vigueur depuis le 22 juin 2026/i)).toBeVisible();
+  await page.getByRole("button", { name: `Supprimer ${title}` }).click();
+  await expect(page.getByText(title)).toHaveCount(0);
+  await page.goto("/qui-sommes-nous");
+  await expect(page.getByText(title)).toHaveCount(0);
 });
 
 test("a visitor message reaches the admin inbox and can be handled", async ({ page }) => {
@@ -185,4 +185,33 @@ test("a page created and published in the admin appears in the footer site map",
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Archiver" }).click();
   await expect(page.locator(".form-status--success")).toContainText(/archivée/i);
+});
+
+test("a slot added in the admin planning shows on the site and the printable version, then can be deleted", async ({ page }) => {
+  await login(page);
+  await page.goto("/admin/planning");
+  const wednesday = page.getByRole("region", { name: "Mercredi" });
+  await wednesday.getByText("Ajouter un créneau le mercredi").click();
+  const addForm = wednesday.locator("details form");
+  await addForm.getByLabel("Début").fill("16:30");
+  await addForm.getByLabel("Fin").fill("17:30");
+  await addForm.getByLabel("Activité").fill("Atelier E2E");
+  await addForm.getByLabel("Animé par").fill("Testeuse");
+  await addForm.getByLabel("Famille").selectOption("echanger");
+  await addForm.getByRole("button", { name: "Ajouter le créneau" }).click();
+  await expect(addForm.getByRole("status")).toContainText("Créneau ajouté");
+
+  await page.goto("/actualites");
+  const publicWednesday = page.getByRole("region", { name: /^mercredi/i });
+  await expect(publicWednesday).toContainText("Atelier E2E");
+  await expect(publicWednesday).toContainText("avec Testeuse");
+  await page.goto("/planning/imprimer");
+  await expect(page.getByText("Atelier E2E")).toBeVisible();
+
+  await page.goto("/admin/planning");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Supprimer Atelier E2E" }).click();
+  await expect(page.getByRole("button", { name: "Supprimer Atelier E2E" })).toHaveCount(0);
+  await page.goto("/actualites");
+  await expect(page.getByText("Atelier E2E")).toHaveCount(0);
 });

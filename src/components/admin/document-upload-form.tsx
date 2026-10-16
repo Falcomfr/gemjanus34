@@ -51,8 +51,9 @@ export function DocumentUploadForm() {
         </label>
         <label className="admin-field">
           Catégorie
-          <select name="category" required defaultValue="planning" aria-invalid={Boolean(errors.category)} aria-describedby="document-category-error">
-            {Object.entries(documentCategories).map(([value, label]) => (
+          <select name="category" required defaultValue="institutional" aria-invalid={Boolean(errors.category)} aria-describedby="document-category-error">
+            {/* The planning is edited in the Planning section, not uploaded as a PDF. */}
+            {Object.entries(documentCategories).filter(([value]) => value !== "planning").map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
             ))}
           </select>

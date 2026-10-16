@@ -10,8 +10,6 @@ import { VisitPanel } from "@/components/home/visit-panel";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
 
-export const revalidate = 3600;
-
 export default async function HomePage() {
   const publicContentRepository = getPublicContentRepository();
   const [news, planningDocuments, planning] = await Promise.all([

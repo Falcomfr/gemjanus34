@@ -4,7 +4,7 @@ import type { DocumentCategory } from "@/content/types";
 export const MAX_DOCUMENT_BYTES = 4 * 1024 * 1024;
 
 export const documentCategories = {
-  planning: "Planning",
+  planning: "Planning (ancien PDF, remplacé par la rubrique Planning)",
   institutional: "Association (statuts, règlement, comptes rendus)",
   health: "Santé et troubles bipolaires",
   activity: "Activités",

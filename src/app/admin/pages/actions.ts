@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { refreshPublicContent } from "@/lib/content/public-cache";
 import type { Json } from "@/lib/database.types";
 import {
   buildPageUpdate,
@@ -25,10 +25,8 @@ function stringValue(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
-function revalidatePagePaths() {
-  // A page also appears in every footer's site map, so refresh the whole site.
-  revalidatePath("/", "layout");
-}
+// A page also appears in every footer's site map, so the whole site is refreshed.
+const revalidatePagePaths = refreshPublicContent;
 
 function createLifecycleDependencies() {
   let clientPromise: ReturnType<typeof createServerClient> | undefined;
@@ -39,7 +37,8 @@ function createLifecycleDependencies() {
 
   return {
     requireProfile,
-    revalidatePath,
+    // The lifecycle asks for a full-site refresh; public data is expired with it.
+    revalidatePath: () => refreshPublicContent(),
     loadPageSlug: async (pageId: string) => {
       const supabase = await getClient();
       return supabase.from("pages").select("slug").eq("id", pageId).single();

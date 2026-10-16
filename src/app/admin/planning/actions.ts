@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parsePlanningDay, parsePlanningSettings, parsePlanningSlot } from "@/lib/admin/planning-input";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { refreshPublicContent } from "@/lib/content/public-cache";
 import { createServerClient } from "@/lib/supabase/server";
 
 export type PlanningActionState = {
@@ -12,9 +12,7 @@ export type PlanningActionState = {
   fieldErrors?: Record<string, string[]>;
 };
 
-function revalidatePlanningPaths() {
-  for (const path of ["/", "/actualites", "/planning/imprimer", "/admin", "/admin/planning"]) revalidatePath(path);
-}
+const revalidatePlanningPaths = refreshPublicContent;
 
 export async function savePlanningSlot(_previous: PlanningActionState, formData: FormData): Promise<PlanningActionState> {
   await requireProfile();

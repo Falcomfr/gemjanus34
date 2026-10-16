@@ -19,6 +19,11 @@ function planningDocument(id: string, updatedAt: string): PublicDocument {
   };
 }
 
+vi.mock("next/font/google", () => ({
+  Nunito_Sans: () => ({ variable: "font-body" }),
+  Source_Serif_4: () => ({ variable: "font-display" }),
+}));
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -107,10 +112,10 @@ test("shows no migration vocabulary", async () => {
   expect(container.textContent).not.toMatch(forbiddenWording);
 });
 
-test("refreshes hourly so news status follows the calendar", async () => {
-  const home = await import("../page");
+test("renders on every request so admin changes and the date are always current", async () => {
+  const layout = await import("../layout");
 
-  expect(home.revalidate).toBe(3600);
+  expect(layout.dynamic).toBe("force-dynamic");
 });
 
 test("shows a painting from the GEM in the opening screen", async () => {

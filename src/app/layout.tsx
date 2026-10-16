@@ -12,6 +12,11 @@ const display = Source_Serif_4({
   variable: "--font-display",
 });
 
+// ponytail: every page renders per request with fresh Supabase data, because the
+// incremental page cache kept serving stale pages after admin changes. Fine at this
+// traffic; if it grows, reintroduce caching with explicit tags and test invalidation.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: { default: "Janus34", template: "%s | Janus34" },
   description:

@@ -23,8 +23,8 @@ export default async function AdminDocumentsPage() {
         <p className="eyebrow eyebrow--dark">Contenu</p>
         <h1>Documents</h1>
         <p>
-          Les PDF proposés sur le site : planning, statuts, documents d’information. Pour changer
-          le planning, mettez en ligne le nouveau : le site affiche le plus récent.
+          Les PDF proposés sur le site : statuts, comptes rendus, documents d’information. Le
+          planning des activités se modifie dans la rubrique Planning.
         </p>
       </header>
 

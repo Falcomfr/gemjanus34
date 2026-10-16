@@ -53,18 +53,18 @@ test("understand the GEM from the home page", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 2, name: "Un lieu d'entraide, distinct du soin" })).toBeVisible();
 });
 
-test("find the planning in one action and open it", async ({ page, request }) => {
+test("find the planning in one action and print it", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/");
 
   await page.getByRole("navigation", { name: "Accès rapides" }).getByRole("link", { name: /le planning/i }).click();
 
   await expect(page).toHaveURL("/actualites#planning");
-  const pdf = page.getByRole("link", { name: /consulter le planning \(pdf\)/i });
-  await expect(pdf).toBeInViewport();
-  const response = await request.get((await pdf.getAttribute("href"))!);
-  expect(response.status()).toBe(200);
-  expect(response.headers()["content-type"]).toContain("application/pdf");
+  await expect(page.getByRole("heading", { level: 2, name: "Le planning des activités" })).toBeInViewport();
+  await page.getByRole("link", { name: /version imprimable/i }).click();
+  await expect(page).toHaveURL("/planning/imprimer");
+  await expect(page.getByRole("button", { name: /imprimer ou enregistrer en pdf/i })).toBeVisible();
+  await expect(page.getByRole("region", { name: /^jeudi/i })).toContainText("Yoga en douceur");
 });
 
 test("call the association from a phone without opening the menu", async ({ page }) => {
