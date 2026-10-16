@@ -1,6 +1,7 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { z } from "zod";
 import { PageForm } from "@/components/admin/page-form";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { createServerClient } from "@/lib/supabase/server";
@@ -8,6 +9,7 @@ import { createServerClient } from "@/lib/supabase/server";
 export default async function EditAdminPage({ params }: { params: Promise<{ id: string }> }) {
   const profile = await requireProfile();
   const { id } = await params;
+  if (!z.uuid().safeParse(id).success) notFound();
   const supabase = await createServerClient();
   const { data: page, error: pageError } = await supabase
     .from("pages")

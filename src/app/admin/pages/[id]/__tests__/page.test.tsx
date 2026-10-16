@@ -121,3 +121,11 @@ describe("EditAdminPage", () => {
     );
   });
 });
+
+test("answers a malformed page id with a 404, without querying", async () => {
+  mocks.requireProfile.mockResolvedValue({ id: "u", role: "admin" });
+  mocks.createServerClient.mockReset();
+
+  await expect(EditAdminPage({ params: Promise.resolve({ id: "pas-un-id" }) })).rejects.toThrow("NOT_FOUND");
+  expect(mocks.createServerClient).not.toHaveBeenCalled();
+});
