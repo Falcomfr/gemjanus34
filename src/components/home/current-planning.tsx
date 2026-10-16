@@ -1,7 +1,8 @@
-import { CalendarDays, Download } from "lucide-react";
-import Link from "next/link";
+import { CalendarDays, FileText, Phone } from "lucide-react";
 import type { JSX } from "react";
+import { contact } from "@/content/contact";
 import type { PublicDocument } from "@/content/types";
+import { formatPublicDate } from "@/lib/date/public-date";
 
 type CurrentPlanningProps = {
   document?: PublicDocument;
@@ -9,36 +10,34 @@ type CurrentPlanningProps = {
 
 export function CurrentPlanning({ document }: CurrentPlanningProps): JSX.Element {
   return (
-    <section className="planning-band" aria-labelledby="planning-title">
+    <section className="planning-band" id="planning" aria-labelledby="planning-title">
       <div className="content-container planning-band__inner">
-        <CalendarDays className="planning-band__icon" aria-hidden="true" size={36} />
+        <CalendarDays className="planning-band__icon" aria-hidden="true" size={40} />
         <div className="planning-band__content">
-          <p className="eyebrow eyebrow--dark">Activités</p>
+          <p className="eyebrow eyebrow--dark">Chaque semaine au GEM</p>
+          <h2 id="planning-title">Le planning des activités</h2>
           {document ? (
-            <>
-              <h2 id="planning-title">Dernier planning importé</h2>
-              <p>
-                Ce document provient de l&apos;ancien site. Il reste disponible à titre
-                d&apos;archive, dans l&apos;attente d&apos;une mise à jour éditoriale.
-              </p>
-            </>
+            <p>
+              En vigueur depuis le {formatPublicDate(document.updatedAt)}. Ateliers, sorties et temps
+              collectifs y sont indiqués jour par jour. En cas de doute, appelez l&apos;équipe.
+            </p>
           ) : (
-            <>
-              <h2 id="planning-title">Planning à venir</h2>
-              <p>
-                Aucun planning n&apos;est disponible pour le moment. Le prochain planning sera
-                publié ici dès qu&apos;il sera prêt.
-              </p>
-            </>
+            <p>
+              Le planning est disponible auprès de l&apos;équipe, qui vous présente volontiers les
+              activités de la semaine.
+            </p>
           )}
         </div>
         {document ? (
-          <Link className="button button--dark" href={document.downloadUrl}>
-            Consulter le planning importé
-            <Download aria-hidden="true" size={20} />
-          </Link>
+          <a className="button button--dark" href={document.downloadUrl}>
+            <FileText aria-hidden="true" size={20} />
+            Consulter le planning (PDF)
+          </a>
         ) : (
-          <p className="planning-band__unavailable">Planning temporairement indisponible</p>
+          <a className="button button--dark" href={contact.phoneHref}>
+            <Phone aria-hidden="true" size={20} />
+            Appeler le {contact.phone}
+          </a>
         )}
       </div>
     </section>

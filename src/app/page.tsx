@@ -19,7 +19,7 @@ export default async function HomePage() {
     <>
       <Hero planningHref={planning?.downloadUrl} />
       <CurrentPlanning document={planning} />
-      <UpcomingNews items={news.slice(0, 3)} />
+      <UpcomingNews items={news} now={new Date().toISOString()} />
 
       <section className="association-introduction" aria-labelledby="association-title">
         <div className="content-container association-introduction__inner">

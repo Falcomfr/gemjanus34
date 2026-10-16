@@ -1,9 +1,6 @@
 import type { JSX } from "react";
 import type { NewsItem as NewsItemData } from "@/content/types";
-import {
-  isCurrentOrFuturePublicDate,
-  publicDateTimestamp,
-} from "@/lib/date/public-date";
+import { groupNews } from "@/lib/content/group-news";
 import { NewsItem } from "./news-item";
 
 type NewsListProps = {
@@ -11,39 +8,35 @@ type NewsListProps = {
   now: string;
 };
 
+function Timeline({ items, empty }: { items: NewsItemData[]; empty: string }): JSX.Element {
+  return items.length > 0 ? (
+    <div className="timeline__list">
+      {items.map((item) => (
+        <NewsItem item={item} key={item.id} />
+      ))}
+    </div>
+  ) : (
+    <p className="timeline__empty">{empty}</p>
+  );
+}
+
 export function NewsList({ items, now }: NewsListProps): JSX.Element {
-  const published = items.filter((item) => item.status === "published");
-  const upcoming = published
-    .filter((item) => isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
-    .toSorted(
-      (left, right) => publicDateTimestamp(left.startsAt) - publicDateTimestamp(right.startsAt),
-    );
-  const archived = published
-    .filter((item) => !isCurrentOrFuturePublicDate(item.endsAt ?? item.startsAt, now))
-    .toSorted(
-      (left, right) => publicDateTimestamp(right.startsAt) - publicDateTimestamp(left.startsAt),
-    );
+  const { upcoming, recent, archived } = groupNews(items, now);
 
   return (
     <div className="timeline content-container">
       <section className="timeline__section" aria-labelledby="upcoming-title">
-        <div className="section-heading section-heading--compact">
-          <div>
-            <p className="eyebrow">Agenda</p>
-            <h2 id="upcoming-title">À venir</h2>
-          </div>
-        </div>
-        {upcoming.length > 0 ? (
-          <div className="timeline__list">
-            {upcoming.map((item) => (
-              <NewsItem item={item} key={item.id} />
-            ))}
-          </div>
-        ) : (
-          <p className="timeline__empty">
-            Aucune annonce à venir n&apos;est publiée pour le moment.
-          </p>
-        )}
+        <p className="eyebrow eyebrow--dark">Agenda</p>
+        <h2 id="upcoming-title">À venir</h2>
+        <Timeline
+          items={upcoming}
+          empty="Aucun rendez-vous n'est annoncé pour le moment. Le planning ci-dessus présente les activités de chaque semaine."
+        />
+      </section>
+
+      <section className="timeline__section" aria-labelledby="recent-title">
+        <h2 id="recent-title">Informations récentes</h2>
+        <Timeline items={recent} empty="Aucune information publiée ces deux derniers mois." />
       </section>
 
       <section className="timeline__section" aria-labelledby="archives-title">
@@ -52,15 +45,7 @@ export function NewsList({ items, now }: NewsListProps): JSX.Element {
             <span id="archives-title">Archives</span>
             <span aria-hidden="true">{archived.length}</span>
           </summary>
-          {archived.length > 0 ? (
-            <div className="timeline__list">
-              {archived.map((item) => (
-                <NewsItem item={item} key={item.id} />
-              ))}
-            </div>
-          ) : (
-            <p className="timeline__empty">Aucune archive pour le moment.</p>
-          )}
+          <Timeline items={archived} empty="Aucune archive pour le moment." />
         </details>
       </section>
     </div>

@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { NewsList } from "../news-list";
 
-test("separates upcoming and archived announcements", () => {
+test("separates upcoming, recent and archived announcements", () => {
   render(
     <NewsList
       now="2026-10-11T12:00:00+02:00"
@@ -24,6 +24,15 @@ test("separates upcoming and archived announcements", () => {
           featured: false,
           status: "published",
         },
+        {
+          id: "old",
+          title: "Assemblée générale 2025",
+          excerpt: "Compte rendu",
+          startsAt: "2025-05-10",
+          endsAt: null,
+          featured: false,
+          status: "published",
+        },
       ]}
     />,
   );
@@ -32,7 +41,10 @@ test("separates upcoming and archived announcements", () => {
     within(screen.getByRole("region", { name: /à venir/i })).getByText("Atelier"),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("region", { name: /archives/i })).getByText("Assemblée"),
+    within(screen.getByRole("region", { name: /informations récentes/i })).getByText("Assemblée"),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("region", { name: /archives/i })).getByText("Assemblée générale 2025"),
   ).toBeInTheDocument();
 });
 
@@ -67,7 +79,7 @@ test("keeps date-only announcements upcoming until the Paris calendar day ends",
     within(screen.getByRole("region", { name: /à venir/i })).getByText("Rencontre du jour"),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("region", { name: /archives/i })).getByText(
+    within(screen.getByRole("region", { name: /informations récentes/i })).getByText(
       "Rencontre terminée",
     ),
   ).toBeInTheDocument();
