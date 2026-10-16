@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, Nunito_Sans } from "next/font/google";
+import { Nunito_Sans, Source_Serif_4 } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const body = Nunito_Sans({ subsets: ["latin"], variable: "--font-body" });
-const display = Atkinson_Hyperlegible({
+const display = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["600", "700"],
   variable: "--font-display",
 });
 
 export const metadata: Metadata = {
   title: { default: "Janus34", template: "%s | Janus34" },
-  description: "Groupe d'Entraide Mutuelle à Montpellier.",
+  description:
+    "Janus34, Groupe d'Entraide Mutuelle à Montpellier depuis 2006 : rompre les solitudes, créer des liens.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

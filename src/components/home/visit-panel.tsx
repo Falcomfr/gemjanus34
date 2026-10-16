@@ -9,7 +9,7 @@ export function VisitPanel(): JSX.Element {
       <div className="content-container visit-band__inner">
         <div className="visit-band__heading">
           <p className="eyebrow">Faisons connaissance</p>
-          <h2 id="visit-title">Envie de venir nous rencontrer ?</h2>
+          <h2 id="visit-title">Envie de venir nous rencontrer ?</h2>
           <p>
             Appelez l&apos;équipe pour convenir d&apos;un premier accueil. Vous découvrirez le lieu et
             son fonctionnement, sans engagement.

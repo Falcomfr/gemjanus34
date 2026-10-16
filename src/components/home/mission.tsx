@@ -5,11 +5,11 @@ import type { JSX } from "react";
 const families = [
   {
     title: "Créer et s'exprimer",
-    examples: "Expression créatrice, écriture poétique, « Les mots qui volent », linogravure, collage.",
+    examples: "Expression créatrice, écriture poétique, « Les mots qui volent », linogravure, collage.",
   },
   {
     title: "Bouger et prendre l'air",
-    examples: "Qi Gong, yoga en douceur, et le GEM « Hors les murs » : expositions, balades, pique-niques.",
+    examples: "Qi Gong, yoga en douceur, et le GEM « Hors les murs » : expositions, balades, pique-niques.",
   },
   {
     title: "Échanger et agir ensemble",
@@ -33,7 +33,7 @@ export function Mission(): JSX.Element {
             d&apos;adhérents.
           </p>
           <p>
-            Le GEM ne remplace pas un suivi médical : il offre un cadre accueillant pour se
+            Le GEM ne remplace pas un suivi médical : il offre un cadre accueillant pour se
             rencontrer, reprendre confiance et rompre l&apos;isolement.
           </p>
           <ul className="activity-families">

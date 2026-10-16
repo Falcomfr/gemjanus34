@@ -69,3 +69,21 @@ test("renders paragraphs, lists, links and leading content", () => {
     .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   expect(container.querySelector("p:empty")).toBeNull();
 });
+
+test("keeps French punctuation attached to the previous word", () => {
+  render(
+    <ContentPage
+      page={{
+        slug: "exemple",
+        title: "Une visite ?",
+        introduction: "Intro",
+        sections: [{ id: "a", title: "Comment venir ?", body: "Le GEM « Hors les murs » : en ville.", items: ["Appelez !"] }],
+      }}
+    />,
+  );
+
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Une visite ?");
+  expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Comment venir ?");
+  expect(screen.getByText(/Hors les murs/).textContent).toBe("Le GEM « Hors les murs » : en ville.");
+  expect(screen.getByText(/Appelez/).textContent).toBe("Appelez !");
+});

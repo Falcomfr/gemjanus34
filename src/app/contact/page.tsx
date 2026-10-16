@@ -16,7 +16,7 @@ export default function ContactPage() {
           <p className="eyebrow">Échanger avec l&apos;équipe</p>
           <h1>Contact</h1>
           <p>
-            Une première visite se prépare de préférence par téléphone : l&apos;équipe convient avec
+            Une première visite se prépare de préférence par téléphone : l&apos;équipe convient avec
             vous d&apos;un entretien d&apos;accueil.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function ContactPage() {
           </address>
           <p>
             L&apos;équipe répond l&apos;après-midi. Si personne ne décroche, laissez un message avec
-            vos coordonnées : nous vous rappellerons.
+            vos coordonnées : nous vous rappellerons.
           </p>
         </section>
 

@@ -96,3 +96,9 @@ test("shows no migration vocabulary", async () => {
 
   expect(container.textContent).not.toMatch(forbiddenWording);
 });
+
+test("refreshes hourly so news status follows the calendar", async () => {
+  const home = await import("../page");
+
+  expect(home.revalidate).toBe(3600);
+});

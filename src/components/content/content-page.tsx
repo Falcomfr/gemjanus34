@@ -4,6 +4,11 @@ import type { JSX, ReactNode } from "react";
 import type { PageSection, PublicDocument, PublicPage } from "@/content/types";
 import { DocumentList } from "@/components/content/document-list";
 
+// French typography: a narrow no-break space keeps « ? ! : ; » on the line of the previous word.
+function fr(text: string): string {
+  return text.replace(/ ([?!:;»])/g, "\u202f$1").replace(/« /g, "«\u202f");
+}
+
 type ContentPageProps = {
   page: PublicPage;
   documents?: PublicDocument[];
@@ -19,13 +24,13 @@ function SectionLinks({ links }: { links: NonNullable<PageSection["links"]> }): 
           <li key={link.href}>
             {external ? (
               <a className="text-link" href={link.href} target="_blank" rel="noopener noreferrer">
-                {link.label}
+                {fr(link.label)}
                 <ExternalLink aria-hidden="true" size={18} />
                 <span className="sr-only"> (nouvel onglet)</span>
               </a>
             ) : (
               <Link className="text-link" href={link.href}>
-                {link.label}
+                {fr(link.label)}
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>
             )}
@@ -41,9 +46,9 @@ export function ContentPage({ page, documents = [], children }: ContentPageProps
     <article className="content-page">
       <header className="content-page__header">
         <div className="content-container content-page__header-inner">
-          {page.eyebrow ? <p className="eyebrow">{page.eyebrow}</p> : null}
-          <h1>{page.title}</h1>
-          <p>{page.introduction}</p>
+          {page.eyebrow ? <p className="eyebrow">{fr(page.eyebrow)}</p> : null}
+          <h1>{fr(page.title)}</h1>
+          <p>{fr(page.introduction)}</p>
         </div>
       </header>
 
@@ -53,18 +58,18 @@ export function ContentPage({ page, documents = [], children }: ContentPageProps
           const List = section.ordered ? "ol" : "ul";
           return (
             <section className="content-page__section" key={section.id} aria-labelledby={`section-${section.id}`}>
-              <h2 id={`section-${section.id}`}>{section.title}</h2>
+              <h2 id={`section-${section.id}`}>{fr(section.title)}</h2>
               <div className="content-page__section-body">
                 {section.body
                   .split("\n\n")
                   .filter(Boolean)
                   .map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
+                    <p key={paragraph}>{fr(paragraph)}</p>
                   ))}
                 {section.items?.length ? (
                   <List className={section.ordered ? "content-list content-list--steps" : "content-list"}>
                     {section.items.map((item) => (
-                      <li key={item}>{item}</li>
+                      <li key={item}>{fr(item)}</li>
                     ))}
                   </List>
                 ) : null}
