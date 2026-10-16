@@ -3,17 +3,23 @@ import { PlanningDayForm, PlanningSettingsForm, PlanningSlotForm } from "@/compo
 import { dayNames } from "@/components/planning/planning-format";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { mapPlanning } from "@/lib/content/supabase-public-content-repository";
+import { parisDate } from "@/lib/planning/week";
 import { createServerClient } from "@/lib/supabase/server";
 
 export default async function AdminPlanningPage() {
   await requireProfile();
   const supabase = await createServerClient();
-  const [settings, days, slots] = await Promise.all([
+  const [settings, days, slots, exceptions] = await Promise.all([
     supabase.from("planning_settings").select("effective_from, note").limit(1),
     supabase.from("planning_days").select("day, opens_at, closes_at, team"),
-    supabase.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family"),
+    supabase.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family, recurrence, month_weeks"),
+    // Only what is still to come: past changes leave the admin.
+    supabase
+      .from("planning_exceptions")
+      .select("id, kind, date, end_date, slot_id, hidden, reason, starts_at, ends_at, title, leader, description, family")
+      .gte("last_date", parisDate(new Date().toISOString())),
   ]);
-  const planning = mapPlanning({ settings, days, slots } as Parameters<typeof mapPlanning>[0]);
+  const planning = mapPlanning({ settings, days, slots, exceptions } as Parameters<typeof mapPlanning>[0]);
 
   return (
     <div className="admin-pages-index planning-admin">

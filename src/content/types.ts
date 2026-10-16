@@ -71,11 +71,31 @@ export type PlanningSlot = {
   note: string;
   description: string;
   family: PlanningFamily;
+  // Every week, only some weeks of the month, or every week but some (1 to 5, -1 = last).
+  recurrence: "weekly" | "only" | "except";
+  monthWeeks: number[];
 };
+
+// Dates are "YYYY-MM-DD" calendar days.
+export type PlanningException =
+  | { id: string; kind: "cancel"; date: string; slotId: string; hidden: boolean; reason: string }
+  | { id: string; kind: "closure"; date: string; endDate: string; reason: string }
+  | {
+      id: string;
+      kind: "extra";
+      date: string;
+      startsAt: string;
+      endsAt: string;
+      title: string;
+      leader: string;
+      description: string;
+      family: PlanningFamily;
+    };
 
 export type Planning = {
   effectiveFrom: string;
   note: string;
   days: PlanningDay[];
   slots: PlanningSlot[];
+  exceptions: PlanningException[];
 };

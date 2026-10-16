@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
-import type { DocumentCategory, NewsItem, Planning, PlanningFamily, PublicDocument, PublicPage } from "@/content/types";
+import type { DocumentCategory, NewsItem, Planning, PlanningException, PlanningFamily, PlanningSlot, PublicDocument, PublicPage } from "@/content/types";
 import type { Database } from "@/lib/database.types";
+import { addDays, parisDate } from "@/lib/planning/week";
 import { richContentSchema } from "./rich-content-schema";
 import type { SupabaseConfig } from "@/lib/supabase/config";
 import { publicContentRepository as localRepository } from "./local-public-content-repository";
@@ -25,10 +26,33 @@ export type PlanningRows = {
   settings: { data: Array<{ effective_from: string; note: string }> | null; error: Error | null };
   days: { data: Array<{ day: number; opens_at: string | null; closes_at: string | null; team: string }> | null; error: Error | null };
   slots: {
-    data: Array<{ id: string; day: number; starts_at: string; ends_at: string; title: string; leader: string; note: string; description: string; family: string }> | null;
+    data: Array<{ id: string; day: number; starts_at: string; ends_at: string; title: string; leader: string; note: string; description: string; family: string; recurrence: string; month_weeks: number[] }> | null;
     error: Error | null;
   };
+  exceptions: { data: PlanningExceptionRow[] | null; error: Error | null };
 };
+
+type PlanningExceptionRow = Pick<
+  Database["public"]["Tables"]["planning_exceptions"]["Row"],
+  "id" | "kind" | "date" | "end_date" | "slot_id" | "hidden" | "reason" | "starts_at" | "ends_at" | "title" | "leader" | "description" | "family"
+>;
+
+// The table's check constraints guarantee the fields each kind needs.
+function mapPlanningException(row: PlanningExceptionRow): PlanningException {
+  if (row.kind === "cancel") return { id: row.id, kind: "cancel", date: row.date, slotId: row.slot_id!, hidden: row.hidden, reason: row.reason };
+  if (row.kind === "closure") return { id: row.id, kind: "closure", date: row.date, endDate: row.end_date!, reason: row.reason };
+  return {
+    id: row.id,
+    kind: "extra",
+    date: row.date,
+    startsAt: hhmm(row.starts_at!),
+    endsAt: hhmm(row.ends_at!),
+    title: row.title!,
+    leader: row.leader,
+    description: row.description,
+    family: row.family as PlanningFamily,
+  };
+}
 
 type QueryResult<T> = Promise<{ data: T[] | null; error: Error | null }>;
 
@@ -119,8 +143,13 @@ export function mapPlanning(rows: PlanningRows): Planning | null {
         description: slot.description,
         // The database check constraint restricts family to PlanningFamily values.
         family: slot.family as PlanningFamily,
+        recurrence: slot.recurrence as PlanningSlot["recurrence"],
+        monthWeeks: slot.month_weeks,
       }))
       .toSorted((left, right) => left.day - right.day || left.startsAt.localeCompare(right.startsAt)),
+    exceptions: requireData(rows.exceptions)
+      .map(mapPlanningException)
+      .toSorted((left, right) => left.date.localeCompare(right.date)),
   };
 }
 
@@ -202,15 +231,21 @@ export function createSupabasePublicQueryClient(
     },
 
     async getPlanning() {
-      const [settings, days, slots] = await Promise.all([
+      const [settings, days, slots, exceptions] = await Promise.all([
         client.from("planning_settings").select("effective_from, note").limit(1),
         client.from("planning_days").select("day, opens_at, closes_at, team"),
-        client.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family"),
+        client.from("planning_slots").select("id, day, starts_at, ends_at, title, leader, note, description, family, recurrence, month_weeks"),
+        // A week shown today starts at most six days ago.
+        client
+          .from("planning_exceptions")
+          .select("id, kind, date, end_date, slot_id, hidden, reason, starts_at, ends_at, title, leader, description, family")
+          .gte("last_date", addDays(parisDate(new Date().toISOString()), -7)),
       ]);
       return {
         settings: { data: settings.data, error: settings.error },
         days: { data: days.data, error: days.error },
         slots: { data: slots.data, error: slots.error },
+        exceptions: { data: exceptions.data, error: exceptions.error },
       };
     },
 

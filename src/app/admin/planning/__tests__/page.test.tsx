@@ -12,13 +12,14 @@ vi.mock("../actions", () => ({
 const rows: Record<string, unknown[]> = {
   planning_settings: [{ effective_from: "2026-06-22", note: "Ouverture à 13 h." }],
   planning_days: [{ day: 2, opens_at: "13:00:00", closes_at: "18:00:00", team: "Mona et Elif" }],
-  planning_slots: [{ id: "50000000-0000-4000-8000-000000000001", day: 2, starts_at: "14:30:00", ends_at: "15:30:00", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger" }],
+  planning_slots: [{ id: "50000000-0000-4000-8000-000000000001", day: 2, starts_at: "14:30:00", ends_at: "15:30:00", title: "Qi Gong", leader: "Adrien", note: "", family: "bouger", recurrence: "weekly", month_weeks: [] }],
+  planning_exceptions: [],
 };
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({
     from: (table: string) => {
       const result = { data: rows[table], error: null };
-      const query = { select: () => query, limit: () => query, then: (resolve: (value: typeof result) => void) => resolve(result) };
+      const query = { select: () => query, limit: () => query, gte: () => query, then: (resolve: (value: typeof result) => void) => resolve(result) };
       return query;
     },
   })),
