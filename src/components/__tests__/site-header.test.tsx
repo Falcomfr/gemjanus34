@@ -1,5 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { vi } from "vitest";
 import { SiteHeader } from "../site-header";
+
+const pathname = vi.hoisted(() => ({ current: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => pathname.current }));
 
 const expectedNavigation = [
   ["Le GEM", "/qui-sommes-nous"],
@@ -75,4 +79,15 @@ test("closes the mobile menu with Escape or a tap outside", () => {
   details.open = true;
   fireEvent.pointerDown(document.body);
   expect(details.open).toBe(false);
+});
+
+test("marks the current page in both navigations", () => {
+  pathname.current = "/activites";
+  render(<SiteHeader />);
+
+  for (const name of ["Navigation principale", "Navigation mobile"]) {
+    const nav = screen.getByRole("navigation", { name });
+    expect(within(nav).getByRole("link", { name: "Activités" })).toHaveAttribute("aria-current", "page");
+    expect(within(nav).getByRole("link", { name: "Contact" })).not.toHaveAttribute("aria-current");
+  }
 });

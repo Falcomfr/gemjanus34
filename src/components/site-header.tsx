@@ -3,25 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { JSX } from "react";
 import { contact } from "@/content/contact";
-import { publicNavigation } from "@/content/navigation";
 import { MobileNavigation } from "./mobile-navigation";
-
-function NavigationLinks(): JSX.Element {
-  return (
-    <ul className="navigation-list">
-      {publicNavigation.map((item) => (
-        <li key={item.href}>
-          <Link
-            className={item.prominent ? "navigation-link navigation-link--prominent" : "navigation-link"}
-            href={item.href}
-          >
-            {item.label}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
+import { NavigationLinks } from "./navigation-links";
 
 export function SiteHeader(): JSX.Element {
   return (
@@ -40,7 +23,7 @@ export function SiteHeader(): JSX.Element {
           <NavigationLinks />
           <a className="mobile-navigation__phone" href={contact.phoneHref}>
             <Phone aria-hidden="true" size={20} />
-            Appeler le {contact.phone}
+            Appeler le <span className="nowrap">{contact.phone}</span>
           </a>
         </MobileNavigation>
       </div>
