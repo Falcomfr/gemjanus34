@@ -324,6 +324,92 @@ export type Database = {
           },
         ];
       };
+      planning_days: {
+        Row: {
+          closes_at: string | null;
+          day: number;
+          opens_at: string | null;
+          team: string;
+        };
+        Insert: {
+          closes_at?: string | null;
+          day: number;
+          opens_at?: string | null;
+          team?: string;
+        };
+        Update: {
+          closes_at?: string | null;
+          day?: number;
+          opens_at?: string | null;
+          team?: string;
+        };
+        Relationships: [];
+      };
+      planning_settings: {
+        Row: {
+          effective_from: string;
+          id: number;
+          note: string;
+          updated_at: string;
+        };
+        Insert: {
+          effective_from: string;
+          id?: number;
+          note?: string;
+          updated_at?: string;
+        };
+        Update: {
+          effective_from?: string;
+          id?: number;
+          note?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      planning_slots: {
+        Row: {
+          day: number;
+          ends_at: string;
+          family: string;
+          id: string;
+          leader: string;
+          note: string;
+          starts_at: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          day: number;
+          ends_at: string;
+          family: string;
+          id?: string;
+          leader?: string;
+          note?: string;
+          starts_at: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          day?: number;
+          ends_at?: string;
+          family?: string;
+          id?: string;
+          leader?: string;
+          note?: string;
+          starts_at?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "planning_slots_day_fkey";
+            columns: ["day"];
+            isOneToOne: false;
+            referencedRelation: "planning_days";
+            referencedColumns: ["day"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active: boolean;

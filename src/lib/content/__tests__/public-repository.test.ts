@@ -35,6 +35,7 @@ function queryClient(overrides: Partial<PublicContentQueryClient> = {}): PublicC
       error: null,
     }),
     getPublishedPageLinks: vi.fn().mockResolvedValue({ data: [], error: null }),
+    getPlanning: vi.fn(),
     getDocuments: vi.fn().mockResolvedValue({
       data: [{
         id: "doc-1",

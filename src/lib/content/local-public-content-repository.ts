@@ -1,3 +1,4 @@
+import { bundledPlanning } from "@/content/planning";
 import { newsItems, publicDocuments, publicPages } from "@/content/seed";
 import type {
   DocumentCategory,
@@ -60,6 +61,10 @@ export const publicContentRepository: PublicContentRepository = {
 
   async getPageLinks() {
     return publicPages.map(({ slug, title }) => ({ slug, title }));
+  },
+
+  async getPlanning() {
+    return structuredClone(bundledPlanning);
   },
 
   async getNews(): Promise<NewsItem[]> {

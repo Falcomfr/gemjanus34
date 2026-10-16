@@ -51,3 +51,30 @@ export type PublicSiteData = {
   news: NewsItem[];
   documents: PublicDocument[];
 };
+
+export type PlanningFamily = "creer" | "bouger" | "echanger";
+
+export type PlanningDay = {
+  day: number; // 1 = lundi … 6 = samedi
+  opensAt: string | null; // "13:00"
+  closesAt: string | null;
+  team: string;
+};
+
+export type PlanningSlot = {
+  id: string;
+  day: number;
+  startsAt: string;
+  endsAt: string;
+  title: string;
+  leader: string;
+  note: string;
+  family: PlanningFamily;
+};
+
+export type Planning = {
+  effectiveFrom: string;
+  note: string;
+  days: PlanningDay[];
+  slots: PlanningSlot[];
+};
