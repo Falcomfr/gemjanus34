@@ -1,4 +1,4 @@
-import { ArrowRight, ExternalLink, FileText, FolderOpen, Mail, Newspaper } from "lucide-react";
+import { ArrowRight, CalendarDays, ExternalLink, FileText, FolderOpen, Mail, Newspaper } from "lucide-react";
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { createServerClient } from "@/lib/supabase/server";
@@ -14,9 +14,10 @@ export default async function AdminPage() {
   await requireProfile();
   const supabase = await createServerClient();
   const head = { count: "exact" as const, head: true };
-  const [drafts, upcoming, documents, messages] = await Promise.all([
+  const [drafts, upcoming, slots, documents, messages] = await Promise.all([
     supabase.from("pages").select("id", head).eq("status", "draft"),
     supabase.from("news").select("id", head).eq("status", "published").gte("starts_at", new Date().toISOString()),
+    supabase.from("planning_slots").select("id", head),
     supabase.from("documents").select("id", head),
     supabase.from("contact_messages").select("id", head).is("handled_at", null),
   ]);
@@ -24,6 +25,7 @@ export default async function AdminPage() {
   const shortcuts = [
     { href: "/admin/pages", label: "Pages", detail: countLabel(drafts, (count) => `${count} ${count === 1 ? "brouillon" : "brouillons"}`), icon: FileText },
     { href: "/admin/actualites", label: "Actualités", detail: countLabel(upcoming, (count) => `${count} à venir`), icon: Newspaper },
+    { href: "/admin/planning", label: "Planning", detail: countLabel(slots, (count) => `${count} ${count === 1 ? "créneau" : "créneaux"}`), icon: CalendarDays },
     { href: "/admin/documents", label: "Documents", detail: countLabel(documents, (count) => `${count} en ligne`), icon: FolderOpen },
     { href: "/admin/messages", label: "Messages", detail: countLabel(messages, (count) => `${count} à traiter`), icon: Mail },
   ];
@@ -33,7 +35,7 @@ export default async function AdminPage() {
       <header className="admin-page-header">
         <p className="eyebrow eyebrow--dark">Janus34</p>
         <h1>Tableau de bord</h1>
-        <p>Gérez les pages, les actualités, les documents et les messages du site.</p>
+        <p>Gérez les pages, les actualités, le planning, les documents et les messages du site.</p>
       </header>
       <section aria-labelledby="admin-shortcuts-title">
         <h2 id="admin-shortcuts-title">Accès rapides</h2>

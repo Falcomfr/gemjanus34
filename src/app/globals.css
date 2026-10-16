@@ -1618,6 +1618,99 @@ body:has(.admin-area) > .skip-link {
   color: var(--coral-dark);
 }
 
+.planning-admin__settings {
+  margin-top: 2rem;
+}
+
+.planning-admin__settings h2,
+.planning-admin__day h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display), serif;
+  font-size: 1.35rem;
+}
+
+.planning-admin__day {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.planning-admin__day-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.planning-admin__day-form .form-status {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.planning-admin__slots {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.planning-admin__slot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 0.75rem;
+  padding: 0.85rem;
+  border-left: 0.35rem solid var(--tone);
+  border-radius: 0.5rem;
+  background: var(--tone-soft);
+}
+
+.planning-admin__slot .admin-field input,
+.planning-admin__slot .admin-field select {
+  background: var(--surface);
+}
+
+.planning-admin__slot-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.planning-admin__slot .form-status {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.planning-admin__add {
+  margin-top: 1rem;
+}
+
+.planning-admin__add summary {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--forest-dark);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@media (min-width: 64rem) {
+  .planning-admin__slot {
+    grid-template-columns: 7rem 7rem minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .planning-admin__slot .admin-field--wide {
+    grid-column: auto;
+  }
+
+  .planning-admin__slot .admin-field--wide:last-of-type {
+    grid-column: 1 / 4;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

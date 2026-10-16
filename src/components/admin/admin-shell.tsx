@@ -1,4 +1,5 @@
 import {
+  CalendarDays,
   ExternalLink,
   FileText,
   FolderOpen,
@@ -17,6 +18,7 @@ const navigation = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/pages", label: "Pages", icon: FileText },
   { href: "/admin/actualites", label: "Actualités", icon: Newspaper },
+  { href: "/admin/planning", label: "Planning", icon: CalendarDays },
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
   { href: "/admin/messages", label: "Messages", icon: Mail },
 ];

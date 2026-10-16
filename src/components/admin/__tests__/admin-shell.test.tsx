@@ -68,6 +68,7 @@ test("links every administration section to an existing page", () => {
     "Tableau de bord",
     "Pages",
     "Actualités",
+    "Planning",
     "Documents",
     "Messages",
   ]);

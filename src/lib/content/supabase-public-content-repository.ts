@@ -21,7 +21,7 @@ type PublicDocumentRow = Pick<
   "id" | "title" | "description" | "category" | "document_date" | "url"
 >;
 
-type PlanningRows = {
+export type PlanningRows = {
   settings: { data: Array<{ effective_from: string; note: string }> | null; error: Error | null };
   days: { data: Array<{ day: number; opens_at: string | null; closes_at: string | null; team: string }> | null; error: Error | null };
   slots: {
@@ -93,7 +93,7 @@ function mapDocument(row: PublicDocumentRow): PublicDocument {
 // Postgres returns "14:00:00"; the site works with "14:00".
 const hhmm = (time: string) => time.slice(0, 5);
 
-function mapPlanning(rows: PlanningRows): Planning | null {
+export function mapPlanning(rows: PlanningRows): Planning | null {
   const settings = requireData(rows.settings)[0];
   if (!settings) return null;
   return {
