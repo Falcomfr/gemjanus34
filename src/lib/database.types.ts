@@ -382,6 +382,22 @@ export type Database = {
       publish_page: { Args: { page_id: string }; Returns: undefined };
       restore_news: { Args: { news_id: string }; Returns: undefined };
       restore_page_revision: { Args: { revision_id: string }; Returns: undefined };
+      update_published_news: {
+        Args: {
+          new_content: Json;
+          new_ends_at: string;
+          new_excerpt: string;
+          new_featured: boolean;
+          new_starts_at: string;
+          new_title: string;
+          news_id: string;
+        };
+        Returns: undefined;
+      };
+      update_published_page: {
+        Args: { new_content: Json; new_summary: string; new_title: string; page_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       app_role: "admin" | "editor";

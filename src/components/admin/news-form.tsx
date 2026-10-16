@@ -3,8 +3,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { JSONContent } from "@tiptap/react";
 import { Archive, RotateCcw, Save, Send } from "lucide-react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useActionState, type FormEvent } from "react";
 import {
   archiveNews,
   createNews,
@@ -45,8 +44,7 @@ function FieldErrors({ errors, id }: { errors?: string[]; id: string }) {
   return <div id={id}>{errors.map((error) => <small key={error}>{error}</small>)}</div>;
 }
 
-function SaveButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
+function SaveButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button className="button button--dark" type="submit" disabled={pending}>
       <Save aria-hidden="true" size={18} />
@@ -55,8 +53,7 @@ function SaveButton({ label }: { label: string }) {
   );
 }
 
-function LifecycleButton({ icon: Icon, label }: { icon: typeof Send; label: string }) {
-  const { pending } = useFormStatus();
+function LifecycleButton({ icon: Icon, label, pending }: { icon: typeof Send; label: string; pending: boolean }) {
   return (
     <button className="button button--light" type="submit" disabled={pending}>
       <Icon aria-hidden="true" size={18} />
@@ -66,24 +63,35 @@ function LifecycleButton({ icon: Icon, label }: { icon: typeof Send; label: stri
 }
 
 export function NewsForm({ mode, profile, news }: NewsFormProps) {
-  const saveAction = mode === "create" ? createNews : updateNews;
-  const [state, formAction] = useActionState(saveAction, initialState);
-  const [publishState, publishAction] = useActionState(publishNews, initialState);
-  const [archiveState, archiveAction] = useActionState(archiveNews, initialState);
-  const [restoreState, restoreAction] = useActionState(restoreNews, initialState);
-  const editable = mode === "create" || news?.status === "draft";
-  const lifecycleError = publishState.formError ?? archiveState.formError ?? restoreState.formError;
-  const lifecycleSuccess = publishState.success ?? archiveState.success ?? restoreState.success;
+  // One state for saving and the lifecycle, so the message always matches the last action.
+  const [state, dispatch, pending] = useActionState(
+    async (previous: NewsActionState, formData: FormData) => {
+      const intent = formData.get("intent");
+      if (intent === "publish") return publishNews(previous, formData);
+      if (intent === "archive") return archiveNews(previous, formData);
+      if (intent === "restore") return restoreNews(previous, formData);
+      return (mode === "create" ? createNews : updateNews)(previous, formData);
+    },
+    initialState,
+  );
+  const isPublished = news?.status === "published";
+  const editable = mode === "create" || news?.status === "draft" || isPublished;
+  const confirmFirst = (message: string) => (event: FormEvent<HTMLFormElement>) => {
+    if (!window.confirm(message)) event.preventDefault();
+  };
 
   return (
     <div className="admin-editor-layout">
-      <form className="admin-page-form" onSubmit={submitWithoutReset(formAction)}>
+      <form className="admin-page-form" onSubmit={submitWithoutReset(dispatch)}>
         {news ? <input type="hidden" name="newsId" value={news.id} /> : null}
-        {!editable ? (
-          <p className="admin-notice">Archivez ou restaurez cette actualité avec les actions dédiées.</p>
-        ) : null}
         {state.formError ? <p className="form-status form-status--error" role="alert">{state.formError}</p> : null}
         {state.success ? <p className="form-status form-status--success" role="status">{state.success}</p> : null}
+        {isPublished ? (
+          <p className="admin-notice">Cette actualité est en ligne : vos modifications seront visibles dès l’enregistrement.</p>
+        ) : null}
+        {news?.status === "archived" ? (
+          <p className="admin-notice">Cette actualité est archivée. Restaurez-la pour la remettre en ligne et la modifier.</p>
+        ) : null}
 
         <section className="admin-form-section" aria-labelledby="news-information-title">
           <div className="admin-form-section__heading">
@@ -130,7 +138,11 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
           <FieldErrors id="news-content-error" errors={state.fieldErrors?.content} />
         </section>
 
-        {editable ? <div className="admin-form-actions"><SaveButton label={mode === "create" ? "Créer le brouillon" : "Enregistrer"} /></div> : null}
+        {editable ? (
+          <div className="admin-form-actions">
+            <SaveButton pending={pending} label={mode === "create" ? "Créer le brouillon" : isPublished ? "Enregistrer et mettre en ligne" : "Enregistrer"} />
+          </div>
+        ) : null}
       </form>
 
       <aside className="admin-editor-sidebar" aria-label="Publication">
@@ -138,24 +150,25 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
         <p className={`status-badge status-badge--${news?.status ?? "draft"}`}>
           {news?.status === "published" ? "Publiée" : news?.status === "archived" ? "Archivée" : "Brouillon"}
         </p>
-        {lifecycleError ? <p className="form-status form-status--error" role="alert">{lifecycleError}</p> : null}
-        {lifecycleSuccess ? <p className="form-status form-status--success" role="status">{lifecycleSuccess}</p> : null}
         {news?.status === "draft" ? (
-          <form action={publishAction} className="admin-lifecycle-actions">
+          <form action={dispatch} className="admin-lifecycle-actions">
             <input type="hidden" name="newsId" value={news.id} />
-            <LifecycleButton icon={Send} label="Publier" />
+            <input type="hidden" name="intent" value="publish" />
+            <LifecycleButton pending={pending} icon={Send} label="Publier" />
           </form>
         ) : null}
         {news?.status === "published" && profile.role === "admin" ? (
-          <form action={archiveAction} className="admin-lifecycle-actions">
+          <form action={dispatch} onSubmit={confirmFirst("Retirer cette actualité du site ?")} className="admin-lifecycle-actions">
             <input type="hidden" name="newsId" value={news.id} />
-            <LifecycleButton icon={Archive} label="Archiver" />
+            <input type="hidden" name="intent" value="archive" />
+            <LifecycleButton pending={pending} icon={Archive} label="Archiver" />
           </form>
         ) : null}
         {news?.status === "archived" && profile.role === "admin" ? (
-          <form action={restoreAction} className="admin-lifecycle-actions">
+          <form action={dispatch} onSubmit={confirmFirst("Remettre cette actualité en ligne ?")} className="admin-lifecycle-actions">
             <input type="hidden" name="newsId" value={news.id} />
-            <LifecycleButton icon={RotateCcw} label="Restaurer" />
+            <input type="hidden" name="intent" value="restore" />
+            <LifecycleButton pending={pending} icon={RotateCcw} label="Restaurer" />
           </form>
         ) : null}
       </aside>

@@ -76,8 +76,24 @@ export async function updateNews(
     .single();
 
   if (readError || !existing) return { formError: "L’actualité demandée est introuvable." };
-  if (existing.status !== "draft") {
-    return { formError: "Seuls les brouillons peuvent être modifiés." };
+  if (existing.status === "archived") {
+    return { formError: "Restaurez l’actualité avant de la modifier." };
+  }
+  if (existing.status === "published") {
+    // A published item is corrected through the audited RPC and stays online.
+    const { error } = await supabase.rpc("update_published_news", {
+      news_id: id,
+      new_title: parsed.data.title,
+      new_excerpt: parsed.data.excerpt,
+      new_content: parsed.data.content as NonNullable<Json>,
+      new_starts_at: parsed.data.startsAt,
+      // Generated RPC types mark every argument non-null; the SQL function accepts null here.
+      new_ends_at: parsed.data.endsAt as string,
+      new_featured: parsed.data.featured,
+    });
+    if (error) return { formError: "Les modifications n’ont pas pu être mises en ligne." };
+    revalidateNewsPaths();
+    return { success: "Modifications en ligne." };
   }
 
   const { error } = await supabase

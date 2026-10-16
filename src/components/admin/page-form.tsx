@@ -2,8 +2,7 @@
 
 import type { JSONContent } from "@tiptap/react";
 import { Archive, History, Save, Send } from "lucide-react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useActionState, type FormEvent } from "react";
 import {
   archivePage,
   createPage,
@@ -60,8 +59,7 @@ function FieldErrors({
   );
 }
 
-function SubmitButton({ disabled = false, label }: { disabled?: boolean; label: string }) {
-  const { pending } = useFormStatus();
+function SubmitButton({ disabled = false, label, pending }: { disabled?: boolean; label: string; pending: boolean }) {
   return (
     <button className="button button--dark" type="submit" disabled={pending || disabled}>
       <Save aria-hidden="true" size={18} />
@@ -70,8 +68,7 @@ function SubmitButton({ disabled = false, label }: { disabled?: boolean; label: 
   );
 }
 
-function LifecycleSubmit({ icon: Icon, label }: { icon: typeof Send; label: string }) {
-  const { pending } = useFormStatus();
+function LifecycleSubmit({ icon: Icon, label, pending }: { icon: typeof Send; label: string; pending: boolean }) {
   return (
     <button className="button button--light" type="submit" disabled={pending}>
       <Icon aria-hidden="true" size={18} />
@@ -89,35 +86,43 @@ export function PageForm({
   revisions = [],
   revisionsError = false,
 }: PageFormProps) {
-  const saveAction = mode === "create" ? createPage : updatePage;
-  const [state, formAction] = useActionState(saveAction, initialPageActionState);
-  const [publishState, publishAction] = useActionState(publishPage, initialPageActionState);
-  const [archiveState, archiveAction] = useActionState(archivePage, initialPageActionState);
-  const [restoreState, restoreAction] = useActionState(
-    restorePageRevision,
+  // One state for saving and the lifecycle, so the message always matches the last action.
+  const [state, dispatch, pending] = useActionState(
+    async (previous: typeof initialPageActionState, formData: FormData) => {
+      const intent = formData.get("intent");
+      if (intent === "publish") return publishPage(previous, formData);
+      if (intent === "archive") return archivePage(previous, formData);
+      if (intent === "restore") return restorePageRevision(previous, formData);
+      return (mode === "create" ? createPage : updatePage)(previous, formData);
+    },
     initialPageActionState,
   );
+  const confirmFirst = (message: string) => (event: FormEvent<HTMLFormElement>) => {
+    if (!window.confirm(message)) event.preventDefault();
+  };
 
   const isAdmin = profile.role === "admin";
   const isPublished = page?.status === "published";
-  const isEditable = mode === "create" || (!isPublished && (isAdmin || page?.status === "draft"));
+  const isEditable = mode === "create" || isAdmin || page?.status === "draft";
   const canEditSlug = mode === "create" || isAdmin;
   const content = (page?.content as JSONContent | undefined) ?? emptyContent;
-  const lifecycleState = publishState.formError ?? archiveState.formError ?? restoreState.formError;
-  const lifecycleSuccess = publishState.success ?? archiveState.success ?? restoreState.success;
   const structureUnavailable = isAdmin && parentOptionsError;
 
   return (
     <div className="admin-editor-layout">
       <form
         className="admin-page-form"
-        onSubmit={structureUnavailable ? (event) => event.preventDefault() : submitWithoutReset(formAction)}
+        onSubmit={structureUnavailable ? (event) => event.preventDefault() : submitWithoutReset(dispatch)}
       >
         {page ? <input type="hidden" name="pageId" value={page.id} /> : null}
         <input type="hidden" name="status" value={page?.status ?? "draft"} />
 
         {isPublished ? (
-          <p className="admin-notice">Cette page est publiée. Archivez-la avant de modifier son contenu.</p>
+          <p className="admin-notice">
+            {isAdmin
+              ? "Cette page est en ligne : vos modifications seront visibles dès l’enregistrement."
+              : "Cette page est en ligne : seul un administrateur peut la modifier."}
+          </p>
         ) : null}
         {state.formError ? (
           <p className="form-status form-status--error" role="alert" aria-live="assertive">
@@ -249,7 +254,8 @@ export function PageForm({
           <div className="admin-form-actions">
             <SubmitButton
               disabled={structureUnavailable}
-              label={mode === "create" ? "Créer la page" : "Enregistrer"}
+              pending={pending}
+              label={mode === "create" ? "Créer la page" : isPublished ? "Enregistrer et mettre en ligne" : "Enregistrer"}
             />
           </div>
         ) : null}
@@ -260,28 +266,20 @@ export function PageForm({
           <section>
             <h2>Publication</h2>
             <p className={`status-badge status-badge--${page.status}`}>{page.status === "draft" ? "Brouillon" : page.status === "published" ? "Publiée" : "Archivée"}</p>
-            {lifecycleState ? (
-              <p className="form-status form-status--error" role="alert" aria-live="assertive">
-                {lifecycleState}
-              </p>
-            ) : null}
-            {lifecycleSuccess ? (
-              <p className="form-status form-status--success" role="status" aria-live="polite">
-                {lifecycleSuccess}
-              </p>
-            ) : null}
             {isAdmin ? (
               <div className="admin-lifecycle-actions">
                 {page.status !== "published" ? (
-                  <form action={publishAction}>
+                  <form action={dispatch}>
                     <input type="hidden" name="pageId" value={page.id} />
-                    <LifecycleSubmit icon={Send} label="Publier" />
+                    <input type="hidden" name="intent" value="publish" />
+                    <LifecycleSubmit pending={pending} icon={Send} label="Publier" />
                   </form>
                 ) : null}
                 {page.status !== "archived" ? (
-                  <form action={archiveAction}>
+                  <form action={dispatch} onSubmit={confirmFirst("Retirer cette page du site ?")}>
                     <input type="hidden" name="pageId" value={page.id} />
-                    <LifecycleSubmit icon={Archive} label="Archiver" />
+                    <input type="hidden" name="intent" value="archive" />
+                    <LifecycleSubmit pending={pending} icon={Archive} label="Archiver" />
                   </form>
                 ) : null}
               </div>
@@ -300,11 +298,12 @@ export function PageForm({
                   <li key={revision.id}>
                     <div>
                       <strong>{revision.title}</strong>
-                      <time dateTime={revision.created_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(revision.created_at))}</time>
+                      <time dateTime={revision.created_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "medium", timeZone: "Europe/Paris" }).format(new Date(revision.created_at))}</time>
                     </div>
                     {isAdmin ? (
-                      <form action={restoreAction}>
+                      <form action={dispatch} onSubmit={confirmFirst("Remplacer le contenu en ligne par cette révision ? La page sera publiée avec ce contenu.")}>
                         <input type="hidden" name="revisionId" value={revision.id} />
+                        <input type="hidden" name="intent" value="restore" />
                         <button type="submit" title="Restaurer cette révision" aria-label={`Restaurer la révision du ${new Intl.DateTimeFormat("fr-FR").format(new Date(revision.created_at))}`}>
                           <History aria-hidden="true" size={18} />
                         </button>

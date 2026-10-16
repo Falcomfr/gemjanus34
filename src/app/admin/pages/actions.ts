@@ -134,16 +134,36 @@ export async function updatePage(
   if (readError || !existing) {
     return { formError: "La page demandée est introuvable." };
   }
-  if (existing.status === "published") {
-    return {
-      formError: "Archivez la page publiée avant de modifier son contenu.",
-    };
-  }
   if (profile.role !== "admin" && existing.status !== "draft") {
-    return { formError: "Seul un administrateur peut modifier cette page." };
+    return { formError: "Seul un administrateur peut modifier une page en ligne ou archivée." };
   }
 
   const update = buildPageUpdate(profile.role, parsed.data, existing);
+
+  if (existing.status === "published") {
+    // Content of a published page changes through the audited RPC, which keeps a revision.
+    const { error: contentError } = await supabase.rpc("update_published_page", {
+      page_id: identity.data.pageId,
+      new_title: update.title,
+      new_summary: update.summary,
+      new_content: update.content as NonNullable<Json>,
+    });
+    if (contentError) return { formError: "Les modifications n’ont pas pu être mises en ligne." };
+
+    const { error: structureError } = await supabase
+      .from("pages")
+      .update({
+        slug: update.slug,
+        navigation_position: update.navigation_position,
+        parent_id: update.parent_id,
+        updated_by: profile.id,
+      })
+      .eq("id", identity.data.pageId);
+    if (structureError) return { formError: "Le contenu est en ligne, mais l’adresse ou la position n’a pas pu être modifiée." };
+
+    revalidatePagePaths(update.slug, existing.slug);
+    return { success: "Modifications en ligne." };
+  }
   const { error } = await supabase
     .from("pages")
     .update({
