@@ -345,6 +345,78 @@ export type Database = {
         };
         Relationships: [];
       };
+      planning_exceptions: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          date: string;
+          description: string;
+          end_date: string | null;
+          ends_at: string | null;
+          family: string | null;
+          hidden: boolean;
+          id: string;
+          kind: string;
+          last_date: string | null;
+          leader: string;
+          reason: string;
+          slot_id: string | null;
+          starts_at: string | null;
+          title: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          date: string;
+          description?: string;
+          end_date?: string | null;
+          ends_at?: string | null;
+          family?: string | null;
+          hidden?: boolean;
+          id?: string;
+          kind: string;
+          last_date?: never;
+          leader?: string;
+          reason?: string;
+          slot_id?: string | null;
+          starts_at?: string | null;
+          title?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          date?: string;
+          description?: string;
+          end_date?: string | null;
+          ends_at?: string | null;
+          family?: string | null;
+          hidden?: boolean;
+          id?: string;
+          kind?: string;
+          last_date?: never;
+          leader?: string;
+          reason?: string;
+          slot_id?: string | null;
+          starts_at?: string | null;
+          title?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "planning_exceptions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "planning_exceptions_slot_id_fkey";
+            columns: ["slot_id"];
+            isOneToOne: false;
+            referencedRelation: "planning_slots";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       planning_settings: {
         Row: {
           effective_from: string;
@@ -374,7 +446,9 @@ export type Database = {
           family: string;
           id: string;
           leader: string;
+          month_weeks: number[];
           note: string;
+          recurrence: string;
           starts_at: string;
           title: string;
           updated_at: string;
@@ -386,7 +460,9 @@ export type Database = {
           family: string;
           id?: string;
           leader?: string;
+          month_weeks?: number[];
           note?: string;
+          recurrence?: string;
           starts_at: string;
           title: string;
           updated_at?: string;
@@ -398,7 +474,9 @@ export type Database = {
           family?: string;
           id?: string;
           leader?: string;
+          month_weeks?: number[];
           note?: string;
+          recurrence?: string;
           starts_at?: string;
           title?: string;
           updated_at?: string;
