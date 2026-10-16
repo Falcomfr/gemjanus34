@@ -191,3 +191,27 @@ Contenu (sources : pages WordPress et planning officiels) :
 
 - [ ] `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npx playwright test` : tout au vert, journaux lus.
 - [ ] Revue de code de la branche entière (superpowers:requesting-code-review), corrections, puis rapport à l'utilisateur avec les points à faire valider par l'association.
+
+---
+
+## Phase 2 : plus d'images, de chaleur, d'impact et de vie (demande du 16/10/2026)
+
+L'utilisateur a choisi les quatre axes. Seules images disponibles : celles de la médiathèque du site d'origine (peinture « expo » 2013, logo 512 px), le buste de Janus et les logos partenaires.
+
+Constraints : couleurs du logo rouge `#b9282d` et bleu `#2e3675` en accents ; aucune nouvelle dépendance ; animations en CSS seul, sous `prefers-reduced-motion: no-preference` et `@supports (animation-timeline: view())` ; chiffres uniquement tirés des sources.
+
+### Task 10: Images et favicon
+- `logo-janus34-favicon.png` (logo complet 512 px) remplace `public/images/janus34-logo.png` ; `favicon-gem-janus34.png` (visages seuls) devient `src/app/icon.png` ; la peinture va dans `public/images/peinture-gem.jpg`.
+- Test : le premier écran contient l'image `peinture-gem` avec un texte alternatif descriptif.
+- Test : la section « Créer et s'exprimer » de la page Activités porte la peinture.
+
+### Task 11: Chiffres clés et citation
+- `KeyFigures()` sur l'accueil après les accès rapides : « 2006 » (création), « Lundi → samedi » (ouverture à 13 h), « 100 % » (Conseil d'Administration composé d'adhérents).
+- `Quote()` : « Rompre les solitudes, favoriser l'entraide, la solidarité et le partage entre les membres. », attribuée aux objectifs de l'association.
+- Tests : trois chiffres et leurs légendes ; la citation est un `blockquote`.
+
+### Task 12: Chaleur et vie (CSS)
+- Pictos lucide par famille d'activités (Palette, Footprints, MessagesCircle), couleur propre à chaque famille.
+- Anneaux rouge et bleu en filigrane (rappel des deux visages), soulignement jaune dessiné sous « créer des liens ».
+- Apparition au défilement, survol des cartes et des accès rapides.
+- Vérification : captures 320/768/1440, Playwright vert.
