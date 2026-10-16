@@ -30,4 +30,5 @@ test("replaces the button with the player on click", () => {
   expect(frame).toHaveAttribute("title", props.title);
   expect(frame).toHaveAttribute("allowfullscreen");
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  expect(document.activeElement).toBe(frame);
 });

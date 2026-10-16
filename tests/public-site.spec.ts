@@ -143,10 +143,10 @@ test("all public responses include every configured security header", async ({ r
     const headers = response.headers();
 
     expect(headers["content-security-policy"]).toContain("default-src 'self'");
-    expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
+    expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["x-content-type-options"]).toBe("nosniff");
-    expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
+    expect(headers["x-frame-options"]).toBe("DENY");
     expect(headers["permissions-policy"]).toBe(
       "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
     );
@@ -167,6 +167,13 @@ test("an activity of the planning opens a window with its details", async ({ pag
   expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
+});
+
+test("only the site's own PDFs can be framed, by the site itself", async ({ request }) => {
+  const headers = (await request.get("/documents/regles-de-vie.pdf")).headers();
+
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
+  expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
 });
 
 function collectCspViolations(page: import("@playwright/test").Page): string[] {
