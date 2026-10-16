@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
-  { path: "/", heading: "Janus34" },
-  { path: "/qui-sommes-nous", heading: "Qui sommes-nous ?" },
+  { path: "/", heading: "Rompre les solitudes, créer des liens" },
+  { path: "/qui-sommes-nous", heading: "Le GEM Janus34" },
   { path: "/activites", heading: "Activités" },
   { path: "/actualites", heading: "Planning et actualités" },
-  { path: "/nous-rejoindre", heading: "Nous rejoindre" },
+  { path: "/nous-rejoindre", heading: "Préparer une première visite" },
   { path: "/ressources", heading: "Ressources" },
   { path: "/contact", heading: "Contact" },
   { path: "/mentions-legales", heading: "Mentions légales" },
@@ -25,42 +25,84 @@ const legacyRedirects = [
   ["/actualites-2__trashed/conferences", "/actualites"],
 ] as const;
 
-for (const route of publicRoutes) {
-  test(`${route.path} remains usable at 320px`, async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 720 });
-    await page.goto(route.path);
+const forbiddenWording = /importé|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation/i;
 
-    await expect(page.getByRole("heading", { level: 1, name: route.heading })).toBeVisible();
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
-    );
-    expect(overflow).toBe(false);
-  });
+for (const width of [320, 768, 1440]) {
+  for (const route of publicRoutes) {
+    test(`${route.path} remains usable at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(route.path);
+
+      await expect(page.getByRole("heading", { level: 1, name: route.heading })).toBeVisible();
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      );
+      expect(overflow).toBe(false);
+      await expect(page.locator("body")).not.toContainText(forbiddenWording);
+    });
+  }
 }
 
-test("home remains usable on desktop", async ({ page }) => {
+test("understand the GEM from the home page", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { level: 1, name: "Janus34" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /voir le planning/i })).toBeVisible();
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
-  );
-  expect(overflow).toBe(false);
+  await page.getByRole("link", { name: "Découvrir Janus34" }).click();
+
+  await expect(page).toHaveURL("/qui-sommes-nous");
+  await expect(page.getByRole("heading", { level: 2, name: "Un lieu d'entraide, distinct du soin" })).toBeVisible();
 });
 
-test("mobile menu opens", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 720 });
+test("find the planning in one action and open it", async ({ page, request }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/");
+
+  await page.getByRole("navigation", { name: "Accès rapides" }).getByRole("link", { name: /le planning/i }).click();
+
+  await expect(page).toHaveURL("/actualites#planning");
+  const pdf = page.getByRole("link", { name: /consulter le planning \(pdf\)/i });
+  await expect(pdf).toBeInViewport();
+  const response = await request.get((await pdf.getAttribute("href"))!);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("application/pdf");
+});
+
+test("call the association from a phone without opening the menu", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+
+  for (const path of ["/", "/activites", "/contact"]) {
+    await page.goto(path);
+    await expect(page.locator('a[href="tel:+33467048768"]:visible').first()).toBeVisible();
+  }
+});
+
+test("prepare a visit from the mobile menu", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/");
 
   await page.getByText("Menu", { exact: true }).click();
-  await expect(page.getByRole("navigation", { name: "Navigation mobile" })).toBeVisible();
-  await expect(
-    page.getByRole("navigation", { name: "Navigation mobile" }).getByRole("link", {
-      name: "Contact",
-    }),
-  ).toBeVisible();
+  const navigation = page.getByRole("navigation", { name: "Navigation mobile" });
+  await expect(navigation.getByRole("link", { name: /04 67 04 87 68/ })).toBeVisible();
+  await navigation.getByRole("link", { name: "Première visite" }).click();
+
+  await expect(page).toHaveURL("/nous-rejoindre");
+  await expect(navigation).toBeHidden();
+  const practical = page.getByRole("region", { name: "Informations pratiques" });
+  await expect(practical).toContainText("405 rue des Grèzes");
+  await expect(practical).toContainText("Bus 11, arrêt La Martelle");
+});
+
+test("every published document is downloadable", async ({ page, request }) => {
+  for (const path of ["/qui-sommes-nous", "/ressources"]) {
+    await page.goto(path);
+    const links = await page.locator('a[href^="/documents/"]').evaluateAll((anchors) =>
+      anchors.map((anchor) => anchor.getAttribute("href")!),
+    );
+    expect(links.length).toBeGreaterThan(0);
+    for (const href of links) {
+      expect((await request.get(href)).status(), href).toBe(200);
+    }
+  }
 });
 
 for (const [source, destination] of legacyRedirects) {
