@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { contact } from "@/content/contact";
+import { sendContactAlert } from "@/lib/contact/alert-email";
 import { contactSchema, type ContactInput } from "@/lib/contact/contact-schema";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -56,6 +57,7 @@ export async function sendContactMessage(
   } catch {
     return { formError: failureMessage };
   }
+  await sendContactAlert({ kind: "message", name, email, subject, message });
 
   revalidatePath("/admin");
   revalidatePath("/admin/messages");

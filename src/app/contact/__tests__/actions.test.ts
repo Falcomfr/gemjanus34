@@ -5,7 +5,9 @@ const insert = vi.hoisted(() => vi.fn());
 const createServerClient = vi.hoisted(() => vi.fn());
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn(), updateTag: vi.fn() }));
+const sendContactAlert = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/supabase/server", () => ({ createServerClient }));
+vi.mock("@/lib/contact/alert-email", () => ({ sendContactAlert }));
 
 function form(overrides: Record<string, string> = {}) {
   const data = new FormData();
@@ -71,4 +73,26 @@ test("silently drops submissions that fill the hidden trap field", async () => {
 
   expect(insert).not.toHaveBeenCalled();
   expect(state.success).toBeDefined();
+});
+
+test("alerts the team once the message is stored", async () => {
+  insert.mockResolvedValue({ error: null });
+
+  await sendContactMessage({}, form());
+
+  expect(sendContactAlert).toHaveBeenCalledWith({
+    kind: "message",
+    name: "Camille Martin",
+    email: "camille@example.test",
+    subject: "Première visite",
+    message: "Bonjour, je voudrais venir découvrir le GEM la semaine prochaine.",
+  });
+});
+
+test("sends no alert when the message could not be stored", async () => {
+  insert.mockResolvedValue({ error: { message: "down" } });
+
+  await sendContactMessage({}, form());
+
+  expect(sendContactAlert).not.toHaveBeenCalled();
 });
