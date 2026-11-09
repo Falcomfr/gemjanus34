@@ -3957,3 +3957,49 @@ body:has(.admin-area) > .skip-link {
 .gallery-grid figcaption span {
   color: var(--muted);
 }
+
+.theme-settings__colours {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+}
+
+.theme-settings__colours input[type="color"] {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0.2rem;
+}
+
+.theme-preview {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--text);
+}
+
+.theme-preview p {
+  margin: 0;
+}
+
+.theme-preview__band {
+  padding: 0.75rem 1rem;
+  background: var(--forest);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.theme-preview__note {
+  padding: 0.75rem 1rem;
+  border-left: 0.35rem solid var(--sun);
+  background: color-mix(in srgb, var(--forest) 7%, white);
+}
+
+.theme-preview .button {
+  justify-self: start;
+  background: var(--coral);
+  color: #ffffff;
+}

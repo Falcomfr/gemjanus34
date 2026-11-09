@@ -6,9 +6,11 @@ export type SiteSettings = {
   membershipEnabled: boolean;
   helloassoUrl: string | null;
   galleryEnabled: boolean;
+  /** Stored colours as saved; themeStyle() checks them before use. */
+  theme: unknown;
 };
 
-export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false };
+export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false, theme: null };
 
 /** The stored settings, or null when they cannot be read. */
 export async function readSiteSettings(): Promise<SiteSettings | null> {
@@ -16,7 +18,7 @@ export async function readSiteSettings(): Promise<SiteSettings | null> {
     const supabase = await createServerClient();
     const { data, error } = await supabase
       .from("site_settings")
-      .select("callback_enabled, membership_enabled, helloasso_url, gallery_enabled")
+      .select("callback_enabled, membership_enabled, helloasso_url, gallery_enabled, theme")
       .single();
     if (error || !data) return null;
     return {
@@ -24,6 +26,7 @@ export async function readSiteSettings(): Promise<SiteSettings | null> {
       membershipEnabled: data.membership_enabled,
       helloassoUrl: data.helloasso_url,
       galleryEnabled: data.gallery_enabled,
+      theme: data.theme,
     };
   } catch {
     return null;

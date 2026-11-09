@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from "vitest";
-import { saveSiteSettings } from "../actions";
+import { resetTheme, saveSiteSettings, saveTheme } from "../actions";
 
 const update = vi.hoisted(() => vi.fn());
 const revalidatePath = vi.hoisted(() => vi.fn());
@@ -60,4 +60,37 @@ test("an empty address and unchecked boxes switch everything off", async () => {
   await saveSiteSettings({}, form({ helloassoUrl: "" }));
 
   expect(update).toHaveBeenCalledWith(expect.objectContaining({ callback_enabled: false, membership_enabled: false, helloasso_url: null, gallery_enabled: false }));
+});
+
+const theme = { forest: "#123456", coral: "#a83020", sun: "#f2c14e", background: "#ffffff", text: "#111111" };
+
+test("only an administrator changes the colours", async () => {
+  profile.current = { id: "u2", role: "manager" };
+
+  const state = await saveTheme({}, form(theme));
+
+  expect(update).not.toHaveBeenCalled();
+  expect(state.formError).toMatch(/administrateurs/);
+});
+
+test("refuses colours that make the site hard to read, and says which", async () => {
+  const state = await saveTheme({}, form({ ...theme, text: "#eeeeee" }));
+
+  expect(update).not.toHaveBeenCalled();
+  expect(state.formError).toMatch(/texte/i);
+});
+
+test("saves readable colours for the whole site", async () => {
+  const state = await saveTheme({}, form({ ...theme, coral: "#A83020" }));
+
+  expect(update).toHaveBeenCalledWith({ theme, updated_at: expect.any(String) });
+  expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
+  expect(state.success).toBeDefined();
+});
+
+test("goes back to the original colours", async () => {
+  const state = await resetTheme();
+
+  expect(update).toHaveBeenCalledWith({ theme: null, updated_at: expect.any(String) });
+  expect(state.success).toMatch(/origine/);
 });

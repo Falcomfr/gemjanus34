@@ -487,6 +487,7 @@ export type Database = {
           helloasso_url: string | null;
           id: boolean;
           membership_enabled: boolean;
+          theme: Json | null;
           updated_at: string;
         };
         Insert: {
@@ -495,6 +496,7 @@ export type Database = {
           helloasso_url?: string | null;
           id?: boolean;
           membership_enabled?: boolean;
+          theme?: Json | null;
           updated_at?: string;
         };
         Update: {
@@ -503,6 +505,7 @@ export type Database = {
           helloasso_url?: string | null;
           id?: boolean;
           membership_enabled?: boolean;
+          theme?: Json | null;
           updated_at?: string;
         };
         Relationships: [];

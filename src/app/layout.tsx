@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Source_Serif_4 } from "next/font/google";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { SiteFooter } from "@/components/site-footer";
+import { ThemeStyle } from "@/components/theme-style";
 import { SiteHeader } from "@/components/site-header";
 import { getExtraPages } from "@/lib/content/extra-pages";
 import { getSiteSettings, membershipHref } from "@/lib/settings/site-settings";
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="fr" className={`${body.variable} ${display.variable}`}>
       <body>
+        <ThemeStyle theme={settings.theme} />
         <a className="skip-link" href="#contenu">Aller au contenu</a>
         <SiteHeader />
         <main id="contenu">{children}</main>

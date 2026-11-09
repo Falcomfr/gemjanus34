@@ -12,7 +12,7 @@ beforeEach(() => {
 
 test("reads the switches of the site", async () => {
   single.mockResolvedValue({
-    data: { callback_enabled: false, membership_enabled: true, helloasso_url: "https://www.helloasso.com/associations/janus34", gallery_enabled: true },
+    data: { callback_enabled: false, membership_enabled: true, helloasso_url: "https://www.helloasso.com/associations/janus34", gallery_enabled: true, theme: { forest: "#123456" } },
     error: null,
   });
 
@@ -21,6 +21,7 @@ test("reads the switches of the site", async () => {
     membershipEnabled: true,
     helloassoUrl: "https://www.helloasso.com/associations/janus34",
     galleryEnabled: true,
+    theme: { forest: "#123456" },
   });
 });
 
@@ -33,7 +34,7 @@ test("falls back to the defaults when the settings cannot be read", async () => 
 });
 
 test("defaults keep the call-me-back form on, the membership link and the gallery off", () => {
-  expect(defaultSiteSettings).toEqual({ callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false });
+  expect(defaultSiteSettings).toEqual({ callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false, theme: null });
 });
 
 test("shows the membership link only when it is switched on and has an address", () => {

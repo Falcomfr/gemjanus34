@@ -4,7 +4,7 @@ import AdminSettingsPage from "../page";
 
 const single = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/auth/require-profile", () => ({ requireProfile: vi.fn(async () => ({ id: "u1", role: "admin" })) }));
-vi.mock("@/app/admin/reglages/actions", () => ({ saveSiteSettings: vi.fn() }));
+vi.mock("@/app/admin/reglages/actions", () => ({ saveSiteSettings: vi.fn(), saveTheme: vi.fn(), resetTheme: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({ from: () => ({ select: () => ({ single }) }) })),
 }));
@@ -16,6 +16,8 @@ test("shows the stored settings in the form", async () => {
 
   expect(screen.getByLabelText(/rappelez-moi/i)).not.toBeChecked();
   expect(screen.getByLabelText(/afficher la galerie/i)).toBeChecked();
+  expect(screen.getByRole("heading", { name: "Couleurs du site" })).toBeInTheDocument();
+  expect(screen.getByLabelText(/vert principal/i)).toHaveValue("#174f43");
   expect(screen.getByLabelText(/adresse de la page helloasso/i)).toHaveValue("https://www.helloasso.com/associations/janus34");
 });
 
