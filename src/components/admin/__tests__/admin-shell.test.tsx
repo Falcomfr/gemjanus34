@@ -69,6 +69,7 @@ test("links every administration section to an existing page", () => {
     "Pages",
     "Actualités",
     "Planning",
+    "Lettre",
     "Documents",
     "Galerie",
     "Messages",

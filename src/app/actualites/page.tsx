@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
 import { WeekPlanning } from "@/components/planning/week-planning";
@@ -34,6 +35,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps = {}) {
           <p>
             Le planning de la semaine, les prochains rendez-vous et les dernières informations de
             Janus34.
+          </p>
+          <p>
+            <Link className="text-link" href="/lettre">Lire ou imprimer la lettre de la semaine</Link>
           </p>
         </div>
       </header>

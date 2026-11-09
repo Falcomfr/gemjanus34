@@ -32,3 +32,8 @@ test("shows the week asked for and links to the weeks around it", async () => {
   expect(screen.getByRole("link", { name: /semaine suivante/i })).toHaveAttribute("href", `/actualites?semaine=${addDays(next, 7)}#planning`);
   expect(screen.getByRole("link", { name: /semaine précédente/i })).toBeInTheDocument();
 });
+
+test("links to the printable letter of the week", async () => {
+  render(await NewsPage());
+  expect(screen.getByRole("link", { name: /lettre de la semaine/i })).toHaveAttribute("href", "/lettre");
+});

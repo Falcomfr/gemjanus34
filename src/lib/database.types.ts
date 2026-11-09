@@ -480,6 +480,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      weekly_letter: {
+        Row: { id: boolean; note: string; updated_at: string; updated_by: string | null };
+        Insert: { id?: boolean; note?: string; updated_at?: string; updated_by?: string | null };
+        Update: { id?: boolean; note?: string; updated_at?: string; updated_by?: string | null };
+        Relationships: [];
+      };
       site_settings: {
         Row: {
           callback_enabled: boolean;

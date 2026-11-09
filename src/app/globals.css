@@ -4003,3 +4003,120 @@ body:has(.admin-area) > .skip-link {
   background: var(--coral);
   color: #ffffff;
 }
+
+.letter__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding-block: 1.5rem;
+}
+
+.letter__actions p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.letter__sheet {
+  width: min(100% - 2rem, 48rem);
+  margin: 0 auto 3rem;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.letter__brand {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 0.3rem solid var(--sun);
+}
+
+.letter__brand p {
+  margin: 0;
+}
+
+.letter h1 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.letter h1 span {
+  display: block;
+  font-size: 0.55em;
+  color: var(--muted);
+}
+
+.letter section {
+  margin-top: 1.75rem;
+}
+
+.letter h2 {
+  margin: 0 0 0.5rem;
+  color: var(--forest);
+  font-size: 1.3rem;
+}
+
+.letter ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.letter li + li {
+  margin-top: 0.35rem;
+}
+
+.letter__days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  gap: 0.75rem 1.25rem;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.letter__days > li + li {
+  margin-top: 0;
+}
+
+.letter__days h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.letter__days p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.letter__footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+@page letter {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  .letter__actions {
+    display: none !important;
+  }
+
+  .letter__sheet {
+    page: letter;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 10.5pt;
+  }
+
+  .letter section {
+    break-inside: avoid;
+  }
+}
