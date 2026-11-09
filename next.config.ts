@@ -12,7 +12,7 @@ const contentSecurityPolicy = [
   "frame-ancestors 'none'",
   `frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com ${storageOrigin}`.trim(),
   "object-src 'none'",
-  "img-src 'self' data: https://i.ytimg.com",
+  `img-src 'self' data: https://i.ytimg.com ${storageOrigin}`.trim(),
   "font-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}${analytics ? " https://static.cloudflareinsights.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",

@@ -26,13 +26,14 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSiteSettings();
   return (
     <html lang="fr" className={`${body.variable} ${display.variable}`}>
       <body>
         <a className="skip-link" href="#contenu">Aller au contenu</a>
         <SiteHeader />
         <main id="contenu">{children}</main>
-        <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(await getSiteSettings())} />
+        <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} />
         <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
       </body>
     </html>

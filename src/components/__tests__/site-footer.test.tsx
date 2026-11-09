@@ -45,3 +45,12 @@ test("opens the administration with a full page load, so the public visit counte
   expect(link).toHaveAttribute("href", "/admin");
   expect(link).not.toHaveAttribute("data-client-route");
 });
+
+test("lists the gallery in the site map only when it is switched on", () => {
+  const { unmount } = render(<SiteFooter />);
+  expect(screen.queryByRole("link", { name: "Galerie" })).not.toBeInTheDocument();
+  unmount();
+
+  render(<SiteFooter galleryEnabled />);
+  expect(screen.getByRole("link", { name: "Galerie" })).toHaveAttribute("href", "/galerie");
+});

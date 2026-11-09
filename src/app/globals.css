@@ -3893,3 +3893,35 @@ body:has(.admin-area) > .skip-link {
   display: block;
   color: var(--muted);
 }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery-grid figure {
+  margin: 0;
+}
+
+.gallery-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  background: var(--forest-soft);
+}
+
+.gallery-grid figcaption {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.6rem;
+}
+
+.gallery-grid figcaption span {
+  color: var(--muted);
+}
