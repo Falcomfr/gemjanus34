@@ -44,3 +44,21 @@ test("asks before archiving and shows only the latest result", async () => {
   expect(await screen.findByText("Actualité archivée.")).toBeInTheDocument();
   expect(screen.queryByText("Modifications en ligne.")).not.toBeInTheDocument();
 });
+
+const manager = { id: "10000000-0000-0000-0000-000000000003", displayName: "Gestion", role: "manager" as const, notifyOnPublish: false };
+const editor = { id: "10000000-0000-0000-0000-000000000002", displayName: "Elif", role: "editor" as const, notifyOnPublish: false };
+
+test("a manager archives and restores news", () => {
+  const { unmount } = render(<NewsForm mode="edit" profile={manager} news={news} />);
+  expect(screen.getByRole("button", { name: /archiver/i })).toBeInTheDocument();
+  unmount();
+
+  render(<NewsForm mode="edit" profile={manager} news={{ ...news, status: "archived" }} />);
+  expect(screen.getByRole("button", { name: /restaurer/i })).toBeInTheDocument();
+});
+
+test("an editor cannot archive news", () => {
+  render(<NewsForm mode="edit" profile={editor} news={news} />);
+
+  expect(screen.queryByRole("button", { name: /archiver/i })).not.toBeInTheDocument();
+});

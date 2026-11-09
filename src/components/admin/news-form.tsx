@@ -16,6 +16,7 @@ import type { Profile } from "@/lib/auth/require-profile";
 import type { Database } from "@/lib/database.types";
 import { RichTextEditor } from "./rich-text-editor";
 import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
+import { canManageContent } from "@/lib/auth/roles";
 
 type NewsRow = Pick<
   Database["public"]["Tables"]["news"]["Row"],
@@ -157,14 +158,14 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
             <LifecycleButton pending={pending} icon={Send} label="Publier" />
           </form>
         ) : null}
-        {news?.status === "published" && profile.role === "admin" ? (
+        {news?.status === "published" && canManageContent(profile.role) ? (
           <form action={dispatch} onSubmit={confirmFirst("Retirer cette actualité du site ?")} className="admin-lifecycle-actions">
             <input type="hidden" name="newsId" value={news.id} />
             <input type="hidden" name="intent" value="archive" />
             <LifecycleButton pending={pending} icon={Archive} label="Archiver" />
           </form>
         ) : null}
-        {news?.status === "archived" && profile.role === "admin" ? (
+        {news?.status === "archived" && canManageContent(profile.role) ? (
           <form action={dispatch} onSubmit={confirmFirst("Remettre cette actualité en ligne ?")} className="admin-lifecycle-actions">
             <input type="hidden" name="newsId" value={news.id} />
             <input type="hidden" name="intent" value="restore" />
