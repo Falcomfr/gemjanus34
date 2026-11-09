@@ -7,7 +7,7 @@ export type ContactAlert = {
   message: string;
 };
 
-type AlertEnvironment = Partial<Record<"RESEND_API_KEY" | "ALERT_FROM_EMAIL" | "CONTACT_ALERT_EMAIL" | "NEXT_PUBLIC_SITE_URL", string>>;
+type AlertEnvironment = Record<string, string | undefined>;
 
 /** E-mails the team about a new message. Never throws: the message is already stored. */
 export async function sendContactAlert(
