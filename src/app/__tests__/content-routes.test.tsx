@@ -111,3 +111,10 @@ test.each([
 
   await expect(generateMetadata()).resolves.toEqual({ title: "Titre de la page", description: "Résumé de la page" });
 });
+
+test("the privacy page covers the call-me-back form, e-mail copies, statistics and backups", async () => {
+  const privacy = await publicContentRepository.getPage("confidentialite");
+  const text = JSON.stringify(privacy);
+
+  for (const expected of ["numéro de téléphone", "Resend", "Cloudflare Web Analytics", "90 jours"]) expect(text).toContain(expected);
+});

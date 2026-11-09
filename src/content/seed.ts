@@ -301,13 +301,13 @@ export const publicPages: ReadonlyArray<PublicPage> = [
     sections: [
       {
         id: "formulaire",
-        title: "Formulaire de contact",
-        body: "Lorsque vous écrivez à l'association depuis le formulaire, Janus34 enregistre votre nom, adresse e-mail, objet et message. Ces informations servent uniquement à répondre à votre demande. Seule l'équipe de Janus34 y a accès, depuis l'espace d'administration du site.\n\nLes messages sont supprimés une fois la demande traitée, et au plus tard au bout de 3 ans.",
+        title: "Formulaires de contact et de rappel",
+        body: "Lorsque vous écrivez à l'association depuis le formulaire de contact, Janus34 enregistre votre nom, adresse e-mail, objet et message. Lorsque vous demandez à être rappelé, Janus34 enregistre votre prénom ou nom, votre numéro de téléphone et le moment où vous joindre. Ces informations servent uniquement à répondre à votre demande.\n\nSeule l'équipe de Janus34 y a accès, depuis l'espace d'administration du site. Une copie de chaque demande est aussi envoyée à la boîte e-mail de l'équipe par le service d'envoi Resend.\n\nLes messages sont supprimés une fois la demande traitée, et au plus tard au bout de 3 ans.",
       },
       {
         id: "navigation",
         title: "Navigation sur le site",
-        body: "Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Comme pour tout site web, l'hébergeur Vercel enregistre des journaux techniques (adresse IP, page demandée, date et heure) nécessaires à la sécurité et au bon fonctionnement du service.",
+        body: "Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Il compte les visites avec Cloudflare Web Analytics, un outil sans cookie qui n'enregistre rien sur votre appareil. Comme pour tout site web, l'hébergeur Vercel enregistre des journaux techniques (adresse IP, page demandée, date et heure) nécessaires à la sécurité et au bon fonctionnement du service.",
       },
       {
         id: "videos-carte",
@@ -317,7 +317,7 @@ export const publicPages: ReadonlyArray<PublicPage> = [
       {
         id: "administration",
         title: "Espace d'administration",
-        body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe, les contenus publiés et les messages reçus sont hébergés par le service Supabase.",
+        body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe, les contenus publiés et les messages reçus sont hébergés par le service Supabase.\n\nUne copie de sauvegarde du site (contenus, comptes de l'équipe et messages) est faite chaque nuit et conservée 90 jours dans un espace privé du service GitHub.",
       },
       {
         id: "droits",

@@ -1,5 +1,5 @@
 begin;
-select plan(3);
+select plan(5);
 
 select is(
   (select count(*) from public.pages
@@ -16,6 +16,15 @@ select ok(
 select ok(
   (select content::text like '%"Vidéos et carte"%' from public.pages where slug = 'confidentialite'),
   'the privacy page explains the videos and the map loaded on request'
+);
+
+select ok(
+  (select content::text like '%numéro de téléphone%' and content::text like '%Resend%' from public.pages where slug = 'confidentialite'),
+  'the privacy page covers the call-me-back form and the e-mail copy'
+);
+select ok(
+  (select content::text like '%Cloudflare Web Analytics%' and content::text like '%90 jours%' from public.pages where slug = 'confidentialite'),
+  'the privacy page covers the visit statistics and the backups'
 );
 
 select * from finish();
