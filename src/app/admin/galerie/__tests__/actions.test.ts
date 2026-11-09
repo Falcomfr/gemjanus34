@@ -66,7 +66,7 @@ test("removes the photo again when the creation cannot be listed", async () => {
   expect(state.formError).toBeDefined();
 });
 
-test("deletes the creation then its photo", async () => {
+test("erases the photo then removes the creation", async () => {
   table.selectResult.mockResolvedValue({ data: { image_path: "le-phare-x.jpg" }, error: null });
   table.deleteResult.mockResolvedValue({ error: null });
   storage.remove.mockResolvedValue({ error: null });
@@ -78,4 +78,16 @@ test("deletes the creation then its photo", async () => {
   expect(table.deleteResult).toHaveBeenCalled();
   expect(storage.remove).toHaveBeenCalledWith(["le-phare-x.jpg"]);
   expect(state.success).toBeDefined();
+});
+
+test("keeps the creation listed when its photo cannot be erased, so the deletion can be retried", async () => {
+  table.selectResult.mockResolvedValue({ data: { image_path: "le-phare-x.jpg" }, error: null });
+  storage.remove.mockResolvedValue({ error: { message: "down" } });
+  const data = new FormData();
+  data.set("itemId", "11111111-1111-4111-8111-111111111111");
+
+  const state = await galleryActions.deleteGalleryItem({}, data);
+
+  expect(table.deleteResult).not.toHaveBeenCalled();
+  expect(state.formError).toMatch(/photo/);
 });

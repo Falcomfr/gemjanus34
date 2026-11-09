@@ -72,10 +72,12 @@ export async function deleteGalleryItem(_previous: GalleryActionState, formData:
   const { data: existing, error: readError } = await supabase.from("gallery_items").select("image_path").eq("id", id.data).single();
   if (readError || !existing) return { formError: "La création demandée est introuvable." };
 
+  // The bucket is public: erase the photo first, so a withdrawn consent never leaves it online unnoticed.
+  const removal = await supabase.storage.from(BUCKET).remove([existing.image_path]);
+  if (removal.error) return { formError: "La photo n’a pas pu être effacée : la création reste en place, réessayez." };
+
   const { error } = await supabase.from("gallery_items").delete().eq("id", id.data);
-  if (error) return { formError: "La création n’a pas pu être supprimée." };
-  // The row is gone: a photo left in storage is only clutter, never shown.
-  await supabase.storage.from(BUCKET).remove([existing.image_path]);
+  if (error) return { formError: "La photo est effacée mais la création n’a pas pu être retirée de la liste : réessayez." };
 
   refreshGallery();
   return { success: "Création retirée de la galerie." };
