@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito_Sans, Source_Serif_4 } from "next/font/google";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getExtraPages } from "@/lib/content/extra-pages";
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <SiteHeader />
         <main id="contenu">{children}</main>
         <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(await getSiteSettings())} />
+        <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
       </body>
     </html>
   );

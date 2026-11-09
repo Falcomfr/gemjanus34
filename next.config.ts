@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const isDevelopment = process.env.NODE_ENV === "development";
 // Uploaded PDFs are previewed from the Supabase storage.
 const storageOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "";
+// Cookieless visit statistics, only once a Cloudflare Web Analytics token is set.
+const analytics = Boolean(process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN);
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -12,9 +14,9 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "img-src 'self' data: https://i.ytimg.com",
   "font-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}${analytics ? " https://static.cloudflareinsights.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `connect-src 'self'${isDevelopment ? " ws: http: https:" : ""}`,
+  `connect-src 'self'${isDevelopment ? " ws: http: https:" : ""}${analytics ? " https://cloudflareinsights.com" : ""}`,
 ].join("; ");
 
 const securityHeaders = [
