@@ -141,3 +141,20 @@ test("keeps the printable planning free of buttons", () => {
 
   expect(screen.queryAllByRole("button")).toHaveLength(0);
 });
+
+test("offers to add the planning to a phone or Google calendar", () => {
+  render(<WeekPlanning planning={bundledPlanning} monday="2026-10-19" calendarHost="gemjanus34.fr" />);
+
+  const subscribe = screen.getByRole("region", { name: "Ajouter le planning à mon agenda" });
+  expect(within(subscribe).getByRole("link", { name: /agenda du téléphone/i })).toHaveAttribute("href", "webcal://gemjanus34.fr/planning.ics");
+  expect(within(subscribe).getByRole("link", { name: /google agenda/i })).toHaveAttribute(
+    "href",
+    "https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fgemjanus34.fr%2Fplanning.ics",
+  );
+});
+
+test("the printed planning has no calendar links", () => {
+  render(<WeekPlanning planning={bundledPlanning} monday="2026-10-19" printable />);
+
+  expect(screen.queryByRole("region", { name: "Ajouter le planning à mon agenda" })).not.toBeInTheDocument();
+});

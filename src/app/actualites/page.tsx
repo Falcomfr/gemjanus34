@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
 import { WeekPlanning } from "@/components/planning/week-planning";
@@ -37,7 +38,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps = {}) {
         </div>
       </header>
       {planning?.slots.length ? (
-        <WeekPlanning planning={planning} monday={monday} today={parisDate(now)} navigation={navigation} />
+        <WeekPlanning planning={planning} monday={monday} today={parisDate(now)} navigation={navigation} calendarHost={(await headers()).get("host") ?? undefined} />
       ) : (
         <CurrentPlanning document={selectLatestDocument(planningDocuments)} />
       )}
