@@ -533,6 +533,7 @@ export type Database = {
       };
       is_active_editor: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_manager: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_valid_rich_content: { Args: { value: Json }; Returns: boolean };
       list_news_with_authors: {
         Args: Record<PropertyKey, never>;
@@ -567,7 +568,7 @@ export type Database = {
       };
     };
     Enums: {
-      app_role: "admin" | "editor";
+      app_role: "admin" | "editor" | "manager";
       content_status: "draft" | "published" | "archived";
     };
     CompositeTypes: {
@@ -687,7 +688,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      app_role: ["admin", "editor"],
+      app_role: ["admin", "editor", "manager"],
       content_status: ["draft", "published", "archived"],
     },
   },

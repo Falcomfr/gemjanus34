@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/require-profile";
+import { canManageContent } from "@/lib/auth/roles";
 import type { PageField } from "./page-input";
 import { FIXED_PAGE_SLUGS } from "./page-input";
 
@@ -36,6 +37,12 @@ function requireAdmin(profile: Profile): PageActionState | null {
     : { formError: "Cette action est réservée aux administrateurs." };
 }
 
+function requireContentManager(profile: Profile): PageActionState | null {
+  return canManageContent(profile.role)
+    ? null
+    : { formError: "Cette action est réservée aux administrateurs et aux gestionnaires." };
+}
+
 // Pages appear in every footer's site map, so refresh the whole site.
 function revalidatePagePaths(revalidatePath: LifecyclePageDependencies["revalidatePath"]) {
   revalidatePath("/", "layout");
@@ -52,7 +59,7 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
       if (!identity.success) {
         return { formError: "La page demandée est invalide." };
       }
-      const denied = requireAdmin(profile);
+      const denied = requireContentManager(profile);
       if (denied) return denied;
 
       const { data: page, error: readError } = await dependencies.loadPageSlug(
@@ -114,7 +121,7 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
       if (!identity.success) {
         return { formError: "La révision demandée est invalide." };
       }
-      const denied = requireAdmin(profile);
+      const denied = requireContentManager(profile);
       if (denied) return denied;
 
       const { data: revision, error: revisionError } =

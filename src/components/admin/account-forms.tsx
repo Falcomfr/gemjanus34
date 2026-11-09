@@ -51,7 +51,8 @@ function Field({ label, error, children }: { label: string; error?: string[]; ch
 function RoleSelect({ defaultValue }: { defaultValue: string }) {
   return (
     <select name="role" defaultValue={defaultValue}>
-      <option value="editor">Éditeur (contenus)</option>
+      <option value="editor">Éditeur (brouillons, planning, documents, messages)</option>
+      <option value="manager">Gestionnaire (modifie aussi les pages en ligne)</option>
       <option value="admin">Administrateur (tout, dont les comptes)</option>
     </select>
   );

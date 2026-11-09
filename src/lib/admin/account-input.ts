@@ -6,7 +6,7 @@ export const MIN_PASSWORD_LENGTH = 10;
 const accountSchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
   displayName: z.string().trim().min(2).max(100),
-  role: z.enum(["admin", "editor"]),
+  role: z.enum(["admin", "manager", "editor"]),
   active: z.boolean(),
 });
 

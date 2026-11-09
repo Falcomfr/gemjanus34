@@ -16,6 +16,7 @@ import type { Database } from "@/lib/database.types";
 import { RichTextEditor } from "./rich-text-editor";
 import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 import { FIXED_PAGE_SLUGS } from "@/lib/admin/page-input";
+import { canManageContent } from "@/lib/auth/roles";
 
 type PageRow = Pick<
   Database["public"]["Tables"]["pages"]["Row"],
@@ -103,8 +104,11 @@ export function PageForm({
   };
 
   const isAdmin = profile.role === "admin";
+  const canManage = canManageContent(profile.role);
+  // A page never published is a new page on the site: its first publication is the administrator's.
+  const canPublish = isAdmin || (canManage && revisions.some((revision) => revision.status === "published"));
   const isPublished = page?.status === "published";
-  const isEditable = mode === "create" || isAdmin || page?.status === "draft";
+  const isEditable = mode === "create" || canManage || page?.status === "draft";
   const canEditSlug = mode === "create" || isAdmin;
   const slugLocked = Boolean(page && (FIXED_PAGE_SLUGS as readonly string[]).includes(page.slug));
   const content = (page?.content as JSONContent | undefined) ?? emptyContent;
@@ -121,7 +125,7 @@ export function PageForm({
 
         {isPublished ? (
           <p className="admin-notice">
-            {isAdmin
+            {canManage
               ? "Cette page est en ligne : vos modifications seront visibles dès l’enregistrement."
               : "Cette page est en ligne : seul un administrateur peut la modifier."}
           </p>
@@ -274,16 +278,17 @@ export function PageForm({
           <section>
             <h2>Publication</h2>
             <p className={`status-badge status-badge--${page.status}`}>{page.status === "draft" ? "Brouillon" : page.status === "published" ? "Publiée" : "Archivée"}</p>
-            {isAdmin ? (
+            {canManage ? (
               <div className="admin-lifecycle-actions">
-                {page.status !== "published" ? (
+                {page.status !== "published" && canPublish ? (
                   <form action={dispatch}>
                     <input type="hidden" name="pageId" value={page.id} />
                     <input type="hidden" name="intent" value="publish" />
                     <LifecycleSubmit pending={pending} icon={Send} label="Publier" />
                   </form>
                 ) : null}
-                {page.status !== "archived" && !slugLocked ? (
+                {page.status !== "published" && !canPublish ? <p>Un administrateur publie les nouvelles pages.</p> : null}
+                {isAdmin && page.status !== "archived" && !slugLocked ? (
                   <form action={dispatch} onSubmit={confirmFirst("Retirer cette page du site ?")}>
                     <input type="hidden" name="pageId" value={page.id} />
                     <input type="hidden" name="intent" value="archive" />
@@ -308,7 +313,7 @@ export function PageForm({
                       <strong>{revision.title}</strong>
                       <time dateTime={revision.created_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "medium", timeZone: "Europe/Paris" }).format(new Date(revision.created_at))}</time>
                     </div>
-                    {isAdmin ? (
+                    {canManage ? (
                       <form action={dispatch} onSubmit={confirmFirst("Remplacer le contenu en ligne par cette révision ? La page sera publiée avec ce contenu.")}>
                         <input type="hidden" name="revisionId" value={revision.id} />
                         <input type="hidden" name="intent" value="restore" />

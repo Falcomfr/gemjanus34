@@ -38,3 +38,9 @@ test("requires a long enough new password typed twice", () => {
     data: { currentPassword: "ancien", newPassword: "un-mot-de-passe-long" },
   });
 });
+
+test("accepts the manager role", () => {
+  const result = parseAccountForm(form({ email: "gestion@gemjanus34.fr", displayName: "Gestion", role: "manager", active: "on" }));
+
+  expect(result.success && result.data.role).toBe("manager");
+});

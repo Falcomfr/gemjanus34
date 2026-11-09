@@ -73,3 +73,17 @@ test("keeps the address of a site page fixed", async () => {
   expect(rpc).not.toHaveBeenCalled();
   expect(state.fieldErrors?.slug?.[0]).toMatch(/ne peut pas changer/);
 });
+
+test("lets a manager correct a published page without touching its address", async () => {
+  profile.current = { id: "10000000-0000-0000-0000-000000000003", role: "manager" };
+  rpc.mockResolvedValue({ error: null });
+  update.mockResolvedValue({ error: null });
+  const data = form();
+  data.set("slug", "nos-activites");
+
+  const state = await updatePage({}, data);
+
+  expect(rpc).toHaveBeenCalledWith("update_published_page", expect.objectContaining({ new_title: "Activités" }));
+  expect(update).toHaveBeenCalledWith(expect.objectContaining({ slug: "activites", navigation_position: null, parent_id: null }));
+  expect(state.success).toMatch(/en ligne/);
+});

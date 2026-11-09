@@ -15,6 +15,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { logout } from "@/app/admin/connexion/actions";
 import type { Profile } from "@/lib/auth/require-profile";
+import { roleLabels } from "@/lib/auth/roles";
 
 const navigation = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
@@ -75,7 +76,7 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
             <UserRound aria-hidden="true" size={20} />
             <span>
               <strong>{profile.displayName}</strong>
-              <span>Mon compte · {profile.role === "admin" ? "Administrateur" : "Éditeur"}</span>
+              <span>Mon compte · {roleLabels[profile.role]}</span>
             </span>
           </Link>
           <form action={logout}>

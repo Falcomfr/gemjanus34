@@ -45,7 +45,7 @@ describe("page lifecycle actions", () => {
     const actions = createLifecyclePageActions(dependencies);
 
     await expect(actions.publishPage({}, formData("pageId", pageId))).resolves.toEqual({
-      formError: "Cette action est réservée aux administrateurs.",
+      formError: "Cette action est réservée aux administrateurs et aux gestionnaires.",
     });
     expect(dependencies.loadPageSlug).not.toHaveBeenCalled();
     expect(dependencies.publish).not.toHaveBeenCalled();
@@ -86,4 +86,35 @@ test("refuses to archive a site page, whose route would fall back to the origina
 
   expect(dependencies.archive).not.toHaveBeenCalled();
   expect(state.formError).toMatch(/ne peuvent pas être archivées/);
+});
+
+describe("page lifecycle actions for a manager", () => {
+  let dependencies: ReturnType<typeof createDependencies>;
+  const manager: Profile = { id: "55555555-5555-4555-8555-555555555555", displayName: "Gestion", role: "manager", notifyOnPublish: false };
+
+  beforeEach(() => {
+    dependencies = createDependencies();
+    dependencies.requireProfile.mockResolvedValue(manager);
+  });
+
+  test("lets a manager publish a page", async () => {
+    const state = await createLifecyclePageActions(dependencies).publishPage({}, formData("pageId", pageId));
+
+    expect(dependencies.publish).toHaveBeenCalledWith(pageId);
+    expect(state.success).toBeDefined();
+  });
+
+  test("lets a manager restore a revision", async () => {
+    const state = await createLifecyclePageActions(dependencies).restorePageRevision({}, formData("revisionId", revisionId));
+
+    expect(dependencies.restore).toHaveBeenCalledWith(revisionId);
+    expect(state.success).toBeDefined();
+  });
+
+  test("keeps archiving a page for administrators", async () => {
+    const state = await createLifecyclePageActions(dependencies).archivePage({}, formData("pageId", pageId));
+
+    expect(dependencies.archive).not.toHaveBeenCalled();
+    expect(state.formError).toBe("Cette action est réservée aux administrateurs.");
+  });
 });

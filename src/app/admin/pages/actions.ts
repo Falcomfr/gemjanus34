@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { canManageContent } from "@/lib/auth/roles";
 import { refreshPublicContent } from "@/lib/content/public-cache";
 import type { Json } from "@/lib/database.types";
 import {
@@ -130,8 +131,8 @@ export async function updatePage(
   if (readError || !existing) {
     return { formError: "La page demandée est introuvable." };
   }
-  if (profile.role !== "admin" && existing.status !== "draft") {
-    return { formError: "Seul un administrateur peut modifier une page en ligne ou archivée." };
+  if (!canManageContent(profile.role) && existing.status !== "draft") {
+    return { formError: "Seul un administrateur ou un gestionnaire peut modifier une page en ligne ou archivée." };
   }
 
   const update = buildPageUpdate(profile.role, parsed.data, existing);

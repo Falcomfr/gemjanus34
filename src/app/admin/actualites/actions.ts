@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { parseNewsFormData, type NewsField } from "@/lib/admin/news-input";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { canManageContent } from "@/lib/auth/roles";
 import { refreshPublicContent } from "@/lib/content/public-cache";
 import type { Json } from "@/lib/database.types";
 import { createServerClient } from "@/lib/supabase/server";
@@ -131,8 +132,8 @@ export async function archiveNews(
   formData: FormData,
 ): Promise<NewsActionState> {
   const profile = await requireProfile();
-  if (profile.role !== "admin") {
-    return { formError: "Seul un administrateur peut archiver une actualité." };
+  if (!canManageContent(profile.role)) {
+    return { formError: "Seul un administrateur ou un gestionnaire peut archiver une actualité." };
   }
   const id = newsId(formData);
   if (!id) return { formError: "L’actualité demandée est invalide." };
@@ -150,8 +151,8 @@ export async function restoreNews(
   formData: FormData,
 ): Promise<NewsActionState> {
   const profile = await requireProfile();
-  if (profile.role !== "admin") {
-    return { formError: "Seul un administrateur peut restaurer une actualité." };
+  if (!canManageContent(profile.role)) {
+    return { formError: "Seul un administrateur ou un gestionnaire peut restaurer une actualité." };
   }
   const id = newsId(formData);
   if (!id) return { formError: "L’actualité demandée est invalide." };

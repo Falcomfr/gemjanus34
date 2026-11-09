@@ -1,5 +1,6 @@
 import { MyNameForm, MyPasswordForm } from "@/components/admin/my-account-forms";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { roleLabels } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 
 export default async function MyAccountPage() {
@@ -10,7 +11,7 @@ export default async function MyAccountPage() {
   return (
     <div className="admin-pages-index">
       <header className="admin-page-header">
-        <p className="eyebrow eyebrow--dark">{profile.role === "admin" ? "Administrateur" : "Éditeur"}</p>
+        <p className="eyebrow eyebrow--dark">{roleLabels[profile.role]}</p>
         <h1>Mon compte</h1>
         <p>{data.user?.email}</p>
       </header>

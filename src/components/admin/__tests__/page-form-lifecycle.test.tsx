@@ -60,3 +60,28 @@ test("does not offer to archive a site page, which would bring back the original
 
   expect(screen.queryByRole("button", { name: "Archiver" })).not.toBeInTheDocument();
 });
+
+const manager = { id: "10000000-0000-0000-0000-000000000003", displayName: "Gestion", role: "manager" as const, notifyOnPublish: false };
+
+test("a manager corrects a published page but keeps its address and cannot archive it", () => {
+  render(<PageForm mode="edit" profile={manager} page={{ ...page, slug: "sortie-au-musee" }} parentOptions={[]} revisions={revisions} />);
+
+  expect(screen.getByLabelText("Titre")).toBeEnabled();
+  expect(screen.getByText(/est en ligne : vos modifications seront visibles/)).toBeInTheDocument();
+  expect(screen.getByLabelText("Adresse de la page")).toBeDisabled();
+  expect(screen.queryByRole("button", { name: "Archiver" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /restaurer la révision/i })).toBeInTheDocument();
+});
+
+test("a manager puts back online a page that was published before", () => {
+  render(<PageForm mode="edit" profile={manager} page={{ ...page, status: "archived" }} parentOptions={[]} revisions={revisions} />);
+
+  expect(screen.getByRole("button", { name: "Publier" })).toBeInTheDocument();
+});
+
+test("a manager leaves the first publication of a new page to an administrator", () => {
+  render(<PageForm mode="edit" profile={manager} page={{ ...page, status: "draft" }} parentOptions={[]} revisions={[]} />);
+
+  expect(screen.queryByRole("button", { name: "Publier" })).not.toBeInTheDocument();
+  expect(screen.getByText("Un administrateur publie les nouvelles pages.")).toBeInTheDocument();
+});
