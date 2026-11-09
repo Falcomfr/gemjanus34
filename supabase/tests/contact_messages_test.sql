@@ -1,5 +1,5 @@
 begin;
-select plan(10);
+select plan(14);
 
 select has_table('public', 'contact_messages', 'contact_messages table exists');
 
@@ -28,6 +28,22 @@ select throws_ok(
 select throws_ok(
   $$insert into public.contact_messages (name, email, subject, message) values ('C', 'c@e.t', 'S', 'court')$$,
   '23514', null, 'too short messages are rejected'
+);
+select lives_ok(
+  $$insert into public.contact_messages (kind, name, phone, message) values ('callback', 'Sam', '06 12 34 56 78', 'Le matin')$$,
+  'visitors ask to be called back'
+);
+select throws_ok(
+  $$insert into public.contact_messages (kind, name, phone, email, message) values ('callback', 'Sam', '06 12 34 56 78', 'sam@example.test', '')$$,
+  '23514', null, 'a call-me-back request carries no e-mail'
+);
+select throws_ok(
+  $$insert into public.contact_messages (kind, name, phone, message) values ('callback', 'Sam', 'abc', '')$$,
+  '23514', null, 'a call-me-back request needs a phone number'
+);
+select throws_ok(
+  $$insert into public.contact_messages (name, subject, message) values ('Camille', 'Sujet', 'Un message suffisamment long.')$$,
+  '23514', null, 'a message still needs an e-mail address'
 );
 reset role;
 

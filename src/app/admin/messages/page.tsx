@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { MessageActions } from "@/components/admin/message-actions";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { createServerClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ export default async function AdminMessagesPage() {
   const supabase = await createServerClient();
   const { data: messages, error } = await supabase
     .from("contact_messages")
-    .select("id, name, email, subject, message, created_at, handled_at")
+    .select("id, kind, name, email, phone, subject, message, created_at, handled_at")
     .order("created_at", { ascending: false });
 
   const unread = (messages ?? []).filter((message) => !message.handled_at).length;
@@ -25,7 +25,7 @@ export default async function AdminMessagesPage() {
         <p className="eyebrow eyebrow--dark">Contact</p>
         <h1>Messages</h1>
         <p>
-          Les demandes envoyées depuis le formulaire du site.{" "}
+          Les messages et les demandes de rappel envoyés depuis le site.{" "}
           {unread > 0 ? `${unread} à traiter.` : "Aucune demande en attente."} Pensez à supprimer
           un message une fois la demande traitée (au plus tard au bout de 3 ans).
         </p>
@@ -36,36 +36,49 @@ export default async function AdminMessagesPage() {
 
       {messages && messages.length > 0 ? (
         <ul className="admin-messages__list">
-          {messages.map((message) => (
-            <li key={message.id}>
-              <article
-                className={message.handled_at ? "admin-message" : "admin-message admin-message--new"}
-                aria-labelledby={`message-${message.id}`}
-              >
-                <header>
-                  <span className={`status-badge ${message.handled_at ? "status-badge--archived" : "status-badge--draft"}`}>
-                    {message.handled_at ? "Traité" : "Nouveau"}
-                  </span>
-                  <h2 id={`message-${message.id}`}>{message.subject}</h2>
-                  <p>
-                    {message.name} · <a href={`mailto:${message.email}`}>{message.email}</a> ·{" "}
-                    <time dateTime={message.created_at}>{dateTimeFormat.format(new Date(message.created_at))}</time>
+          {messages.map((message) => {
+            const isCallback = message.kind === "callback";
+            return (
+              <li key={message.id}>
+                <article
+                  className={message.handled_at ? "admin-message" : "admin-message admin-message--new"}
+                  aria-labelledby={`message-${message.id}`}
+                >
+                  <header>
+                    <span className={`status-badge ${message.handled_at ? "status-badge--archived" : "status-badge--draft"}`}>
+                      {message.handled_at ? "Traité" : isCallback ? "À rappeler" : "Nouveau"}
+                    </span>
+                    <h2 id={`message-${message.id}`}>{isCallback ? "Demande de rappel" : message.subject}</h2>
+                    <p>
+                      {message.name} ·{" "}
+                      {isCallback ? message.phone : <a href={`mailto:${message.email}`}>{message.email}</a>} ·{" "}
+                      <time dateTime={message.created_at}>{dateTimeFormat.format(new Date(message.created_at))}</time>
+                    </p>
+                  </header>
+                  <p className="admin-message__body">
+                    {isCallback ? `Moment préféré : ${message.message || "non précisé"}` : message.message}
                   </p>
-                </header>
-                <p className="admin-message__body">{message.message}</p>
-                <div className="admin-message__footer">
-                  <a
-                    className="button button--light admin-button--outlined"
-                    href={`mailto:${message.email}?subject=${encodeURIComponent(`Re : ${message.subject}`)}`}
-                  >
-                    <Mail aria-hidden="true" size={18} />
-                    Répondre par e-mail
-                  </a>
-                  <MessageActions id={message.id} handled={Boolean(message.handled_at)} />
-                </div>
-              </article>
-            </li>
-          ))}
+                  <div className="admin-message__footer">
+                    {isCallback ? (
+                      <a className="button button--light admin-button--outlined" href={`tel:${(message.phone ?? "").replace(/[ .]/g, "")}`}>
+                        <Phone aria-hidden="true" size={18} />
+                        Appeler
+                      </a>
+                    ) : (
+                      <a
+                        className="button button--light admin-button--outlined"
+                        href={`mailto:${message.email}?subject=${encodeURIComponent(`Re : ${message.subject}`)}`}
+                      >
+                        <Mail aria-hidden="true" size={18} />
+                        Répondre par e-mail
+                      </a>
+                    )}
+                    <MessageActions id={message.id} handled={Boolean(message.handled_at)} />
+                  </div>
+                </article>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>

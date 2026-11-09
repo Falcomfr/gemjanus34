@@ -64,33 +64,39 @@ export type Database = {
       contact_messages: {
         Row: {
           created_at: string;
-          email: string;
+          email: string | null;
           handled_at: string | null;
           handled_by: string | null;
           id: string;
+          kind: string;
           message: string;
           name: string;
-          subject: string;
+          phone: string | null;
+          subject: string | null;
         };
         Insert: {
           created_at?: string;
-          email: string;
+          email?: string | null;
           handled_at?: string | null;
           handled_by?: string | null;
           id?: string;
+          kind?: string;
           message: string;
           name: string;
-          subject: string;
+          phone?: string | null;
+          subject?: string | null;
         };
         Update: {
           created_at?: string;
-          email?: string;
+          email?: string | null;
           handled_at?: string | null;
           handled_by?: string | null;
           id?: string;
+          kind?: string;
           message?: string;
           name?: string;
-          subject?: string;
+          phone?: string | null;
+          subject?: string | null;
         };
         Relationships: [
           {

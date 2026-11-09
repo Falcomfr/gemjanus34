@@ -12,6 +12,7 @@ vi.mock("@/lib/supabase/server", () => ({
           data: [
             { id: "m1", name: "Camille", email: "camille@example.test", subject: "Première visite", message: "Bonjour, je voudrais venir.", created_at: "2026-10-16T10:00:00Z", handled_at: null },
             { id: "m2", name: "Sam", email: "sam@example.test", subject: "Adhésion", message: "Comment adhérer ?", created_at: "2026-10-10T10:00:00Z", handled_at: "2026-10-11T10:00:00Z" },
+            { id: "m3", kind: "callback", name: "Lou", email: null, subject: null, phone: "06 12 34 56 78", message: "Le matin", created_at: "2026-10-17T10:00:00Z", handled_at: null },
           ],
           error: null,
         }),
@@ -35,4 +36,14 @@ test("shows new messages with a reply link and handling actions", async () => {
   const handled = screen.getByRole("article", { name: /adhésion/i });
   expect(handled).toHaveTextContent("Traité");
   expect(within(handled).queryByRole("button", { name: /marquer comme traité/i })).not.toBeInTheDocument();
+});
+
+test("shows a call-me-back request with a call link instead of an e-mail reply", async () => {
+  render(await AdminMessagesPage());
+
+  const request = screen.getByRole("article", { name: /demande de rappel/i });
+  expect(request).toHaveTextContent("À rappeler");
+  expect(request).toHaveTextContent("Le matin");
+  expect(within(request).getByRole("link", { name: /appeler/i })).toHaveAttribute("href", "tel:0612345678");
+  expect(within(request).queryByRole("link", { name: /répondre/i })).not.toBeInTheDocument();
 });

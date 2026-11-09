@@ -903,6 +903,7 @@ h3 {
 
 .content-page__section h2,
 .document-section h2,
+.callback h2,
 .practical-info h2 {
   margin: 0;
   font-size: 1.75rem;
@@ -978,6 +979,7 @@ h3 {
 }
 
 .practical-info,
+.callback,
 .health-notice {
   margin-bottom: 2.5rem;
   padding: 1.5rem;
@@ -3372,6 +3374,7 @@ body:has(.admin-area) > .skip-link {
   }
 
   .practical-info,
+  .callback,
   .health-notice {
     margin-bottom: 3.5rem;
   }
