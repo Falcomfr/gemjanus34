@@ -1,5 +1,5 @@
 begin;
-select plan(5);
+select plan(6);
 
 select is(
   (select count(*) from public.pages
@@ -25,6 +25,11 @@ select ok(
 select ok(
   (select content::text like '%Cloudflare Web Analytics%' and content::text like '%90 jours%' from public.pages where slug = 'confidentialite'),
   'the privacy page covers the visit statistics and the backups'
+);
+
+select ok(
+  (select content::text like '%Inscriptions aux conférences%' from public.pages where slug = 'confidentialite'),
+  'the privacy page covers the conference registrations'
 );
 
 select * from finish();

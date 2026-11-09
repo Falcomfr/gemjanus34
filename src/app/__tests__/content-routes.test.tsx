@@ -116,5 +116,5 @@ test("the privacy page covers the call-me-back form, e-mail copies, statistics a
   const privacy = await publicContentRepository.getPage("confidentialite");
   const text = JSON.stringify(privacy);
 
-  for (const expected of ["numéro de téléphone", "Resend", "Cloudflare Web Analytics", "90 jours"]) expect(text).toContain(expected);
+  for (const expected of ["numéro de téléphone", "Resend", "Cloudflare Web Analytics", "90 jours", "Inscriptions aux conférences"]) expect(text).toContain(expected);
 });

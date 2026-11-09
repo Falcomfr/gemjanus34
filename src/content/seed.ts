@@ -320,6 +320,11 @@ export const publicPages: ReadonlyArray<PublicPage> = [
         body: "L'espace d'administration, réservé à l'équipe de Janus34, utilise des cookies techniques de connexion. Les comptes de l'équipe, les contenus publiés et les messages reçus sont hébergés par le service Supabase.\n\nUne copie de sauvegarde du site (contenus, comptes de l'équipe et messages) est faite chaque nuit et conservée 90 jours dans un espace privé du service GitHub.",
       },
       {
+        id: "conferences",
+        title: "Inscriptions aux conférences",
+        body: "Lorsque vous vous inscrivez à une conférence, Janus34 enregistre votre prénom ou nom, votre téléphone ou adresse e-mail et le nombre de places demandées. Seule l'équipe y a accès, pour organiser la conférence et vous prévenir en cas de changement. Les inscriptions sont supprimées avec la conférence, au plus tard 3 mois après.",
+      },
+      {
         id: "droits",
         title: "Vos droits",
         body: "Vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur les données qui vous concernent. Pour les exercer, contactez Janus34 par téléphone au 04 67 04 87 68 ou par courrier au 405 rue des Grèzes, 34070 Montpellier.\n\nSi vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la CNIL.",
