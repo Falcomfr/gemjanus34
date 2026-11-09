@@ -90,3 +90,10 @@ test("says nothing of conferences while their page is off", async () => {
   render(await LetterPage({ searchParams: Promise.resolve({}) }));
   expect(screen.queryByRole("region", { name: "Conférences à venir" })).not.toBeInTheDocument();
 });
+
+test("shows each paragraph of the note apart", async () => {
+  note.current = "Bonjour à tous.\n\nSortie vendredi.";
+  render(await LetterPage({ searchParams: Promise.resolve({}) }));
+  const region = screen.getByRole("region", { name: "Le mot de l'équipe" });
+  expect(region.querySelectorAll("p")).toHaveLength(2);
+});

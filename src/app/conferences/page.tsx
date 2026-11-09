@@ -40,18 +40,16 @@ export default async function ConferencesPage() {
         </p>
         {conference.description ? <p>{fr(conference.description)}</p> : null}
         {open ? (
-          left === 0 ? (
-            <p className="conference__seats">Complet</p>
-          ) : (
-            <>
-              {left !== null ? <p className="conference__seats">{left} {left > 1 ? "places restantes" : "place restante"}</p> : null}
-              {settings.registrationsEnabled ? (
-                <RegistrationForm conferenceId={conference.id} maxSeats={left ?? 4} />
-              ) : (
-                <p>Inscription par téléphone au <a href={contact.phoneHref}>{contact.phone}</a>.</p>
-              )}
-            </>
-          )
+          <>
+            {left ? <p className="conference__seats">{left} {left > 1 ? "places restantes" : "place restante"}</p> : null}
+            {settings.registrationsEnabled ? (
+              <RegistrationForm conferenceId={conference.id} maxSeats={left ?? 4} full={left === 0} />
+            ) : left === 0 ? (
+              <p className="conference__seats">Complet</p>
+            ) : (
+              <p>Inscription par téléphone au <a href={contact.phoneHref}>{contact.phone}</a>.</p>
+            )}
+          </>
         ) : null}
       </article>
     );

@@ -34,3 +34,14 @@ test("refuses a note over 1 500 characters", async () => {
   expect(update).not.toHaveBeenCalled();
   expect(state.formError).toMatch(/1 500/);
 });
+
+test("keeps the paragraphs sent by the browser, whose line breaks arrive as CRLF", async () => {
+  await saveLetterNote({}, form("Bonjour à tous.\r\n\r\nSortie vendredi."));
+  expect(update).toHaveBeenCalledWith(expect.objectContaining({ note: "Bonjour à tous.\n\nSortie vendredi." }));
+});
+
+test("counts a line break as one character, as the text box does", async () => {
+  // 1 502 characters as sent, 1 500 once each break counts as one.
+  const state = await saveLetterNote({}, form(`${"x".repeat(749)}\r\n\r\n${"y".repeat(749)}`));
+  expect(state.formError).toBeUndefined();
+});

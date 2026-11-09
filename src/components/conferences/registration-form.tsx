@@ -7,7 +7,8 @@ import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 
 const initialState: RegistrationActionState = {};
 
-export function RegistrationForm({ conferenceId, maxSeats }: { conferenceId: string; maxSeats: number }): JSX.Element {
+// Stays mounted when the refreshed page turns the conference full, so whoever took the last seat keeps their confirmation.
+export function RegistrationForm({ conferenceId, maxSeats, full }: { conferenceId: string; maxSeats: number; full: boolean }): JSX.Element {
   const [state, action, pending] = useActionState(registerForConference, initialState);
   const errors = state.fieldErrors ?? {};
   const field = (name: string) => `registration-${conferenceId}-${name}`;
@@ -15,6 +16,7 @@ export function RegistrationForm({ conferenceId, maxSeats }: { conferenceId: str
     errors[name] ? <p className="field__error" id={field(`${name}-error`)}>{errors[name]}</p> : null;
 
   if (state.success) return <p className="form-status form-status--success" role="status">{state.success}</p>;
+  if (full) return <p className="conference__seats">Complet</p>;
 
   return (
     <form className="contact-form registration-form" noValidate onSubmit={submitWithoutReset(action)}>
@@ -49,7 +51,7 @@ export function RegistrationForm({ conferenceId, maxSeats }: { conferenceId: str
         <label className="consent-field" htmlFor={field("consent")}>
           <input id={field("consent")} name="consent" type="checkbox" required aria-invalid={Boolean(errors.consent)} aria-describedby={errors.consent ? field("consent-error") : undefined} />
           <span>
-            J&apos;accepte que l&apos;équipe de Janus34 garde mon inscription jusqu&apos;à la conférence (voir la{" "}
+            J&apos;accepte que l&apos;équipe de Janus34 garde mon inscription jusqu&apos;à 3 mois après la conférence (voir la{" "}
             <Link href="/confidentialite">politique de confidentialité</Link>).
           </span>
         </label>

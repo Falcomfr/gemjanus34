@@ -8,7 +8,8 @@ export type LetterActionState = { success?: string; formError?: string };
 
 export async function saveLetterNote(_previous: LetterActionState, formData: FormData): Promise<LetterActionState> {
   const profile = await requireProfile();
-  const note = String(formData.get("note") ?? "").trim();
+  // Browsers send the line breaks of a text box as CRLF; store them as the text box counts them.
+  const note = String(formData.get("note") ?? "").replace(/\r\n?/g, "\n").trim();
   if (note.length > 1500) return { formError: "Le mot de l’équipe fait 1 500 caractères au plus." };
 
   const supabase = await createServerClient();

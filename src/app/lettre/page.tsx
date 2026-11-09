@@ -74,7 +74,7 @@ export default async function LetterPage({ searchParams }: LetterPageProps = {})
         {note.trim() ? (
           <section aria-labelledby="letter-note">
             <h2 id="letter-note">Le mot de l&apos;équipe</h2>
-            {note.split(/\n{2,}/).map((paragraph) => <p key={paragraph}>{fr(paragraph)}</p>)}
+            {note.split(/\n{2,}/).map((paragraph, index) => <p className="letter__note" key={index}>{fr(paragraph)}</p>)}
           </section>
         ) : null}
 
