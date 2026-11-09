@@ -152,6 +152,42 @@ export type Database = {
           },
         ];
       };
+      gallery_items: {
+        Row: {
+          author: string | null;
+          consent: boolean;
+          created_at: string;
+          created_by: string;
+          id: string;
+          image_path: string;
+          image_url: string;
+          title: string;
+          workshop: string | null;
+        };
+        Insert: {
+          author?: string | null;
+          consent: boolean;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          image_path: string;
+          image_url: string;
+          title: string;
+          workshop?: string | null;
+        };
+        Update: {
+          author?: string | null;
+          consent?: boolean;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          image_path?: string;
+          image_url?: string;
+          title?: string;
+          workshop?: string | null;
+        };
+        Relationships: [];
+      };
       news: {
         Row: {
           content: NonNullable<Json>;
@@ -447,6 +483,7 @@ export type Database = {
       site_settings: {
         Row: {
           callback_enabled: boolean;
+          gallery_enabled: boolean;
           helloasso_url: string | null;
           id: boolean;
           membership_enabled: boolean;
@@ -454,6 +491,7 @@ export type Database = {
         };
         Insert: {
           callback_enabled?: boolean;
+          gallery_enabled?: boolean;
           helloasso_url?: string | null;
           id?: boolean;
           membership_enabled?: boolean;
@@ -461,6 +499,7 @@ export type Database = {
         };
         Update: {
           callback_enabled?: boolean;
+          gallery_enabled?: boolean;
           helloasso_url?: string | null;
           id?: boolean;
           membership_enabled?: boolean;
