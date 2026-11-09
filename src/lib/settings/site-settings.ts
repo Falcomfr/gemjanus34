@@ -5,9 +5,10 @@ export type SiteSettings = {
   callbackEnabled: boolean;
   membershipEnabled: boolean;
   helloassoUrl: string | null;
+  galleryEnabled: boolean;
 };
 
-export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null };
+export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false };
 
 /** The stored settings, or null when they cannot be read. */
 export async function readSiteSettings(): Promise<SiteSettings | null> {
@@ -15,13 +16,14 @@ export async function readSiteSettings(): Promise<SiteSettings | null> {
     const supabase = await createServerClient();
     const { data, error } = await supabase
       .from("site_settings")
-      .select("callback_enabled, membership_enabled, helloasso_url")
+      .select("callback_enabled, membership_enabled, helloasso_url, gallery_enabled")
       .single();
     if (error || !data) return null;
     return {
       callbackEnabled: data.callback_enabled,
       membershipEnabled: data.membership_enabled,
       helloassoUrl: data.helloasso_url,
+      galleryEnabled: data.gallery_enabled,
     };
   } catch {
     return null;

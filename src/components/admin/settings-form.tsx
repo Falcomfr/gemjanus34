@@ -21,6 +21,13 @@ export function SettingsForm({ settings }: { settings: SiteSettings }): JSX.Elem
         </label>
       </fieldset>
       <fieldset className="admin-form-section">
+        <legend>Galerie des créations</legend>
+        <label className="admin-checkbox">
+          <input type="checkbox" name="galleryEnabled" defaultChecked={settings.galleryEnabled} />
+          Afficher la galerie sur le site
+        </label>
+      </fieldset>
+      <fieldset className="admin-form-section">
         <legend>Adhésion et dons</legend>
         <label className="admin-checkbox">
           <input type="checkbox" name="membershipEnabled" defaultChecked={settings.membershipEnabled} />

@@ -33,6 +33,7 @@ export async function saveSiteSettings(_previous: SettingsActionState, formData:
       callback_enabled: formData.get("callbackEnabled") === "on",
       membership_enabled: formData.get("membershipEnabled") === "on",
       helloasso_url: url.data || null,
+      gallery_enabled: formData.get("galleryEnabled") === "on",
       updated_at: new Date().toISOString(),
     })
     .eq("id", true);

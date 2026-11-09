@@ -42,13 +42,14 @@ test("refuses an address that is not a HelloAsso page", async () => {
 test("saves the switches and refreshes the whole site", async () => {
   const state = await saveSiteSettings(
     {},
-    form({ callbackEnabled: "on", membershipEnabled: "on", helloassoUrl: " https://www.helloasso.com/associations/janus34 " }),
+    form({ callbackEnabled: "on", membershipEnabled: "on", galleryEnabled: "on", helloassoUrl: " https://www.helloasso.com/associations/janus34 " }),
   );
 
   expect(update).toHaveBeenCalledWith({
     callback_enabled: true,
     membership_enabled: true,
     helloasso_url: "https://www.helloasso.com/associations/janus34",
+    gallery_enabled: true,
     updated_at: expect.any(String),
   });
   expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
@@ -58,5 +59,5 @@ test("saves the switches and refreshes the whole site", async () => {
 test("an empty address and unchecked boxes switch everything off", async () => {
   await saveSiteSettings({}, form({ helloassoUrl: "" }));
 
-  expect(update).toHaveBeenCalledWith(expect.objectContaining({ callback_enabled: false, membership_enabled: false, helloasso_url: null }));
+  expect(update).toHaveBeenCalledWith(expect.objectContaining({ callback_enabled: false, membership_enabled: false, helloasso_url: null, gallery_enabled: false }));
 });

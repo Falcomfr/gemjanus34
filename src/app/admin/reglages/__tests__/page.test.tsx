@@ -10,11 +10,12 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 test("shows the stored settings in the form", async () => {
-  single.mockResolvedValue({ data: { callback_enabled: false, membership_enabled: true, helloasso_url: "https://www.helloasso.com/associations/janus34" }, error: null });
+  single.mockResolvedValue({ data: { callback_enabled: false, membership_enabled: true, helloasso_url: "https://www.helloasso.com/associations/janus34", gallery_enabled: true }, error: null });
 
   render(await AdminSettingsPage());
 
   expect(screen.getByLabelText(/rappelez-moi/i)).not.toBeChecked();
+  expect(screen.getByLabelText(/afficher la galerie/i)).toBeChecked();
   expect(screen.getByLabelText(/adresse de la page helloasso/i)).toHaveValue("https://www.helloasso.com/associations/janus34");
 });
 
