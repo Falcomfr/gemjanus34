@@ -61,6 +61,18 @@ export type Database = {
           },
         ];
       };
+      conferences: {
+        Row: { capacity: number | null; created_at: string; created_by: string; description: string; id: string; place: string; speaker: string | null; starts_at: string; title: string };
+        Insert: { capacity?: number | null; created_at?: string; created_by: string; description?: string; id?: string; place: string; speaker?: string | null; starts_at: string; title: string };
+        Update: { capacity?: number | null; created_at?: string; created_by?: string; description?: string; id?: string; place?: string; speaker?: string | null; starts_at?: string; title?: string };
+        Relationships: [];
+      };
+      conference_registrations: {
+        Row: { conference_id: string; contact: string; created_at: string; id: string; name: string; seats: number };
+        Insert: { conference_id: string; contact: string; created_at?: string; id?: string; name: string; seats?: number };
+        Update: { conference_id?: string; contact?: string; created_at?: string; id?: string; name?: string; seats?: number };
+        Relationships: [];
+      };
       contact_messages: {
         Row: {
           created_at: string;
@@ -489,6 +501,8 @@ export type Database = {
       site_settings: {
         Row: {
           callback_enabled: boolean;
+          conferences_enabled: boolean;
+          registrations_enabled: boolean;
           gallery_enabled: boolean;
           helloasso_url: string | null;
           id: boolean;
@@ -498,6 +512,8 @@ export type Database = {
         };
         Insert: {
           callback_enabled?: boolean;
+          conferences_enabled?: boolean;
+          registrations_enabled?: boolean;
           gallery_enabled?: boolean;
           helloasso_url?: string | null;
           id?: boolean;
@@ -507,6 +523,8 @@ export type Database = {
         };
         Update: {
           callback_enabled?: boolean;
+          conferences_enabled?: boolean;
+          registrations_enabled?: boolean;
           gallery_enabled?: boolean;
           helloasso_url?: string | null;
           id?: boolean;
@@ -608,6 +626,14 @@ export type Database = {
       current_app_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
+      };
+      register_for_conference: {
+        Args: { conference_id: string; name: string; contact: string; seats: number };
+        Returns: string;
+      };
+      conference_seats_taken: {
+        Args: Record<PropertyKey, never>;
+        Returns: { conference_id: string; seats: number }[];
       };
       is_active_editor: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
