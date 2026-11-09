@@ -3,8 +3,9 @@ import { fixedPageMetadata } from "@/lib/content/fixed-page-metadata";
 import { ContentPage } from "@/components/content/content-page";
 import { PracticalInfo } from "@/components/content/practical-info";
 import { CallbackForm } from "@/components/contact/callback-form";
+import { MembershipLink } from "@/components/contact/membership-link";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
-import { getSiteSettings } from "@/lib/settings/site-settings";
+import { getSiteSettings, membershipHref } from "@/lib/settings/site-settings";
 
 export function generateMetadata() {
   return fixedPageMetadata("nous-rejoindre");
@@ -21,6 +22,7 @@ export default async function JoinPage() {
   return (
     <ContentPage page={page} eyebrow="Première visite">
       <PracticalInfo />
+      <MembershipLink href={membershipHref(settings)} />
       {settings.callbackEnabled ? <CallbackForm /> : null}
     </ContentPage>
   );

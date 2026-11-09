@@ -19,3 +19,12 @@ test("adds the pages created in the admin to the site map", async () => {
   expect(within(screen.getByRole("navigation", { name: "Plan du site" })).getByRole("link", { name: "Sortie au musée" }))
     .toHaveAttribute("href", "/sortie-au-musee");
 });
+
+test("shows the membership link in the footer only when there is one", () => {
+  const { unmount } = render(<SiteFooter />);
+  expect(screen.queryByRole("link", { name: /adhérer ou faire un don/i })).not.toBeInTheDocument();
+  unmount();
+
+  render(<SiteFooter membershipHref="https://www.helloasso.com/associations/janus34" />);
+  expect(screen.getByRole("link", { name: /adhérer ou faire un don/i })).toBeInTheDocument();
+});

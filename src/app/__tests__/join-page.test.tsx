@@ -28,3 +28,17 @@ test("hides the call-me-back form when it is switched off", async () => {
 
   expect(screen.queryByRole("region", { name: "Rappelez-moi" })).not.toBeInTheDocument();
 });
+
+test("shows the membership link once it is switched on with an address", async () => {
+  settings.current = { ...settings.current, membershipEnabled: true, helloassoUrl: "https://www.helloasso.com/associations/janus34" };
+
+  render(await JoinPage());
+
+  expect(screen.getByRole("link", { name: /adhérer ou faire un don/i })).toHaveAttribute("href", "https://www.helloasso.com/associations/janus34");
+});
+
+test("keeps the membership link hidden by default", async () => {
+  render(await JoinPage());
+
+  expect(screen.queryByRole("link", { name: /adhérer ou faire un don/i })).not.toBeInTheDocument();
+});

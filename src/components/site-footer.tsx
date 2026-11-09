@@ -5,6 +5,7 @@ import type { JSX } from "react";
 import { contact } from "@/content/contact";
 import { publicNavigation } from "@/content/navigation";
 import type { ExtraPage } from "@/lib/content/extra-pages";
+import { MembershipLink } from "./contact/membership-link";
 
 const partners = [
   { src: "/images/partenaires/ars-occitanie.png", alt: "Agence Régionale de Santé Occitanie", width: 231, height: 133 },
@@ -12,7 +13,7 @@ const partners = [
   { src: "/images/partenaires/fnapsy.png", alt: "FNAPSY, les usagers en santé mentale", width: 237, height: 236 },
 ] as const;
 
-export function SiteFooter({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
+export function SiteFooter({ extraPages = [], membershipHref = null }: { extraPages?: ExtraPage[]; membershipHref?: string | null }): JSX.Element {
   return (
     <footer className="site-footer">
       <section className="partners" aria-labelledby="partners-title">
@@ -31,6 +32,7 @@ export function SiteFooter({ extraPages = [] }: { extraPages?: ExtraPage[] }): J
         <div>
           <p className="site-footer__title">Janus34</p>
           <p>Groupe d&apos;Entraide Mutuelle à Montpellier, fondé en 2006.</p>
+          <MembershipLink href={membershipHref} className="button button--light" />
         </div>
 
         <address className="site-footer__contact">
