@@ -7,6 +7,7 @@ import {
   LogOut,
   Mail,
   Newspaper,
+  Settings,
   UserRound,
   Users,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const navigation = [
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
   { href: "/admin/messages", label: "Messages", icon: Mail },
   { href: "/admin/comptes", label: "Comptes", icon: Users, adminOnly: true },
+  { href: "/admin/reglages", label: "Réglages", icon: Settings, adminOnly: true },
 ];
 
 type AdminShellProps = {

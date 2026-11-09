@@ -438,6 +438,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      site_settings: {
+        Row: {
+          callback_enabled: boolean;
+          helloasso_url: string | null;
+          id: boolean;
+          membership_enabled: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          callback_enabled?: boolean;
+          helloasso_url?: string | null;
+          id?: boolean;
+          membership_enabled?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          callback_enabled?: boolean;
+          helloasso_url?: string | null;
+          id?: boolean;
+          membership_enabled?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       planning_slots: {
         Row: {
           day: number;

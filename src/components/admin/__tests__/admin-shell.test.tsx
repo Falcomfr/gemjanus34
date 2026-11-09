@@ -112,3 +112,13 @@ test("offers account management to administrators and 'Mon compte' to everyone",
   expect(screen.queryByRole("link", { name: "Comptes" })).not.toBeInTheDocument();
   expect(screen.getByRole("link", { name: /mon compte/i })).toBeInTheDocument();
 });
+
+test("shows the settings to administrators only", () => {
+  const { unmount } = render(<AdminShell pathname="/admin" profile={{ ...profile, role: "manager" }}><p /></AdminShell>);
+  expect(screen.queryByRole("link", { name: "Réglages" })).not.toBeInTheDocument();
+  expect(screen.getByText(/Gestionnaire/)).toBeInTheDocument();
+  unmount();
+
+  render(<AdminShell pathname="/admin" profile={{ ...profile, role: "admin" }}><p /></AdminShell>);
+  expect(screen.getByRole("link", { name: "Réglages" })).toHaveAttribute("href", "/admin/reglages");
+});
