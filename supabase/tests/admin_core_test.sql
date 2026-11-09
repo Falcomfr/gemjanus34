@@ -23,7 +23,7 @@ select policies_are(
 select policies_are(
   'public',
   'page_revisions',
-  array['page_revisions_admin_read']
+  array['page_revisions_manager_read']
 );
 select policies_are(
   'public',
@@ -38,8 +38,8 @@ select col_is_unique('public', 'pages', 'slug', 'page slugs are unique');
 select enum_has_labels(
   'public',
   'app_role',
-  array['admin', 'editor'],
-  'app_role has only admin and editor values'
+  array['admin', 'editor', 'manager'],
+  'app_role has admin, editor and manager values'
 );
 select enum_has_labels(
   'public',
