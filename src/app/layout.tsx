@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <a className="skip-link" href="#contenu">Aller au contenu</a>
         <SiteHeader />
         <main id="contenu">{children}</main>
-        <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} />
+        <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} conferencesEnabled={settings.conferencesEnabled} />
         <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
       </body>
     </html>

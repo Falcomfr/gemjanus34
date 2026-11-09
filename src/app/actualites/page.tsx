@@ -5,6 +5,7 @@ import { CurrentPlanning } from "@/components/home/current-planning";
 import { NewsList } from "@/components/news/news-list";
 import { WeekPlanning } from "@/components/planning/week-planning";
 import { getPublicContentRepository } from "@/lib/content/public-repository";
+import { getSiteSettings } from "@/lib/settings/site-settings";
 import { selectLatestDocument } from "@/lib/content/select-latest-document";
 import { parisDate, resolveWeek } from "@/lib/planning/week";
 
@@ -17,10 +18,11 @@ type NewsPageProps = { searchParams?: Promise<{ semaine?: string | string[] }> }
 
 export default async function NewsPage({ searchParams }: NewsPageProps = {}) {
   const publicContentRepository = getPublicContentRepository();
-  const [items, planningDocuments, planning] = await Promise.all([
+  const [items, planningDocuments, planning, settings] = await Promise.all([
     publicContentRepository.getNews(),
     publicContentRepository.getDocuments("planning"),
     publicContentRepository.getPlanning(),
+    getSiteSettings(),
   ]);
   const now = new Date().toISOString();
   const requested = (await searchParams)?.semaine;
@@ -38,6 +40,12 @@ export default async function NewsPage({ searchParams }: NewsPageProps = {}) {
           </p>
           <p>
             <Link className="text-link" href="/lettre">Lire ou imprimer la lettre de la semaine</Link>
+            {settings.conferencesEnabled ? (
+              <>
+                {" · "}
+                <Link className="text-link" href="/conferences">Le programme des conférences</Link>
+              </>
+            ) : null}
           </p>
         </div>
       </header>

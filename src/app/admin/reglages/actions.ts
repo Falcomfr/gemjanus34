@@ -35,6 +35,8 @@ export async function saveSiteSettings(_previous: SettingsActionState, formData:
       membership_enabled: formData.get("membershipEnabled") === "on",
       helloasso_url: url.data || null,
       gallery_enabled: formData.get("galleryEnabled") === "on",
+      conferences_enabled: formData.get("conferencesEnabled") === "on",
+      registrations_enabled: formData.get("registrationsEnabled") === "on",
       updated_at: new Date().toISOString(),
     })
     .eq("id", true);

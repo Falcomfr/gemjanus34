@@ -28,6 +28,17 @@ export function SettingsForm({ settings }: { settings: SiteSettings }): JSX.Elem
         </label>
       </fieldset>
       <fieldset className="admin-form-section">
+        <legend>Conférences</legend>
+        <label className="admin-checkbox">
+          <input type="checkbox" name="conferencesEnabled" defaultChecked={settings.conferencesEnabled} />
+          Afficher la page Conférences
+        </label>
+        <label className="admin-checkbox">
+          <input type="checkbox" name="registrationsEnabled" defaultChecked={settings.registrationsEnabled} />
+          Ouvrir les inscriptions en ligne
+        </label>
+      </fieldset>
+      <fieldset className="admin-form-section">
         <legend>Adhésion et dons</legend>
         <label className="admin-checkbox">
           <input type="checkbox" name="membershipEnabled" defaultChecked={settings.membershipEnabled} />

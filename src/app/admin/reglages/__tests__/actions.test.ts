@@ -42,7 +42,7 @@ test("refuses an address that is not a HelloAsso page", async () => {
 test("saves the switches and refreshes the whole site", async () => {
   const state = await saveSiteSettings(
     {},
-    form({ callbackEnabled: "on", membershipEnabled: "on", galleryEnabled: "on", helloassoUrl: " https://www.helloasso.com/associations/janus34 " }),
+    form({ callbackEnabled: "on", membershipEnabled: "on", galleryEnabled: "on", conferencesEnabled: "on", registrationsEnabled: "on", helloassoUrl: " https://www.helloasso.com/associations/janus34 " }),
   );
 
   expect(update).toHaveBeenCalledWith({
@@ -50,6 +50,8 @@ test("saves the switches and refreshes the whole site", async () => {
     membership_enabled: true,
     helloasso_url: "https://www.helloasso.com/associations/janus34",
     gallery_enabled: true,
+    conferences_enabled: true,
+    registrations_enabled: true,
     updated_at: expect.any(String),
   });
   expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
@@ -59,7 +61,7 @@ test("saves the switches and refreshes the whole site", async () => {
 test("an empty address and unchecked boxes switch everything off", async () => {
   await saveSiteSettings({}, form({ helloassoUrl: "" }));
 
-  expect(update).toHaveBeenCalledWith(expect.objectContaining({ callback_enabled: false, membership_enabled: false, helloasso_url: null, gallery_enabled: false }));
+  expect(update).toHaveBeenCalledWith(expect.objectContaining({ callback_enabled: false, membership_enabled: false, helloasso_url: null, gallery_enabled: false, conferences_enabled: false, registrations_enabled: false }));
 });
 
 const theme = { forest: "#123456", coral: "#a83020", sun: "#f2c14e", background: "#ffffff", text: "#111111" };

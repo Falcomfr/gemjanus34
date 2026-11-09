@@ -5,6 +5,8 @@ import { addDays, currentMonday, weekRangeLabel } from "@/lib/planning/week";
 import NewsPage from "../actualites/page";
 
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: "gemjanus34.fr" }) }));
+const settings = vi.hoisted(() => ({ current: { conferencesEnabled: false } }));
+vi.mock("@/lib/settings/site-settings", () => ({ getSiteSettings: vi.fn(async () => settings.current) }));
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -36,4 +38,15 @@ test("shows the week asked for and links to the weeks around it", async () => {
 test("links to the printable letter of the week", async () => {
   render(await NewsPage());
   expect(screen.getByRole("link", { name: /lettre de la semaine/i })).toHaveAttribute("href", "/lettre");
+});
+
+test("points to the conferences only once their page is switched on", async () => {
+  settings.current = { conferencesEnabled: false };
+  const { unmount } = render(await NewsPage());
+  expect(screen.queryByRole("link", { name: /conférences/i })).not.toBeInTheDocument();
+  unmount();
+
+  settings.current = { conferencesEnabled: true };
+  render(await NewsPage());
+  expect(screen.getByRole("link", { name: /conférences/i })).toHaveAttribute("href", "/conferences");
 });

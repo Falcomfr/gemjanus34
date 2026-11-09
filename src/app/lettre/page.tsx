@@ -9,6 +9,8 @@ import { getPublicContentRepository } from "@/lib/content/public-repository";
 import { groupNews } from "@/lib/content/group-news";
 import { formatPublicDateRange } from "@/lib/date/public-date";
 import { getLetterNote } from "@/lib/letter/letter-note";
+import { getSiteSettings } from "@/lib/settings/site-settings";
+import { createServerClient } from "@/lib/supabase/server";
 import { weekChanges } from "@/lib/letter/week-changes";
 import { addDays, buildWeek, dayDateLabel, resolveWeek, weekRangeLabel } from "@/lib/planning/week";
 import { fr } from "@/lib/text/french";
@@ -20,14 +22,25 @@ export const metadata: Metadata = {
 
 const UPCOMING_DAYS = 35;
 
+async function upcomingConferences(now: string) {
+  try {
+    const supabase = await createServerClient();
+    const { data } = await supabase.from("conferences").select("id, title, speaker, starts_at, place").gte("starts_at", now).order("starts_at");
+    return (data ?? []).slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 const dayTitle = (date: string, weekday: number) => `${dayNames[weekday]} ${dayDateLabel(date)}`;
 
 type LetterPageProps = { searchParams?: Promise<{ semaine?: string | string[] }> };
 
 export default async function LetterPage({ searchParams }: LetterPageProps = {}) {
   const repository = getPublicContentRepository();
-  const [planning, news, note] = await Promise.all([repository.getPlanning(), repository.getNews(), getLetterNote()]);
+  const [planning, news, note, settings] = await Promise.all([repository.getPlanning(), repository.getNews(), getLetterNote(), getSiteSettings()]);
   const now = new Date().toISOString();
+  const conferences = settings.conferencesEnabled ? await upcomingConferences(now) : [];
   const requested = (await searchParams)?.semaine;
   const { monday } = resolveWeek(typeof requested === "string" ? requested : undefined, now);
   const week = planning?.slots.length ? buildWeek(planning, monday) : null;
@@ -135,6 +148,20 @@ export default async function LetterPage({ searchParams }: LetterPageProps = {})
             <p>Rien d&apos;autre n&apos;est annoncé pour le moment.</p>
           )}
         </section>
+
+        {conferences.length ? (
+          <section aria-labelledby="letter-conferences">
+            <h2 id="letter-conferences">Conférences à venir</h2>
+            <ul>
+              {conferences.map((conference) => (
+                <li key={conference.id}>
+                  <strong>{formatPublicDateRange(conference.starts_at, null)} : {fr(conference.title)}</strong>
+                  {conference.speaker ? `, avec ${conference.speaker}` : ""} ({conference.place})
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <footer className="letter__footer">
           Pour venir ou poser une question : {contact.phone}. {contact.openingHours}

@@ -13,7 +13,7 @@ const partners = [
   { src: "/images/partenaires/fnapsy.png", alt: "FNAPSY, les usagers en santé mentale", width: 237, height: 236 },
 ] as const;
 
-export function SiteFooter({ extraPages = [], membershipHref = null, galleryEnabled = false }: { extraPages?: ExtraPage[]; membershipHref?: string | null; galleryEnabled?: boolean }): JSX.Element {
+export function SiteFooter({ extraPages = [], membershipHref = null, galleryEnabled = false, conferencesEnabled = false }: { extraPages?: ExtraPage[]; membershipHref?: string | null; galleryEnabled?: boolean; conferencesEnabled?: boolean }): JSX.Element {
   return (
     <footer className="site-footer">
       <section className="partners" aria-labelledby="partners-title">
@@ -61,6 +61,7 @@ export function SiteFooter({ extraPages = [], membershipHref = null, galleryEnab
             </Link>
           ))}
           {galleryEnabled ? <Link href="/galerie">Galerie</Link> : null}
+          {conferencesEnabled ? <Link href="/conferences">Conférences</Link> : null}
           {extraPages.map((page) => (
             <Link key={page.slug} href={`/${page.slug}`}>
               {page.title}

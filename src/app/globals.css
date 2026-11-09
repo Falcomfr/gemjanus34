@@ -4120,3 +4120,66 @@ body:has(.admin-area) > .skip-link {
     break-inside: avoid;
   }
 }
+
+.admin-conference {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.admin-conference header {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.admin-conference h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.admin-conference p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+.admin-conference__table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.admin-conference__table th,
+.admin-conference__table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.conference {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border-left: 0.35rem solid var(--sun);
+  background: var(--forest-soft);
+}
+
+.conference h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.conference__meta {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--muted);
+}
+
+.conference__seats {
+  font-weight: 700;
+}
+
+.registration-form {
+  margin-top: 1rem;
+}

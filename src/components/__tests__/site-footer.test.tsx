@@ -54,3 +54,12 @@ test("lists the gallery in the site map only when it is switched on", () => {
   render(<SiteFooter galleryEnabled />);
   expect(screen.getByRole("link", { name: "Galerie" })).toHaveAttribute("href", "/galerie");
 });
+
+test("lists the conferences in the site map only when the page is switched on", () => {
+  const { unmount } = render(<SiteFooter />);
+  expect(screen.queryByRole("link", { name: "Conférences" })).not.toBeInTheDocument();
+  unmount();
+
+  render(<SiteFooter conferencesEnabled />);
+  expect(screen.getByRole("link", { name: "Conférences" })).toHaveAttribute("href", "/conferences");
+});

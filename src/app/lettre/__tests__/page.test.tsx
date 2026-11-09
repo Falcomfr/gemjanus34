@@ -6,7 +6,19 @@ import LetterPage from "../page";
 
 const note = vi.hoisted(() => ({ current: "Bonne semaine à toutes et à tous !" }));
 vi.mock("@/lib/letter/letter-note", () => ({ getLetterNote: vi.fn(async () => note.current) }));
-vi.mock("@/lib/settings/site-settings", () => ({ getSiteSettings: vi.fn(async () => ({ conferencesEnabled: false })) }));
+const settings = vi.hoisted(() => ({ current: { conferencesEnabled: false } }));
+vi.mock("@/lib/settings/site-settings", () => ({ getSiteSettings: vi.fn(async () => settings.current) }));
+vi.mock("@/lib/supabase/server", () => ({
+  createServerClient: vi.fn(async () => ({
+    from: () => ({
+      select: () => ({
+        gte: () => ({
+          order: async () => ({ data: [{ id: "c1", title: "Le sommeil", speaker: "Dr Martin", starts_at: "2026-12-03T17:30:00Z", place: "Au GEM" }], error: null }),
+        }),
+      }),
+    }),
+  })),
+}));
 
 const slot = bundledPlanning.slots.find((candidate) => candidate.day === 2 && candidate.recurrence === "weekly")!;
 
@@ -14,6 +26,7 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-11-09T10:00:00Z"));
   note.current = "Bonne semaine à toutes et à tous !";
+  settings.current = { conferencesEnabled: false };
   vi.spyOn(publicContentRepository, "getPlanning").mockResolvedValue({
     ...bundledPlanning,
     exceptions: [
@@ -65,4 +78,15 @@ test("still shows the letter when no planning is stored", async () => {
 
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Quoi de neuf au GEM");
   expect(screen.queryByRole("region", { name: "Le planning de la semaine" })).not.toBeInTheDocument();
+});
+
+test("announces the coming conferences once their page is switched on", async () => {
+  settings.current = { conferencesEnabled: true };
+  render(await LetterPage({ searchParams: Promise.resolve({}) }));
+  expect(screen.getByRole("region", { name: "Conférences à venir" })).toHaveTextContent("Le sommeil");
+});
+
+test("says nothing of conferences while their page is off", async () => {
+  render(await LetterPage({ searchParams: Promise.resolve({}) }));
+  expect(screen.queryByRole("region", { name: "Conférences à venir" })).not.toBeInTheDocument();
 });

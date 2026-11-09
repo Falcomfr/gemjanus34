@@ -8,9 +8,11 @@ export type SiteSettings = {
   galleryEnabled: boolean;
   /** Stored colours as saved; themeStyle() checks them before use. */
   theme: unknown;
+  conferencesEnabled: boolean;
+  registrationsEnabled: boolean;
 };
 
-export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false, theme: null };
+export const defaultSiteSettings: SiteSettings = { callbackEnabled: true, membershipEnabled: false, helloassoUrl: null, galleryEnabled: false, theme: null, conferencesEnabled: false, registrationsEnabled: false };
 
 /** The stored settings, or null when they cannot be read. */
 export async function readSiteSettings(): Promise<SiteSettings | null> {
@@ -18,7 +20,7 @@ export async function readSiteSettings(): Promise<SiteSettings | null> {
     const supabase = await createServerClient();
     const { data, error } = await supabase
       .from("site_settings")
-      .select("callback_enabled, membership_enabled, helloasso_url, gallery_enabled, theme")
+      .select("callback_enabled, membership_enabled, helloasso_url, gallery_enabled, theme, conferences_enabled, registrations_enabled")
       .single();
     if (error || !data) return null;
     return {
@@ -27,6 +29,8 @@ export async function readSiteSettings(): Promise<SiteSettings | null> {
       helloassoUrl: data.helloasso_url,
       galleryEnabled: data.gallery_enabled,
       theme: data.theme,
+      conferencesEnabled: data.conferences_enabled,
+      registrationsEnabled: data.registrations_enabled,
     };
   } catch {
     return null;

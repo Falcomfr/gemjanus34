@@ -71,7 +71,15 @@ export type Database = {
         Row: { conference_id: string; contact: string; created_at: string; id: string; name: string; seats: number };
         Insert: { conference_id: string; contact: string; created_at?: string; id?: string; name: string; seats?: number };
         Update: { conference_id?: string; contact?: string; created_at?: string; id?: string; name?: string; seats?: number };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "conference_registrations_conference_id_fkey";
+            columns: ["conference_id"];
+            isOneToOne: false;
+            referencedRelation: "conferences";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       contact_messages: {
         Row: {
