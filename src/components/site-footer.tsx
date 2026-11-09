@@ -70,7 +70,9 @@ export function SiteFooter({ extraPages = [], membershipHref = null }: { extraPa
         <nav className="site-footer__links" aria-label="Informations légales">
           <Link href="/mentions-legales">Mentions légales</Link>
           <Link href="/confidentialite">Confidentialité</Link>
-          <Link href="/admin">Administration</Link>
+          {/* Full page load: the public visit counter must not follow into the admin. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/admin">Administration</a>
         </nav>
       </div>
     </footer>

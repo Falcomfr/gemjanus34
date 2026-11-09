@@ -1,5 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { vi } from "vitest";
 import { SiteFooter } from "../site-footer";
+
+// Marks the links routed on the client by next/link.
+vi.mock("next/link", () => ({
+  default: ({ children, href, ...props }: { children: ReactNode; href: string }) => (
+    <a href={href} data-client-route="" {...props}>{children}</a>
+  ),
+}));
 
 test("shows the association's partners on every page", () => {
   render(<SiteFooter />);
@@ -27,4 +36,12 @@ test("shows the membership link in the footer only when there is one", () => {
 
   render(<SiteFooter membershipHref="https://www.helloasso.com/associations/janus34" />);
   expect(screen.getByRole("link", { name: /adhérer ou faire un don/i })).toBeInTheDocument();
+});
+
+test("opens the administration with a full page load, so the public visit counter stays behind", () => {
+  render(<SiteFooter />);
+
+  const link = screen.getByRole("link", { name: "Administration" });
+  expect(link).toHaveAttribute("href", "/admin");
+  expect(link).not.toHaveAttribute("data-client-route");
 });
