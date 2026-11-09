@@ -1339,6 +1339,8 @@ body:has(.admin-area) > .skip-link {
   position: sticky;
   top: 0;
   height: 100vh;
+  /* The menu outgrew short laptop screens: let it scroll so "Déconnexion" stays reachable. */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: 1rem;
