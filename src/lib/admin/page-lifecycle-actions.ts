@@ -15,11 +15,13 @@ type MutationResult = Promise<{ error: unknown }>;
 
 type LifecyclePageDependencies = {
   requireProfile: () => Promise<Profile>;
-  loadPageSlug: (pageId: string) => QueryResult<{ slug: string }>;
+  loadPageSlug: (pageId: string) => QueryResult<{ slug: string; status: "draft" | "published" | "archived" }>;
   loadRevisionPageId: (revisionId: string) => QueryResult<{ page_id: string }>;
   publish: (pageId: string) => MutationResult;
   archive: (pageId: string, profileId: string) => MutationResult;
   restore: (revisionId: string) => MutationResult;
+  /** `count` is 0 when the database kept the page (row security). */
+  remove: (pageId: string) => Promise<{ error: unknown; count: number | null }>;
   revalidatePath: (path: string, type?: "layout" | "page") => void;
 };
 
@@ -108,6 +110,37 @@ export function createLifecyclePageActions(dependencies: LifecyclePageDependenci
 
       revalidatePagePaths(dependencies.revalidatePath);
       return { success: "Page archivée. Son contenu peut maintenant être modifié." };
+    },
+
+    async deletePage(
+      _previousState: PageActionState,
+      formData: FormData,
+    ): Promise<PageActionState> {
+      const profile = await dependencies.requireProfile();
+      const identity = pageIdSchema.safeParse({ pageId: stringValue(formData, "pageId") });
+      if (!identity.success) {
+        return { formError: "La page demandée est invalide." };
+      }
+      const denied = requireAdmin(profile);
+      if (denied) return denied;
+
+      const { data: page, error: readError } = await dependencies.loadPageSlug(
+        identity.data.pageId,
+      );
+      if (readError || !page) {
+        return { formError: "La page demandée est introuvable." };
+      }
+      if (page.status !== "archived") {
+        return { formError: "Archivez d’abord la page avant de la supprimer." };
+      }
+
+      const { error, count } = await dependencies.remove(identity.data.pageId);
+      if (error || count === 0) {
+        return { formError: "La page n’a pas pu être supprimée. Si d’autres pages l’ont pour page parente, changez d’abord leur page parente." };
+      }
+
+      revalidatePagePaths(dependencies.revalidatePath);
+      return { success: "Page supprimée définitivement." };
     },
 
     async restorePageRevision(

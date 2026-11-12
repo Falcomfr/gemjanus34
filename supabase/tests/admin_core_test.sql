@@ -18,7 +18,7 @@ select policies_are(
 select policies_are(
   'public',
   'pages',
-  array['pages_public_read', 'pages_editor_write']
+  array['pages_public_read', 'pages_editor_write', 'pages_admin_delete_archived']
 );
 select policies_are(
   'public',
@@ -592,9 +592,9 @@ select throws_like(
   '%id cannot be changed%',
   'news identifiers are immutable'
 );
-select throws_like(
-  $$delete from public.pages where slug = 'editor-page'$$,
-  '%permission denied%',
+delete from public.pages where slug = 'editor-page';
+select ok(
+  exists (select 1 from public.pages where slug = 'editor-page'),
   'editors cannot delete pages'
 );
 select throws_like(
@@ -782,10 +782,10 @@ select lives_ok(
   $$select public.publish_news('40000000-0000-0000-0000-000000000005')$$,
   'admins can publish news through the RPC'
 );
-select throws_like(
-  $$delete from public.pages where id = '20000000-0000-0000-0000-000000000002'$$,
-  '%permission denied%',
-  'admins archive rather than delete pages'
+delete from public.pages where id = '20000000-0000-0000-0000-000000000002';
+select ok(
+  exists (select 1 from public.pages where id = '20000000-0000-0000-0000-000000000002'),
+  'admins archive a page before deleting it'
 );
 select throws_like(
   $$delete from public.news where id = '40000000-0000-0000-0000-000000000001'$$,

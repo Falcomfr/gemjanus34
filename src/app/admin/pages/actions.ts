@@ -42,7 +42,7 @@ function createLifecycleDependencies() {
     revalidatePath: () => refreshPublicContent(),
     loadPageSlug: async (pageId: string) => {
       const supabase = await getClient();
-      return supabase.from("pages").select("slug").eq("id", pageId).single();
+      return supabase.from("pages").select("slug, status").eq("id", pageId).single();
     },
     loadRevisionPageId: async (revisionId: string) => {
       const supabase = await getClient();
@@ -66,6 +66,10 @@ function createLifecycleDependencies() {
     restore: async (revisionId: string) => {
       const supabase = await getClient();
       return supabase.rpc("restore_page_revision", { revision_id: revisionId });
+    },
+    remove: async (pageId: string) => {
+      const supabase = await getClient();
+      return supabase.from("pages").delete({ count: "exact" }).eq("id", pageId);
     },
   };
 }
@@ -209,4 +213,17 @@ export async function restorePageRevision(
     previousState,
     formData,
   );
+}
+
+export async function deletePage(
+  previousState: PageActionState,
+  formData: FormData,
+): Promise<PageActionState> {
+  const state = await createLifecyclePageActions(createLifecycleDependencies()).deletePage(
+    previousState,
+    formData,
+  );
+  // The page no longer exists: back to the list.
+  if (state.success) redirect("/admin/pages");
+  return state;
 }

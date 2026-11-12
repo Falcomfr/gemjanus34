@@ -5,6 +5,7 @@ import { PageForm } from "../page-form";
 vi.mock("@/app/admin/pages/actions", () => ({
   archivePage: vi.fn(async () => ({ success: "Page archivée." })),
   createPage: vi.fn(async () => ({})),
+  deletePage: vi.fn(async () => ({ success: "Page supprimée définitivement." })),
   initialPageActionState: {},
   publishPage: vi.fn(async () => ({ success: "Page publiée et révision créée." })),
   restorePageRevision: vi.fn(async () => ({ success: "Révision restaurée et publiée." })),
@@ -84,4 +85,22 @@ test("a manager leaves the first publication of a new page to an administrator",
 
   expect(screen.queryByRole("button", { name: "Publier" })).not.toBeInTheDocument();
   expect(screen.getByText("Un administrateur publie les nouvelles pages.")).toBeInTheDocument();
+});
+
+test("an administrator deletes an archived page for good after confirming", async () => {
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+  render(<PageForm mode="edit" profile={admin} page={{ ...page, slug: "essai", status: "archived" }} parentOptions={[]} revisions={revisions} />);
+
+  fireEvent.submit(screen.getByRole("button", { name: "Supprimer définitivement" }).closest("form")!);
+  expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/supprimer définitivement/i));
+  expect(await screen.findByText("Page supprimée définitivement.")).toBeInTheDocument();
+});
+
+test("offers deletion only for an archived page, to an administrator", () => {
+  const { unmount } = render(<PageForm mode="edit" profile={admin} page={{ ...page, slug: "essai" }} parentOptions={[]} revisions={revisions} />);
+  expect(screen.queryByRole("button", { name: "Supprimer définitivement" })).not.toBeInTheDocument();
+  unmount();
+
+  render(<PageForm mode="edit" profile={manager} page={{ ...page, slug: "essai", status: "archived" }} parentOptions={[]} revisions={revisions} />);
+  expect(screen.queryByRole("button", { name: "Supprimer définitivement" })).not.toBeInTheDocument();
 });

@@ -1,11 +1,12 @@
 "use client";
 
 import type { JSONContent } from "@tiptap/react";
-import { Archive, History, Save, Send } from "lucide-react";
+import { Archive, History, Save, Send, Trash2 } from "lucide-react";
 import { useActionState, type FormEvent } from "react";
 import {
   archivePage,
   createPage,
+  deletePage,
   publishPage,
   restorePageRevision,
   updatePage,
@@ -94,6 +95,7 @@ export function PageForm({
       const intent = formData.get("intent");
       if (intent === "publish") return publishPage(previous, formData);
       if (intent === "archive") return archivePage(previous, formData);
+      if (intent === "delete") return deletePage(previous, formData);
       if (intent === "restore") return restorePageRevision(previous, formData);
       return (mode === "create" ? createPage : updatePage)(previous, formData);
     },
@@ -293,6 +295,13 @@ export function PageForm({
                     <input type="hidden" name="pageId" value={page.id} />
                     <input type="hidden" name="intent" value="archive" />
                     <LifecycleSubmit pending={pending} icon={Archive} label="Archiver" />
+                  </form>
+                ) : null}
+                {isAdmin && page.status === "archived" ? (
+                  <form action={dispatch} onSubmit={confirmFirst("Supprimer définitivement cette page et son historique ? Cette action est irréversible.")}>
+                    <input type="hidden" name="pageId" value={page.id} />
+                    <input type="hidden" name="intent" value="delete" />
+                    <LifecycleSubmit pending={pending} icon={Trash2} label="Supprimer définitivement" />
                   </form>
                 ) : null}
               </div>
