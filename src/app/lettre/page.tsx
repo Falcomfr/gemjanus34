@@ -103,35 +103,6 @@ export default async function LetterPage({ searchParams }: LetterPageProps = {})
           </section>
         ) : null}
 
-        {week ? (
-          <section aria-labelledby="letter-planning">
-            <h2 id="letter-planning">Le planning de la semaine</h2>
-            <ul className="letter__days">
-              {week.days.map((day) => {
-                const sessions = day.slots.filter((slot) => slot.status !== "cancelled");
-                return (
-                  <li key={day.date}>
-                    <h3>{dayTitle(day.date, day.day)}</h3>
-                    {day.closedReason !== null ? (
-                      <p>GEM fermé</p>
-                    ) : sessions.length ? (
-                      <ul>
-                        {sessions.map((slot) => (
-                          <li key={slot.id}>
-                            {formatRange(slot.startsAt, slot.endsAt)} · {slot.title}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>Accueil et temps libre</p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ) : null}
-
         <section aria-labelledby="letter-next">
           <h2 id="letter-next">À venir</h2>
           {upcoming.length ? (

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { bundledPlanning } from "@/content/planning";
 import { publicContentRepository } from "@/lib/content/local-public-content-repository";
@@ -45,7 +45,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test("puts the week's news together: note, changes, planning and what comes next", async () => {
+test("puts the week's news together: note, changes and what comes next", async () => {
   render(await LetterPage({ searchParams: Promise.resolve({ semaine: "2026-11-09" }) }));
 
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Quoi de neuf au GEM");
@@ -56,9 +56,8 @@ test("puts the week's news together: note, changes, planning and what comes next
   expect(changes).toHaveTextContent(`${slot.title} annulé`);
   expect(changes).toHaveTextContent("Animatrice absente");
 
-  const planning = screen.getByRole("region", { name: "Le planning de la semaine" });
-  expect(within(planning).queryByText("Mardi 10 novembre")).toBeInTheDocument();
-  expect(within(planning).getByText("Mardi 10 novembre").closest("li")).not.toHaveTextContent(slot.title);
+  // The association found the full weekly planning invasive: it repeated every activity, week after week.
+  expect(screen.queryByRole("region", { name: "Le planning de la semaine" })).not.toBeInTheDocument();
 
   const next = screen.getByRole("region", { name: "À venir" });
   expect(next).toHaveTextContent("Repas partagé");
