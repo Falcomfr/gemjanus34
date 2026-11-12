@@ -2606,12 +2606,17 @@ body:has(.admin-area) > .skip-link {
   opacity: 0.55;
 }
 
+/* Pages without a picture show the two faces of the logo instead of the bare rings. */
 .content-page__header::before {
-  border-color: #e0676c;
+  width: 12rem;
+  border: 0;
+  background: url("/images/janus34-visages.svg") center / contain no-repeat;
+  opacity: 1;
+  transform: none;
 }
 
 .content-page__header::after {
-  border-color: #9aa2e8;
+  content: none;
 }
 
 .content-page__header-inner {
