@@ -43,6 +43,17 @@ test("lets the team edit every part of the planning", async () => {
   expect(screen.getByRole("link", { name: /version imprimable/i })).toHaveAttribute("href", "/planning/imprimer");
 });
 
+test("folds each slot into one line, opened to edit it", async () => {
+  const { container } = render(await AdminPlanningPage());
+
+  const tuesday = screen.getByRole("region", { name: "Mardi" });
+  const line = within(tuesday).getByText("14 h 30 – 15 h 30 · Qi Gong");
+  const slot = line.closest("details")!;
+  expect(slot).not.toHaveAttribute("open");
+  expect(slot).toContainElement(within(tuesday).getByDisplayValue("Qi Gong"));
+  expect(container.querySelectorAll("details[open]")).toHaveLength(0);
+});
+
 test("lists the planned changes and offers to cancel, close or add a session", async () => {
   render(await AdminPlanningPage());
 

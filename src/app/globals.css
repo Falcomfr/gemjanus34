@@ -1747,6 +1747,24 @@ body:has(.admin-area) > .skip-link {
   margin-top: 1rem;
 }
 
+.planning-admin__slot-line {
+  margin-top: 0;
+}
+
+.planning-admin__slot-line > form {
+  margin-top: 0.5rem;
+}
+
+/* An arrow shows the line opens. */
+.planning-admin__add summary::before {
+  content: "▸";
+  margin-right: 0.5rem;
+}
+
+.planning-admin__add[open] > summary::before {
+  content: "▾";
+}
+
 .planning-admin__add summary {
   min-height: 2.75rem;
   display: inline-flex;

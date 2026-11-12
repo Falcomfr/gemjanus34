@@ -199,7 +199,7 @@ test("a slot added in the admin planning shows on the site and the printable ver
   await page.goto("/admin/planning");
   const wednesday = page.getByRole("region", { name: "Mercredi" });
   await wednesday.getByText("Ajouter un créneau le mercredi").click();
-  const addForm = wednesday.locator("details form");
+  const addForm = wednesday.locator("details.planning-admin__add:not(.planning-admin__slot-line) form");
   await addForm.getByLabel("Début").fill("16:30");
   await addForm.getByLabel("Fin").fill("17:30");
   await addForm.getByLabel("Activité").fill("Atelier E2E");
@@ -216,6 +216,7 @@ test("a slot added in the admin planning shows on the site and the printable ver
   await expect(page.getByText("Atelier E2E")).toBeVisible();
 
   await page.goto("/admin/planning");
+  await page.getByText("16 h 30 – 17 h 30 · Atelier E2E").click();
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Supprimer Atelier E2E" }).click();
   await expect(page.getByRole("button", { name: "Supprimer Atelier E2E" })).toHaveCount(0);

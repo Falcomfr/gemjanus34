@@ -6,7 +6,7 @@ import {
   PlanningSettingsForm,
   PlanningSlotForm,
 } from "@/components/admin/planning-forms";
-import { dayNames } from "@/components/planning/planning-format";
+import { dayNames, formatRange } from "@/components/planning/planning-format";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { mapPlanning } from "@/lib/content/supabase-public-content-repository";
 import { parisDate } from "@/lib/planning/week";
@@ -62,7 +62,13 @@ export default async function AdminPlanningPage() {
               <div className="planning-admin__slots">
                 {planning.slots
                   .filter((slot) => slot.day === day.day)
-                  .map((slot) => <PlanningSlotForm key={slot.id} day={day.day} slot={slot} />)}
+                  .map((slot) => (
+                    // Folded to one line: the week stays readable, one click opens the slot to edit it.
+                    <details className="planning-admin__add planning-admin__slot-line" key={slot.id}>
+                      <summary>{formatRange(slot.startsAt, slot.endsAt)} · {slot.title}</summary>
+                      <PlanningSlotForm day={day.day} slot={slot} />
+                    </details>
+                  ))}
               </div>
               <details className="planning-admin__add">
                 <summary>Ajouter un créneau le {dayNames[day.day].toLowerCase()}</summary>
