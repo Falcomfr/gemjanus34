@@ -1,15 +1,18 @@
-import type { Planning } from "@/content/types";
-import { getPublicContentRepository } from "@/lib/content/public-repository";
-import { buildPlanningCalendar } from "@/lib/planning/ics";
+// The calendar subscription was removed at the association's request. Phones that
+// subscribed still poll this address: an empty calendar clears the repeated activities.
+const emptyCalendar = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//Janus34//Planning//FR",
+  "X-WR-CALNAME:Planning Janus34",
+  "END:VCALENDAR",
+  "",
+].join("\r\n");
 
-const emptyPlanning: Planning = { effectiveFrom: "", note: "", days: [], slots: [], exceptions: [] };
-
-export async function GET(): Promise<Response> {
-  const planning = await getPublicContentRepository().getPlanning();
-  return new Response(buildPlanningCalendar(planning ?? emptyPlanning, new Date().toISOString()), {
+export function GET(): Response {
+  return new Response(emptyCalendar, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": 'inline; filename="planning-janus34.ics"',
       "Cache-Control": "public, max-age=3600",
     },
   });

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CalendarDays, CalendarPlus, Printer } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Printer } from "lucide-react";
 import Link from "next/link";
 import type { JSX } from "react";
 import type { Planning, PlanningFamily } from "@/content/types";
@@ -14,11 +14,9 @@ type WeekPlanningProps = {
   today?: string;
   navigation?: { previous?: string; next?: string };
   printable?: boolean;
-  /** Host of the site, for the calendar subscription links; none on the printed planning. */
-  calendarHost?: string;
 };
 
-export function WeekPlanning({ planning, monday, today, navigation, printable = false, calendarHost }: WeekPlanningProps): JSX.Element {
+export function WeekPlanning({ planning, monday, today, navigation, printable = false }: WeekPlanningProps): JSX.Element {
   const week = buildWeek(planning, monday);
   // Only a week other than the current one has a previous week to go back to.
   const printHref = navigation?.previous ? `/planning/imprimer?semaine=${monday}` : "/planning/imprimer";
@@ -106,29 +104,8 @@ export function WeekPlanning({ planning, monday, today, navigation, printable = 
             );
           })}
         </ol>
-
-        {calendarHost && !printable ? <CalendarSubscribe host={calendarHost} /> : null}
       </div>
     </section>
   );
 }
 
-function CalendarSubscribe({ host }: { host: string }): JSX.Element {
-  const feed = `webcal://${host}/planning.ics`;
-  return (
-    <section className="calendar-subscribe" aria-labelledby="calendar-subscribe-title">
-      <h3 id="calendar-subscribe-title">Ajouter le planning à mon agenda</h3>
-      <p>Le planning se met à jour tout seul dans votre agenda, annulations comprises.</p>
-      <p className="calendar-subscribe__links">
-        <a className="button button--dark" href={feed}>
-          <CalendarPlus aria-hidden="true" size={20} />
-          Agenda du téléphone
-        </a>
-        <a className="button button--light" href={`https://calendar.google.com/calendar/r?cid=${encodeURIComponent(feed)}`} target="_blank" rel="noopener noreferrer">
-          <CalendarPlus aria-hidden="true" size={20} />
-          Google Agenda<span className="sr-only"> (nouvel onglet)</span>
-        </a>
-      </p>
-    </section>
-  );
-}
