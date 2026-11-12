@@ -10,7 +10,7 @@ import type { PublicContentRepository } from "./public-content-repository";
 type PublicPageRow = Pick<
   Database["public"]["Tables"]["pages"]["Row"],
   "slug" | "title" | "summary" | "content"
->;
+> & { subPages?: Array<{ slug: string; title: string }> };
 
 type PublicNewsRow = Pick<
   Database["public"]["Tables"]["news"]["Row"],
@@ -79,6 +79,7 @@ function mapPage(row: PublicPageRow): PublicPage {
       sections: [],
       // Strict validation: unsupported content fails closed instead of rendering partially.
       content: parseRichContent(row.content),
+      subPages: row.subPages ?? [],
     };
   } catch (error) {
     console.error(`Unsupported public page content for slug ${row.slug}`, error);
@@ -212,9 +213,11 @@ export function createSupabasePublicQueryClient(
     async getPublishedPages(slug) {
       let query = client
         .from("pages")
-        .select("slug, title, summary, content")
+        .select("slug, title, summary, content, subPages:pages!parent_id(slug, title)")
         .eq("status", "published")
-        .order("navigation_position", { ascending: true, nullsFirst: false });
+        .eq("subPages.status", "published")
+        .order("navigation_position", { ascending: true, nullsFirst: false })
+        .order("navigation_position", { referencedTable: "subPages", ascending: true, nullsFirst: false });
       if (slug) query = query.eq("slug", slug);
       const result = await query;
       return { data: result.data, error: result.error };

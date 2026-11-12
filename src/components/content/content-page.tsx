@@ -108,6 +108,14 @@ export function ContentPage({ page, documents = [], children, eyebrow = page.eye
             </section>
           );
         })}
+        {page.subPages?.length ? (
+          <section className="content-page__section" aria-labelledby="sub-pages-title">
+            <h2 id="sub-pages-title">Dans cette rubrique</h2>
+            <div className="content-page__section-body">
+              <SectionLinks links={page.subPages.map((subPage) => ({ href: `/${subPage.slug}`, label: subPage.title }))} />
+            </div>
+          </section>
+        ) : null}
         <DocumentList documents={documents} />
       </div>
     </article>

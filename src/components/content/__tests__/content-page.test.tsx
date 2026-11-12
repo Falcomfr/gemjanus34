@@ -183,3 +183,21 @@ test("turns a paragraph holding only a video link into a player, and keeps a lin
   expect(screen.getByRole("link", { name: /cet entretien/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=5PN11L4wXKA");
   expect(screen.getAllByRole("button")).toHaveLength(1);
 });
+
+test("links to its sub-pages at the bottom of the page", () => {
+  render(
+    <ContentPage
+      page={{
+        slug: "prises-de-parole",
+        title: "Prises de parole",
+        introduction: "",
+        sections: [],
+        subPages: [{ slug: "ils-en-parlent", title: "Ils en parlent" }],
+      }}
+    />,
+  );
+
+  const region = screen.getByRole("region", { name: "Dans cette rubrique" });
+  expect(region).toContainElement(screen.getByRole("link", { name: "Ils en parlent" }));
+  expect(screen.getByRole("link", { name: "Ils en parlent" })).toHaveAttribute("href", "/ils-en-parlent");
+});

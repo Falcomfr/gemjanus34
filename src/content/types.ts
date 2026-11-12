@@ -44,6 +44,8 @@ export type PublicPage = {
   sections: PageSection[];
   // Editor content of a page stored in Supabase; rendered instead of `sections` when present.
   content?: RichContent;
+  // Published pages whose parent is this page, linked at its bottom.
+  subPages?: Array<{ slug: string; title: string }>;
 };
 
 export type PublicSiteData = {

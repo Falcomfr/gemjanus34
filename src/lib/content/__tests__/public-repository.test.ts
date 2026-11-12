@@ -88,6 +88,7 @@ describe("Supabase public content mapping", () => {
       introduction: "Résumé",
       sections: [],
       content: paragraphContent,
+      subPages: [],
     });
     await expect(repository.getNews()).resolves.toEqual([
       expect.objectContaining({ id: "news-1", status: "published", featured: true }),
@@ -111,6 +112,25 @@ describe("Supabase public content mapping", () => {
 
     await expect(repository.getPage("liste")).rejects.toThrow(/unsupported public page content/i);
     expect(errorSpy).toHaveBeenCalled();
+  });
+
+  test("keeps the published sub-pages of a page, to link them from it", async () => {
+    const repository = createSupabasePublicContentRepository(queryClient({
+      getPublishedPages: vi.fn().mockResolvedValue({
+        data: [{
+          slug: "prises-de-parole",
+          title: "Prises de parole",
+          summary: "",
+          content: { type: "doc", content: [] },
+          subPages: [{ slug: "ils-en-parlent", title: "Ils en parlent" }],
+        }],
+        error: null,
+      }),
+    }));
+
+    await expect(repository.getPage("prises-de-parole")).resolves.toMatchObject({
+      subPages: [{ slug: "ils-en-parlent", title: "Ils en parlent" }],
+    });
   });
 
   test("falls back to the bundled page when Supabase has no published row", async () => {
