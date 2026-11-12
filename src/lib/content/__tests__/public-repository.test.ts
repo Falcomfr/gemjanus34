@@ -159,11 +159,11 @@ describe("Supabase public content mapping", () => {
 
   test("lists published page links with a light query", async () => {
     const client = queryClient({
-      getPublishedPageLinks: vi.fn().mockResolvedValue({ data: [{ slug: "sortie", title: "Sortie" }], error: null }),
+      getPublishedPageLinks: vi.fn().mockResolvedValue({ data: [{ slug: "sortie", title: "Sortie", parentId: null }], error: null }),
     });
 
     await expect(createSupabasePublicContentRepository(client).getPageLinks()).resolves.toEqual([
-      { slug: "sortie", title: "Sortie" },
+      { slug: "sortie", title: "Sortie", parentId: null },
     ]);
     expect(client.getPublishedPages).not.toHaveBeenCalled();
   });

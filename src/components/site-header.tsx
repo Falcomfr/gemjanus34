@@ -3,11 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import type { JSX } from "react";
 import { contact } from "@/content/contact";
+import type { ExtraPage } from "@/lib/content/extra-pages";
 import { MobileNavigation } from "./mobile-navigation";
 import { NavigationLinks } from "./navigation-links";
 import { StickyHeader } from "./sticky-header";
 
-export function SiteHeader(): JSX.Element {
+export function SiteHeader({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
+  const menuPages = extraPages.filter((page) => page.parentId === null);
   return (
     <StickyHeader>
       <div className="site-header__inner">
@@ -17,11 +19,11 @@ export function SiteHeader(): JSX.Element {
         </Link>
 
         <nav className="desktop-navigation" aria-label="Navigation principale">
-          <NavigationLinks />
+          <NavigationLinks extraPages={menuPages} />
         </nav>
 
         <MobileNavigation>
-          <NavigationLinks />
+          <NavigationLinks extraPages={menuPages} />
           <a className="mobile-navigation__phone" href={contact.phoneHref}>
             <Phone aria-hidden="true" size={20} />
             Appeler le <span className="nowrap">{contact.phone}</span>

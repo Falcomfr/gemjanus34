@@ -3,14 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { JSX } from "react";
-import { publicNavigation } from "@/content/navigation";
+import { publicNavigation, type NavigationItem } from "@/content/navigation";
+import type { ExtraPage } from "@/lib/content/extra-pages";
 
-export function NavigationLinks(): JSX.Element {
+export function NavigationLinks({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
   const pathname = usePathname();
+  // Pages added in the admin go just before Contact, which stays last.
+  const items: NavigationItem[] = [
+    ...publicNavigation.slice(0, -1),
+    ...extraPages.map((page) => ({ href: `/${page.slug}`, label: page.title })),
+    ...publicNavigation.slice(-1),
+  ];
 
   return (
     <ul className="navigation-list">
-      {publicNavigation.map((item) => {
+      {items.map((item) => {
         const current = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
           <li key={item.href}>

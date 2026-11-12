@@ -27,15 +27,15 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const settings = await getSiteSettings();
+  const [settings, extraPages] = await Promise.all([getSiteSettings(), getExtraPages()]);
   return (
     <html lang="fr" className={`${body.variable} ${display.variable}`}>
       <body>
         <ThemeStyle theme={settings.theme} />
         <a className="skip-link" href="#contenu">Aller au contenu</a>
-        <SiteHeader />
+        <SiteHeader extraPages={extraPages} />
         <main id="contenu">{children}</main>
-        <SiteFooter extraPages={await getExtraPages()} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} conferencesEnabled={settings.conferencesEnabled} />
+        <SiteFooter extraPages={extraPages} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} conferencesEnabled={settings.conferencesEnabled} />
         <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
       </body>
     </html>

@@ -59,7 +59,7 @@ type QueryResult<T> = Promise<{ data: T[] | null; error: Error | null }>;
 export interface PublicContentQueryClient {
   getPublishedPages(slug?: string): QueryResult<PublicPageRow>;
   getPublishedNews(): QueryResult<PublicNewsRow>;
-  getPublishedPageLinks(): QueryResult<{ slug: string; title: string }>;
+  getPublishedPageLinks(): QueryResult<{ slug: string; title: string; parentId: string | null }>;
   getPlanning(): Promise<PlanningRows>;
   getDocuments(category?: DocumentCategory): QueryResult<PublicDocumentRow>;
 }
@@ -252,7 +252,7 @@ export function createSupabasePublicQueryClient(
     async getPublishedPageLinks() {
       const result = await client
         .from("pages")
-        .select("slug, title")
+        .select("slug, title, parentId:parent_id")
         .eq("status", "published")
         .order("navigation_position", { ascending: true, nullsFirst: false });
       return { data: result.data, error: result.error };

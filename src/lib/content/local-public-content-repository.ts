@@ -60,7 +60,7 @@ export const publicContentRepository: PublicContentRepository = {
   },
 
   async getPageLinks() {
-    return publicPages.map(({ slug, title }) => ({ slug, title }));
+    return publicPages.map(({ slug, title }) => ({ slug, title, parentId: null }));
   },
 
   async getPlanning() {

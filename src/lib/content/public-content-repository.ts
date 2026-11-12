@@ -10,7 +10,7 @@ import type {
 export interface PublicContentRepository {
   getSiteData(): Promise<PublicSiteData>;
   getPage(slug: string): Promise<PublicPage | null>;
-  getPageLinks(): Promise<Array<{ slug: string; title: string }>>;
+  getPageLinks(): Promise<Array<{ slug: string; title: string; parentId: string | null }>>;
   getNews(): Promise<NewsItem[]>;
   getPlanning(): Promise<Planning | null>;
   getDocuments(category?: DocumentCategory): Promise<PublicDocument[]>;

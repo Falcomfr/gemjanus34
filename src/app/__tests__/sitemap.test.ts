@@ -6,8 +6,8 @@ afterEach(() => vi.restoreAllMocks());
 
 test("lists the fixed routes and every other published page once", async () => {
   vi.spyOn(publicContentRepository, "getPageLinks").mockResolvedValue([
-    { slug: "activites", title: "Activités" },
-    { slug: "sortie-au-musee", title: "Sortie" },
+    { slug: "activites", title: "Activités", parentId: null },
+    { slug: "sortie-au-musee", title: "Sortie", parentId: null },
   ]);
 
   const urls = (await sitemap()).map((entry) => entry.url);

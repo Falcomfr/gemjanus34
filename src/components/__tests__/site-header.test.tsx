@@ -29,6 +29,33 @@ test.each([
   );
 });
 
+test.each([
+  ["desktop", "Navigation principale"],
+  ["mobile", "Navigation mobile"],
+])("adds the published pages without a parent page to the %s navigation, before Contact", (_variant, accessibleName) => {
+  render(
+    <SiteHeader
+      extraPages={[
+        { slug: "prises-de-parole", title: "Prises de parole", parentId: null },
+        { slug: "sous-page", title: "Sous-page", parentId: "11111111-1111-4111-8111-111111111111" },
+      ]}
+    />,
+  );
+  const links = within(screen.getByRole("navigation", { name: accessibleName }))
+    .getAllByRole("link")
+    .filter((link) => !link.getAttribute("href")?.startsWith("tel:"));
+
+  expect(links.map((link) => link.getAttribute("href"))).toEqual([
+    "/qui-sommes-nous",
+    "/activites",
+    "/actualites",
+    "/nous-rejoindre",
+    "/ressources",
+    "/prises-de-parole",
+    "/contact",
+  ]);
+});
+
 test("uses a neutral accessible label for the mobile menu disclosure", () => {
   const { container } = render(<SiteHeader />);
   const disclosure = container.querySelector("summary");
