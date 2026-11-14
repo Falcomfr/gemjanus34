@@ -27,7 +27,7 @@ const fieldMessages: Record<GalleryField, string> = {
 };
 
 // The file signature, not the name or the browser-reported type, says what the photo is.
-async function imageKind(file: File): Promise<ImageKind | null> {
+export async function imageKind(file: File): Promise<ImageKind | null> {
   const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
   const ascii = (from: number, to: number) => String.fromCharCode(...bytes.slice(from, to));
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return { extension: "jpg", contentType: "image/jpeg" };

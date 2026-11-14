@@ -34,9 +34,12 @@ const fieldMessages: Record<DocumentField, string> = {
 async function fileError(value: FormDataEntryValue | null): Promise<string | null> {
   if (!(value instanceof File) || value.size === 0) return fieldMessages.file;
   if (value.size > MAX_DOCUMENT_BYTES) return "Le fichier dépasse 4 Mo.";
-  // Check the PDF signature, not only the name or the browser-reported type.
-  const signature = new TextDecoder().decode(await value.slice(0, 5).arrayBuffer());
-  return signature === "%PDF-" ? null : fieldMessages.file;
+  return (await isPdf(value)) ? null : fieldMessages.file;
+}
+
+// Check the PDF signature, not only the name or the browser-reported type.
+export async function isPdf(file: File): Promise<boolean> {
+  return new TextDecoder().decode(await file.slice(0, 5).arrayBuffer()) === "%PDF-";
 }
 
 export async function parseDocumentFormData(formData: FormData): Promise<DocumentFormResult> {
