@@ -963,6 +963,26 @@ h3 {
   color: var(--muted);
 }
 
+.content-figure {
+  margin: 0 0 1.25rem;
+}
+
+.content-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.content-document {
+  margin: 0 0 1.25rem;
+}
+
+.content-document__title {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
 .content-list {
   display: grid;
   gap: 0.6rem;
