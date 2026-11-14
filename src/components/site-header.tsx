@@ -8,7 +8,7 @@ import { MobileNavigation } from "./mobile-navigation";
 import { NavigationLinks } from "./navigation-links";
 import { StickyHeader } from "./sticky-header";
 
-export function SiteHeader({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
+export function SiteHeader({ extraPages = [], galleryEnabled = false }: { extraPages?: ExtraPage[]; galleryEnabled?: boolean }): JSX.Element {
   const menuPages = extraPages.filter((page) => page.parentId === null);
   return (
     <StickyHeader>
@@ -19,11 +19,11 @@ export function SiteHeader({ extraPages = [] }: { extraPages?: ExtraPage[] }): J
         </Link>
 
         <nav className="desktop-navigation" aria-label="Navigation principale">
-          <NavigationLinks extraPages={menuPages} />
+          <NavigationLinks extraPages={menuPages} galleryEnabled={galleryEnabled} />
         </nav>
 
         <MobileNavigation>
-          <NavigationLinks extraPages={menuPages} />
+          <NavigationLinks extraPages={menuPages} galleryEnabled={galleryEnabled} />
           <a className="mobile-navigation__phone" href={contact.phoneHref}>
             <Phone aria-hidden="true" size={20} />
             Appeler le <span className="nowrap">{contact.phone}</span>

@@ -6,14 +6,13 @@ import type { JSX } from "react";
 import { publicNavigation, type NavigationItem } from "@/content/navigation";
 import type { ExtraPage } from "@/lib/content/extra-pages";
 
-export function NavigationLinks({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
+export function NavigationLinks({ extraPages = [], galleryEnabled = false }: { extraPages?: ExtraPage[]; galleryEnabled?: boolean }): JSX.Element {
   const pathname = usePathname();
-  // Pages added in the admin go just before Ressources and Contact, which stay last.
-  const items: NavigationItem[] = [
-    ...publicNavigation.slice(0, -2),
-    ...extraPages.map((page) => ({ href: `/${page.slug}`, label: page.title })),
-    ...publicNavigation.slice(-2),
-  ];
+  // Pages added in the admin go just before Ressources and Contact, which stay last;
+  // the switched-on gallery follows the first of them (the outings page).
+  const added: NavigationItem[] = extraPages.map((page) => ({ href: `/${page.slug}`, label: page.title }));
+  if (galleryEnabled) added.splice(Math.min(1, added.length), 0, { href: "/galerie", label: "Galerie" });
+  const items: NavigationItem[] = [...publicNavigation.slice(0, -2), ...added, ...publicNavigation.slice(-2)];
 
   return (
     <ul className="navigation-list">

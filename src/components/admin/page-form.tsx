@@ -222,7 +222,7 @@ export function PageForm({
         <section className="admin-form-section" aria-labelledby="page-navigation-title">
           <div className="admin-form-section__heading">
             <h2 id="page-navigation-title">Navigation</h2>
-            <p>Ces réglages sont réservés aux administrateurs. Une page publiée sans page parente apparaît dans le menu principal, avant Ressources et Contact ; avec une page parente, elle est listée en bas de celle-ci. La position fixe l’ordre.</p>
+            <p>Ces réglages sont réservés aux administrateurs. Une page publiée sans page parente apparaît dans le menu principal, avant Ressources et Contact (la Galerie, quand elle est activée, suit la première de ces pages) ; avec une page parente, elle est listée en bas de celle-ci. La position fixe l’ordre.</p>
           </div>
           {parentOptionsError ? (
             <p className="form-status form-status--error" role="alert" aria-live="assertive">

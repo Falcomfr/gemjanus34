@@ -132,3 +132,37 @@ test("becomes compact once the page scrolls, and full again at the top", () => {
   fireEvent.scroll(window);
   expect(header).not.toHaveClass("site-header--compact");
 });
+
+const menuHrefs = (accessibleName: string) =>
+  within(screen.getByRole("navigation", { name: accessibleName }))
+    .getAllByRole("link")
+    .map((link) => link.getAttribute("href"))
+    .filter((href) => !href?.startsWith("tel:"));
+
+test.each([
+  ["desktop", "Navigation principale"],
+  ["mobile", "Navigation mobile"],
+])("puts the switched-on gallery in the %s navigation right after the first added page", (_variant, accessibleName) => {
+  render(
+    <SiteHeader
+      galleryEnabled
+      extraPages={[
+        { slug: "sorties", title: "Sorties", parentId: null },
+        { slug: "ils-ont-parle", title: "Ils ont parlé", parentId: null },
+      ]}
+    />,
+  );
+  expect(menuHrefs(accessibleName)).toEqual([
+    "/qui-sommes-nous", "/activites", "/actualites", "/nous-rejoindre", "/sorties", "/galerie", "/ils-ont-parle", "/ressources", "/contact",
+  ]);
+});
+
+test("puts the switched-on gallery before Ressources when no page was added", () => {
+  render(<SiteHeader galleryEnabled />);
+  expect(menuHrefs("Navigation principale").slice(-3)).toEqual(["/galerie", "/ressources", "/contact"]);
+});
+
+test("leaves the switched-off gallery out of the menu", () => {
+  render(<SiteHeader extraPages={[{ slug: "sorties", title: "Sorties", parentId: null }]} />);
+  expect(menuHrefs("Navigation principale")).not.toContain("/galerie");
+});
