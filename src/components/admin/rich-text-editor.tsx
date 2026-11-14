@@ -13,6 +13,7 @@ import {
   stripPastedColors,
 } from "@/lib/content/rich-content-schema";
 import { EditorToolbar } from "./editor-toolbar";
+import { PageImage } from "./page-image-node";
 
 type RichTextEditorProps = {
   initialContent: JSONContent;
@@ -42,6 +43,7 @@ export function createRichTextExtensions() {
     Underline,
     TextStyle,
     Color,
+    PageImage,
   ];
 }
 

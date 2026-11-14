@@ -329,3 +329,43 @@ test("an administrator manages an account from creation to deletion", async ({ p
   await page.getByRole("article", { name }).getByRole("button", { name: "Supprimer" }).click();
   await expect(page.getByRole("article", { name })).toHaveCount(0);
 });
+
+test("a photo and a PDF inserted from the editor show on the public page", async ({ page }) => {
+  const slug = `medias-e2e-${Date.now()}`;
+  await login(page);
+  await page.goto("/admin/pages/nouveau");
+  await page.getByLabel("Titre").fill("Médias E2E");
+  await page.getByLabel("Adresse de la page").fill(slug);
+  await page.getByRole("button", { name: "Créer la page" }).click();
+  await page.waitForURL(/\/admin\/pages\/[0-9a-f-]{36}$/);
+  await page.getByRole("button", { name: "Publier" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/publiée/);
+
+  await page.locator(".tiptap").click();
+  page.once("dialog", (dialog) => dialog.accept("Une mire de couleurs"));
+  const photoChooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Insérer une photo" }).click();
+  await (await photoChooser).setFiles("tests/fixtures/photo-2400.jpg");
+  await expect(page.locator(".tiptap img[data-page-media]")).toBeVisible();
+
+  page.once("dialog", (dialog) => dialog.accept("Règles de vie"));
+  const pdfChooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Joindre un PDF" }).click();
+  await (await pdfChooser).setFiles("public/documents/compte-rendu-ag-2025.pdf");
+  await expect(page.locator(".tiptap a", { hasText: "Règles de vie" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Enregistrer et mettre en ligne" }).click();
+  await expect(page.locator(".form-status--success")).toContainText("Modifications en ligne");
+
+  await page.goto(`/${slug}`);
+  const photo = page.getByRole("img", { name: "Une mire de couleurs" });
+  await photo.scrollIntoViewIfNeeded();
+  await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(1600);
+  await expect(page.locator(".content-document__title")).toHaveText("Règles de vie");
+  await expect(page.getByText(/Afficher le document/)).toBeVisible();
+
+  await openPage(page, "Médias E2E");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archiver" }).click();
+  await expect(page.locator(".form-status--success")).toContainText(/archivée/i);
+});

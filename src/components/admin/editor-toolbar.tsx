@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   Bold,
+  FileText,
+  ImagePlus,
   Italic,
   Link2,
   List,
@@ -16,6 +18,8 @@ import {
   isSafeRichTextHref,
   richTextColors,
 } from "@/lib/content/rich-content-schema";
+import { uploadPageMedia } from "@/app/admin/page-media-actions";
+import { shrinkPhoto } from "@/lib/admin/shrink-photo";
 
 const colorLabels: Record<(typeof richTextColors)[number], string> = {
   "#202521": "Texte",
@@ -29,7 +33,10 @@ type EditorToolbarProps = {
 };
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
-  const [linkError, setLinkError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const pdfInput = useRef<HTMLInputElement>(null);
   const heading = editor.isActive("heading", { level: 2 })
     ? "2"
     : editor.isActive("heading", { level: 3 })
@@ -42,18 +49,58 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
     if (href === null) return;
     const trimmedHref = href.trim();
     if (trimmedHref === "") {
-      setLinkError(null);
+      setError(null);
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
     if (!isSafeRichTextHref(trimmedHref)) {
-      setLinkError(
+      setError(
         "L’adresse du lien doit commencer par https://, http://, mailto:, / ou #.",
       );
       return;
     }
-    setLinkError(null);
+    setError(null);
     editor.chain().focus().extendMarkRange("link").setLink({ href: trimmedHref }).run();
+  }
+
+  async function insertMedia(kind: "photo" | "pdf", event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    const answer = kind === "photo"
+      ? window.prompt("Décrivez la photo en une phrase (elle est lue aux personnes malvoyantes)")
+      : window.prompt("Titre du document affiché sur la page", file.name.replace(/\.pdf$/i, ""));
+    if (answer === null) return;
+    const text = answer.trim().slice(0, 300);
+    if (!text) {
+      setError(kind === "photo" ? "La description de la photo est obligatoire." : "Le titre du document est obligatoire.");
+      return;
+    }
+    setError(null);
+    setSending(true);
+    try {
+      const data = new FormData();
+      data.set("kind", kind);
+      data.set("file", kind === "photo" ? new File([await shrinkPhoto(file)], "photo.jpg", { type: "image/jpeg" }) : file);
+      if (kind === "pdf") data.set("title", text);
+      const result = await uploadPageMedia(data);
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+      // An empty paragraph after the photo takes the cursor; otherwise the photo stays selected and the next insertion replaces it.
+      editor.chain().focus().insertContent(
+        kind === "photo"
+          ? [{ type: "image", attrs: { src: result.url, alt: text } }, { type: "paragraph" }]
+          : { type: "paragraph", content: [{ type: "text", text, marks: [{ type: "link", attrs: { href: result.url } }] }] },
+      ).run();
+    } catch {
+      setError(kind === "photo"
+        ? "Cette photo n’a pas pu être lue ou envoyée : essayez une photo JPEG, PNG ou WebP."
+        : "Le fichier n’a pas pu être envoyé. Réessayez.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -148,6 +195,29 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         </button>
       </div>
 
+      <div className="editor-toolbar__group">
+        <button
+          type="button"
+          aria-label="Insérer une photo"
+          title="Insérer une photo"
+          disabled={sending}
+          onClick={() => photoInput.current?.click()}
+        >
+          <ImagePlus aria-hidden="true" size={18} />
+        </button>
+        <button
+          type="button"
+          aria-label="Joindre un PDF"
+          title="Joindre un PDF"
+          disabled={sending}
+          onClick={() => pdfInput.current?.click()}
+        >
+          <FileText aria-hidden="true" size={18} />
+        </button>
+        <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(event) => void insertMedia("photo", event)} />
+        <input ref={pdfInput} type="file" accept="application/pdf" hidden onChange={(event) => void insertMedia("pdf", event)} />
+      </div>
+
       <div className="editor-toolbar__colors" aria-label="Couleur du texte">
         {richTextColors.map((color) => (
           <button
@@ -162,9 +232,10 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
           />
         ))}
       </div>
-      {linkError ? (
+      {sending ? <p className="editor-toolbar__status" role="status">Envoi du fichier en cours…</p> : null}
+      {error ? (
         <p className="editor-toolbar__error" role="alert" aria-live="assertive">
-          {linkError}
+          {error}
         </p>
       ) : null}
     </div>
