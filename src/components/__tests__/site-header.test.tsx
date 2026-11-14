@@ -32,7 +32,7 @@ test.each([
 test.each([
   ["desktop", "Navigation principale"],
   ["mobile", "Navigation mobile"],
-])("adds the published pages without a parent page to the %s navigation, before Contact", (_variant, accessibleName) => {
+])("adds the published pages without a parent page to the %s navigation, before Ressources", (_variant, accessibleName) => {
   render(
     <SiteHeader
       extraPages={[
@@ -50,8 +50,8 @@ test.each([
     "/activites",
     "/actualites",
     "/nous-rejoindre",
-    "/ressources",
     "/prises-de-parole",
+    "/ressources",
     "/contact",
   ]);
 });

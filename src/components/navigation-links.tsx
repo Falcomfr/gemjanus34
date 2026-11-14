@@ -8,11 +8,11 @@ import type { ExtraPage } from "@/lib/content/extra-pages";
 
 export function NavigationLinks({ extraPages = [] }: { extraPages?: ExtraPage[] }): JSX.Element {
   const pathname = usePathname();
-  // Pages added in the admin go just before Contact, which stays last.
+  // Pages added in the admin go just before Ressources and Contact, which stay last.
   const items: NavigationItem[] = [
-    ...publicNavigation.slice(0, -1),
+    ...publicNavigation.slice(0, -2),
     ...extraPages.map((page) => ({ href: `/${page.slug}`, label: page.title })),
-    ...publicNavigation.slice(-1),
+    ...publicNavigation.slice(-2),
   ];
 
   return (

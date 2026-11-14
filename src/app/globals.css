@@ -214,6 +214,18 @@ select:focus-visible,
   color: var(--forest);
 }
 
+.desktop-navigation .navigation-list li {
+  flex: none;
+}
+
+/* Long page titles wrap on two balanced lines; short labels stay on one. */
+.desktop-navigation .navigation-link {
+  max-width: 9.5rem;
+  padding-inline: 0.55rem;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
 .navigation-link--prominent {
   margin-left: 0.4rem;
   background: var(--coral-dark);
@@ -3181,7 +3193,7 @@ body:has(.admin-area) > .skip-link {
 
 /* Public site breakpoints (mobile first). Heading sizes are fixed per breakpoint. */
 
-@media (max-width: 67.99rem) {
+@media (max-width: 74.99rem) {
   .desktop-navigation {
     display: none;
   }
