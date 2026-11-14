@@ -8,6 +8,13 @@ export function isSafeRichTextHref(value: string) {
   return safeHrefPattern.test(value);
 }
 
+// Same pattern as is_valid_rich_content in SQL: only the photos uploaded from the editor.
+const pageMediaImagePattern = /^https?:\/\/[^/\s]+\/storage\/v1\/object\/public\/page-media\/[a-z0-9][a-z0-9-]*\.(?:jpg|png|webp)$/;
+
+export function isPageMediaImageSrc(value: string) {
+  return pageMediaImagePattern.test(value);
+}
+
 const simpleMarkSchema = z.object({
   type: z.enum(["bold", "italic", "underline"]),
 }).strict();
@@ -49,7 +56,8 @@ export type RichBlock =
   | { type: "paragraph"; content?: z.infer<typeof inlineSchema>[] }
   | { type: "heading"; attrs: { level: 2 | 3 }; content?: z.infer<typeof inlineSchema>[] }
   | { type: "bulletList"; content: RichListItem[] }
-  | { type: "orderedList"; attrs?: { start?: number }; content: RichListItem[] };
+  | { type: "orderedList"; attrs?: { start?: number }; content: RichListItem[] }
+  | { type: "image"; attrs: { src: string; alt: string } };
 
 export type RichListItem = {
   type: "listItem";
@@ -75,6 +83,13 @@ const blockSchema: z.ZodType<RichBlock> = z.lazy(() =>
       type: z.literal("orderedList"),
       attrs: z.object({ start: z.number().int().min(1).optional() }).strict().optional(),
       content: z.array(listItemSchema).min(1),
+    }).strict(),
+    z.object({
+      type: z.literal("image"),
+      attrs: z.object({
+        src: z.string().refine(isPageMediaImageSrc),
+        alt: z.string().trim().min(1).max(300),
+      }).strict(),
     }).strict(),
   ]),
 );
@@ -120,6 +135,11 @@ function normalizeRichContentAttributes(value: unknown): unknown {
   if (record.type === "orderedList" && record.attrs && typeof record.attrs === "object") {
     const start = (record.attrs as Record<string, unknown>).start;
     normalized.attrs = typeof start === "number" ? { start } : {};
+  }
+
+  if (record.type === "image" && record.attrs && typeof record.attrs === "object") {
+    const { src, alt } = record.attrs as Record<string, unknown>;
+    normalized.attrs = { src, alt };
   }
 
   if (record.type === "link" && normalized.attrs && typeof normalized.attrs === "object") {

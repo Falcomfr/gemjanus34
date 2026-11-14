@@ -240,3 +240,28 @@ test("strips colour styles from pasted HTML", () => {
     '<p style=" font-weight: bold">A</p><span style="">B</span>',
   );
 });
+
+describe("page photos", () => {
+  const photo = { type: "image", attrs: { src: "https://x.supabase.co/storage/v1/object/public/page-media/photo-abc.jpg", alt: "Un atelier" } };
+
+  test("accepts a photo of the site's storage, at the top level and in a list", () => {
+    const document = {
+      type: "doc",
+      content: [photo, { type: "bulletList", content: [{ type: "listItem", content: [photo] }] }],
+    };
+    expect(richContentSchema.safeParse(document).success).toBe(true);
+  });
+
+  test.each([
+    ["from another site", { ...photo.attrs, src: "https://example.com/a.jpg" }],
+    ["from another bucket", { ...photo.attrs, src: "https://x.supabase.co/storage/v1/object/public/gallery/a.jpg" }],
+    ["without a description", { ...photo.attrs, alt: "" }],
+  ])("rejects a photo %s", (_case, attrs) => {
+    expect(richContentSchema.safeParse({ type: "doc", content: [{ type: "image", attrs }] }).success).toBe(false);
+  });
+
+  test("keeps only the address and the description of a photo", () => {
+    const document = { type: "doc", content: [{ type: "image", attrs: { ...photo.attrs, title: null, width: null, height: null } }] };
+    expect(JSON.parse(serializeRichContent(document)).content[0]).toEqual(photo);
+  });
+});
