@@ -201,3 +201,29 @@ test("links to its sub-pages at the bottom of the page", () => {
   expect(region).toContainElement(screen.getByRole("link", { name: "Ils en parlent" }));
   expect(screen.getByRole("link", { name: "Ils en parlent" })).toHaveAttribute("href", "/ils-en-parlent");
 });
+
+const storage = "https://x.supabase.co/storage/v1/object/public/page-media";
+const pageWith = (content: object[]) => (
+  <ContentPage page={{ slug: "exemple", title: "Titre", introduction: "Intro", sections: [], content: { type: "doc", content } as never }} />
+);
+const sole = (text: string, href: string) => ({ type: "paragraph", content: [{ type: "text", text, marks: [{ type: "link", attrs: { href } }] }] });
+
+test("shows a photo of the page with its description", () => {
+  const { container } = render(pageWith([{ type: "image", attrs: { src: `${storage}/photo-abc.jpg`, alt: "Un atelier" } }]));
+  const image = container.querySelector("figure.content-figure img");
+  expect(image).toHaveAttribute("src", `${storage}/photo-abc.jpg`);
+  expect(image).toHaveAttribute("alt", "Un atelier");
+  expect(image).toHaveAttribute("loading", "lazy");
+});
+
+test("shows a PDF joined to the page with its preview panel", () => {
+  const { container } = render(pageWith([sole("Compte rendu", `${storage}/compte-rendu-x.pdf`)]));
+  expect(container.querySelector(".content-document__title")).toHaveTextContent("Compte rendu");
+  expect(screen.getByText(/Afficher le document/)).toBeInTheDocument();
+});
+
+test("keeps a link to a PDF of another site a plain link", () => {
+  render(pageWith([sole("Guide", "https://example.com/guide.pdf")]));
+  expect(screen.getByRole("link", { name: /Guide/ })).toHaveAttribute("href", "https://example.com/guide.pdf");
+  expect(screen.queryByText(/Afficher le document/)).not.toBeInTheDocument();
+});

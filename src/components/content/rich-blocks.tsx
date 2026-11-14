@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from "react";
 import type { RichBlock, RichInline } from "@/lib/content/rich-content-schema";
 import { ClickToLoad } from "@/components/content/click-to-load";
+import { DocumentPreview } from "@/components/content/document-preview";
 import { videoEmbed } from "@/lib/content/embeds";
 import { fr } from "@/lib/text/french";
 
@@ -11,6 +12,14 @@ function soleVideoLink(nodes: RichInline[]) {
   const href = node.marks?.find((mark) => mark.type === "link")?.attrs.href;
   const video = href ? videoEmbed(href) : null;
   return href && video ? { href, text: node.text, video } : null;
+}
+
+/** The PDF of a paragraph that holds nothing but a link to a PDF joined from the editor. */
+function solePdfLink(nodes: RichInline[]) {
+  const [node] = nodes;
+  if (nodes.length !== 1 || node.type !== "text") return null;
+  const href = node.marks?.find((mark) => mark.type === "link")?.attrs.href;
+  return href && /\/storage\/v1\/object\/public\/page-media\/[^/]+\.pdf$/.test(href) ? { href, text: node.text } : null;
 }
 
 function Inline({ nodes }: { nodes?: RichInline[] }): JSX.Element {
@@ -49,6 +58,15 @@ export function RichBlocks({ blocks }: { blocks: RichBlock[] }): JSX.Element {
         switch (block.type) {
           case "paragraph":
             if (!block.content?.length) return null;
+            const pdf = solePdfLink(block.content);
+            if (pdf) {
+              return (
+                <div className="content-document" key={index}>
+                  <p className="content-document__title">{fr(pdf.text)}</p>
+                  <DocumentPreview title={fr(pdf.text)} url={pdf.href} />
+                </div>
+              );
+            }
             const link = soleVideoLink(block.content);
             return link ? (
               <ClickToLoad
@@ -64,6 +82,13 @@ export function RichBlocks({ blocks }: { blocks: RichBlock[] }): JSX.Element {
               />
             ) : (
               <p key={index}><Inline nodes={block.content} /></p>
+            );
+          case "image":
+            return (
+              <figure className="content-figure" key={index}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- photos from the public storage */}
+                <img src={block.attrs.src} alt={block.attrs.alt} loading="lazy" />
+              </figure>
             );
           case "heading":
             return block.attrs.level === 2 ? (
