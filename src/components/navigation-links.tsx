@@ -2,9 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 import { publicNavigation, type NavigationItem } from "@/content/navigation";
 import type { ExtraPage } from "@/lib/content/extra-pages";
+
+// A label past 16 characters goes on two lines cut at its most balanced space:
+// a box whose text wraps by itself keeps its full width and leaves a gap beside it.
+function menuLabel(label: string): ReactNode {
+  if (label.length <= 16) return label;
+  let cut = -1;
+  for (let space = label.indexOf(" "); space !== -1; space = label.indexOf(" ", space + 1)) {
+    const longest = (at: number) => Math.max(at, label.length - at - 1);
+    if (cut === -1 || longest(space) < longest(cut)) cut = space;
+  }
+  if (cut === -1) return label;
+  return <>{label.slice(0, cut)} <br />{label.slice(cut + 1)}</>;
+}
 
 export function NavigationLinks({ extraPages = [], galleryEnabled = false }: { extraPages?: ExtraPage[]; galleryEnabled?: boolean }): JSX.Element {
   const pathname = usePathname();
@@ -25,7 +38,7 @@ export function NavigationLinks({ extraPages = [], galleryEnabled = false }: { e
               href={item.href}
               aria-current={current ? "page" : undefined}
             >
-              {item.label}
+              {menuLabel(item.label)}
             </Link>
           </li>
         );

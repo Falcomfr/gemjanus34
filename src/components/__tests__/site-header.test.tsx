@@ -166,3 +166,15 @@ test("leaves the switched-off gallery out of the menu", () => {
   render(<SiteHeader extraPages={[{ slug: "sorties", title: "Sorties", parentId: null }]} />);
   expect(menuHrefs("Navigation principale")).not.toContain("/galerie");
 });
+
+test("breaks long menu labels once, at the most balanced space, and leaves short ones whole", () => {
+  const { container } = render(
+    <SiteHeader extraPages={[{ slug: "sorties", title: "Sorties culturelles et sportives", parentId: null }]} />,
+  );
+  const links = [...container.querySelectorAll(".desktop-navigation a")];
+  const lines = (label: string) => links.find((link) => link.textContent?.replace(/\s+/g, " ").trim() === label)!.innerHTML.split("<br>").length;
+  expect(lines("Planning et actualités")).toBe(2);
+  expect(lines("Sorties culturelles et sportives")).toBe(2);
+  expect(lines("Le GEM")).toBe(1);
+  expect(lines("Première visite")).toBe(1);
+});

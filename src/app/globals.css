@@ -218,12 +218,15 @@ select:focus-visible,
   flex: none;
 }
 
-/* Long page titles wrap on two balanced lines; short labels stay on one. */
+/* Long labels come cut on two lines (see navigation-links.tsx); nothing else wraps. */
 .desktop-navigation .navigation-link {
-  max-width: 9.5rem;
   padding-inline: 0.55rem;
   line-height: 1.2;
-  text-wrap: balance;
+  white-space: nowrap;
+}
+
+.mobile-navigation .navigation-link br {
+  display: none;
 }
 
 .navigation-link--prominent {
@@ -1954,6 +1957,8 @@ body:has(.admin-area) > .skip-link {
 }
 
 .admin-table-wrap {
+  /* Holds the screen-reader-only labels of the table, which would otherwise widen the page. */
+  position: relative;
   max-width: 100%;
   margin-top: 1.5rem;
   overflow-x: auto;
@@ -2641,6 +2646,21 @@ body:has(.admin-area) > .skip-link {
   bottom: -4rem;
   left: 12rem;
   opacity: 0.12;
+}
+
+/* Narrow screens: the text spans the whole width, so the rings shrink into the bottom corner, under it. */
+@media (max-width: 63.99rem) {
+  .quote-band::before,
+  .quote-band::after {
+    width: 7rem;
+    right: 1rem;
+    bottom: -5rem;
+  }
+
+  .mission::before,
+  .mission::after {
+    display: none;
+  }
 }
 
 .content-page__header {
