@@ -19,6 +19,7 @@ import {
   richTextColors,
 } from "@/lib/content/rich-content-schema";
 import { uploadPageMedia } from "@/app/admin/page-media-actions";
+import { MAX_DOCUMENT_BYTES } from "@/lib/admin/document-input";
 import { shrinkPhoto } from "@/lib/admin/shrink-photo";
 
 const colorLabels: Record<(typeof richTextColors)[number], string> = {
@@ -67,6 +68,11 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    // Checked here too: past 4.5 MB the host refuses the request before the server can say why.
+    if (kind === "pdf" && file.size > MAX_DOCUMENT_BYTES) {
+      setError("Le fichier dépasse 4 Mo.");
+      return;
+    }
     const answer = kind === "photo"
       ? window.prompt("Décrivez la photo en une phrase (elle est lue aux personnes malvoyantes)")
       : window.prompt("Titre du document affiché sur la page", file.name.replace(/\.pdf$/i, ""));
@@ -232,7 +238,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
           />
         ))}
       </div>
-      {sending ? <p className="editor-toolbar__status" role="status">Envoi du fichier en cours…</p> : null}
+      <p className="editor-toolbar__status" role="status">{sending ? "Envoi du fichier en cours…" : ""}</p>
       {error ? (
         <p className="editor-toolbar__error" role="alert" aria-live="assertive">
           {error}

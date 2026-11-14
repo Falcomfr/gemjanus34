@@ -97,3 +97,19 @@ test("keeps the photo when a PDF is joined right after it", async () => {
 
   expect(JSON.stringify(editor.getJSON())).toContain("photo-abc.jpg");
 });
+
+test("refuses a PDF over 4 MB before asking anything or sending it", async () => {
+  const { choose } = setup();
+  const prompt = vi.spyOn(window, "prompt");
+
+  choose("application/pdf", new File([new Uint8Array(4 * 1024 * 1024 + 1)], "scan.pdf", { type: "application/pdf" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Le fichier dépasse 4 Mo.");
+  expect(prompt).not.toHaveBeenCalled();
+  expect(upload).not.toHaveBeenCalled();
+});
+
+test("keeps the sending status region mounted so screen readers announce it", () => {
+  setup();
+  expect(screen.getByRole("status")).toHaveTextContent("");
+});
