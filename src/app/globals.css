@@ -3189,6 +3189,11 @@ body:has(.admin-area) > .skip-link {
     print-color-adjust: exact;
   }
 
+  /* Firefox measures 100vh on the sheet: a full-height body spilled onto an empty second page. */
+  body {
+    min-height: 0;
+  }
+
   .site-header,
   .site-footer,
   .skip-link,

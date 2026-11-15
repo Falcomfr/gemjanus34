@@ -65,6 +65,10 @@ test("find the planning in one action and print it", async ({ page }) => {
   await expect(page).toHaveURL("/planning/imprimer");
   await expect(page.getByRole("button", { name: /imprimer ou enregistrer en pdf/i })).toBeVisible();
   await expect(page.getByRole("region", { name: /^jeudi/i })).toContainText("Yoga en douceur");
+
+  // Firefox measures 100vh on the printed sheet: a full-height body spilled onto an empty second page.
+  await page.emulateMedia({ media: "print" });
+  expect(await page.evaluate(() => getComputedStyle(document.body).minHeight)).toBe("0px");
 });
 
 test("call the association from a phone without opening the menu", async ({ page }) => {
