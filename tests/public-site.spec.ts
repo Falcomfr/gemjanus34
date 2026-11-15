@@ -23,6 +23,18 @@ const legacyRedirects = [
   ["/evenements", "/actualites"],
   ["/actualites-2__trashed/samedi", "/actualites"],
   ["/actualites-2__trashed/conferences", "/actualites"],
+  ["/janus", "/qui-sommes-nous"],
+  ["/samedi", "/actualites"],
+  ["/sortir-a-montpellier", "/sorties-culturelles-et-sportives"],
+  ["/mentions-legales-et-confidentialite", "/mentions-legales"],
+  ["/le-trouble-bipolaire-2/le-trouble-bipolaire", "/ressources"],
+  ["/nos-objectifs-2/les-activites/mobilisation-corporelle", "/activites"],
+  ["/nos-objectifs-2/mentions-legales", "/mentions-legales"],
+  ["/nos-objectifs-2/politique-confidentialite", "/confidentialite"],
+  ["/nos-objectifs-2/nos-regles-de-vie", "/qui-sommes-nous"],
+  ["/nos-objectifs-2/nos-statuts-et-notre-reglement-interieur", "/qui-sommes-nous"],
+  ["/nous-contacter/adresse", "/contact"],
+  ["/nous-contacter/formulaire-contact", "/contact"],
 ] as const;
 
 const forbiddenWording = /importé|ancien site|mise à jour éditoriale|contenu provisoire|en attente de validation/i;

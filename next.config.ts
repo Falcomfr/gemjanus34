@@ -86,6 +86,17 @@ const nextConfig: NextConfig = {
         destination: "/actualites",
         permanent: true,
       },
+      // Other WordPress addresses still indexed when gemjanus34.fr moved to this site (15/11/2026).
+      { source: "/janus", destination: "/qui-sommes-nous", permanent: true },
+      { source: "/samedi", destination: "/actualites", permanent: true },
+      { source: "/sortir-a-montpellier", destination: "/sorties-culturelles-et-sportives", permanent: true },
+      { source: "/mentions-legales-et-confidentialite", destination: "/mentions-legales", permanent: true },
+      { source: "/le-trouble-bipolaire-2/:slug", destination: "/ressources", permanent: true },
+      { source: "/nos-objectifs-2/les-activites/:slug", destination: "/activites", permanent: true },
+      { source: "/nos-objectifs-2/mentions-legales", destination: "/mentions-legales", permanent: true },
+      { source: "/nos-objectifs-2/politique-confidentialite", destination: "/confidentialite", permanent: true },
+      { source: "/nos-objectifs-2/:slug", destination: "/qui-sommes-nous", permanent: true },
+      { source: "/nous-contacter/:slug", destination: "/contact", permanent: true },
     ];
   },
 };
