@@ -14,14 +14,17 @@ function storageDownload(url: string): string {
 /** A closed panel that shows the PDF once opened, with links to open it in full or download it. */
 export function DocumentPreview({ title, url }: { title: string; url: string }): JSX.Element {
   const [opened, setOpened] = useState(false);
+  const [seen, setSeen] = useState(false);
   const downloadHref = storageDownload(url);
 
   return (
     <details className="document-preview" onToggle={(event) => {
+        if (event.currentTarget.open) setSeen(true);
         // Phone browsers download a framed PDF instead of showing it: they only get the links.
         if (event.currentTarget.open && window.matchMedia("(min-width: 48rem)").matches) setOpened(true);
       }}>
-      <summary>
+      {/* Only the first opening counts as a PDF read, not each close and reopen. */}
+      <summary data-stat={seen ? undefined : "pdf"}>
         Afficher le document{" "}
         <span className="sr-only">{title}</span>
         <ChevronDown aria-hidden="true" size={18} />

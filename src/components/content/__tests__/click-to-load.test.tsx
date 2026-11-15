@@ -32,3 +32,12 @@ test("replaces the button with the player on click", () => {
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
   expect(document.activeElement).toBe(frame);
 });
+
+test("marks only the map button as a counted gesture", () => {
+  const { unmount } = render(<ClickToLoad {...props} />);
+  expect(screen.getByRole("button")).not.toHaveAttribute("data-stat");
+  unmount();
+
+  render(<ClickToLoad {...props} variant="map" />);
+  expect(screen.getByRole("button")).toHaveAttribute("data-stat", "map");
+});

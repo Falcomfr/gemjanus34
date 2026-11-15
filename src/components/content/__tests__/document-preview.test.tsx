@@ -57,3 +57,12 @@ test("keeps an existing query string when asking for a download", () => {
     "https://example.supabase.co/planning.pdf?v=2&download=",
   );
 });
+
+test("counts the first opening of a document, not the closing", () => {
+  const { container } = render(<DocumentPreview title="Statuts" url="/documents/statuts.pdf" />);
+  const summary = container.querySelector("summary")!;
+
+  expect(summary).toHaveAttribute("data-stat", "pdf");
+  open(container);
+  expect(summary).not.toHaveAttribute("data-stat");
+});

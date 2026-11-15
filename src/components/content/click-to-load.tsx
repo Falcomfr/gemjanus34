@@ -25,7 +25,7 @@ export function ClickToLoad({ title, src, actionLabel, notice, thumbnail, linkHr
         {loaded ? (
           <iframe ref={(frame) => frame?.focus()} src={src} title={title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
         ) : (
-          <button type="button" className="embed__start" onClick={() => setLoaded(true)} aria-label={`${actionLabel} : ${title}`}>
+          <button type="button" className="embed__start" data-stat={variant === "map" ? "map" : undefined} onClick={() => setLoaded(true)} aria-label={`${actionLabel} : ${title}`}>
             {/* eslint-disable-next-line @next/next/no-img-element -- remote thumbnail, no optimisation needed */}
             {thumbnail ? <img src={thumbnail} alt="" loading="lazy" /> : null}
             <span className="embed__action">

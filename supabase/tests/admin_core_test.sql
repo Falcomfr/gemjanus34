@@ -67,9 +67,10 @@ select is(
     join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public'
       and c.relname = 'audit_log'
+      and p.polname <> 'audit_log_admin_read'
   ),
   0::bigint,
-  'audit events have no direct client policies'
+  'audit events have no direct client policies besides the administrators'' read'
 );
 select is(
   (

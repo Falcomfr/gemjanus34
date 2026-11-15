@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  ChartColumn,
   ExternalLink,
   FileText,
   FolderOpen,
@@ -32,6 +33,7 @@ const navigation = [
   { href: "/admin/galerie", label: "Galerie", icon: Images },
   { href: "/admin/messages", label: "Messages", icon: Mail, pending: "messages" },
   { href: "/admin/comptes", label: "Comptes", icon: Users, adminOnly: true },
+  { href: "/admin/statistiques", label: "Statistiques", icon: ChartColumn, adminOnly: true },
   { href: "/admin/reglages", label: "Réglages", icon: Settings, adminOnly: true },
 ];
 

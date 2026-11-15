@@ -512,6 +512,12 @@ export type Database = {
         Update: { id?: boolean; note?: string; updated_at?: string; updated_by?: string | null };
         Relationships: [];
       };
+      site_events: {
+        Row: { count: number; day: string; event: string };
+        Insert: { count?: number; day: string; event: string };
+        Update: { count?: number; day?: string; event?: string };
+        Relationships: [];
+      };
       site_settings: {
         Row: {
           callback_enabled: boolean;
@@ -641,6 +647,7 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
       };
+      count_site_event: { Args: { p_event: string }; Returns: undefined };
       register_for_conference: {
         Args: { conference_id: string; name: string; contact: string; seats: number };
         Returns: string;

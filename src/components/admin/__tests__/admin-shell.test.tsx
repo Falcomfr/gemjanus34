@@ -116,14 +116,16 @@ test("offers account management to administrators and 'Mon compte' to everyone",
   expect(screen.getByRole("link", { name: /mon compte/i })).toBeInTheDocument();
 });
 
-test("shows the settings to administrators only", () => {
+test("shows the settings and statistics to administrators only", () => {
   const { unmount } = render(<AdminShell pathname="/admin" profile={{ ...profile, role: "manager" }}><p /></AdminShell>);
   expect(screen.queryByRole("link", { name: "Réglages" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Statistiques" })).not.toBeInTheDocument();
   expect(screen.getByText(/Gestionnaire/)).toBeInTheDocument();
   unmount();
 
   render(<AdminShell pathname="/admin" profile={{ ...profile, role: "admin" }}><p /></AdminShell>);
   expect(screen.getByRole("link", { name: "Réglages" })).toHaveAttribute("href", "/admin/reglages");
+  expect(screen.getByRole("link", { name: "Statistiques" })).toHaveAttribute("href", "/admin/statistiques");
 });
 
 test("shows how many messages wait and how many drafts are left, and nothing at zero", () => {

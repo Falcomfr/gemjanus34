@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito_Sans, Source_Serif_4 } from "next/font/google";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { SiteEventTracker } from "@/components/site-event-tracker";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeStyle } from "@/components/theme-style";
 import { SiteHeader } from "@/components/site-header";
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <main id="contenu">{children}</main>
         <SiteFooter extraPages={extraPages} membershipHref={membershipHref(settings)} galleryEnabled={settings.galleryEnabled} conferencesEnabled={settings.conferencesEnabled} />
         <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
+        <SiteEventTracker />
       </body>
     </html>
   );

@@ -4344,3 +4344,154 @@ body:has(.admin-area) > .skip-link {
 .registration-form {
   margin-top: 1rem;
 }
+
+/* Statistics page: figures written in full, bars of a single colour. */
+.admin-table--compact {
+  min-width: 0;
+}
+
+.admin-table--compact tbody th {
+  color: var(--text);
+  font-size: inherit;
+  text-transform: none;
+}
+
+.stats-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  gap: 1rem;
+  margin: 1rem 0 0;
+}
+
+.stats-tiles div {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.stats-tiles dt {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.stats-tiles dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.stats-tiles small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.stats-bars {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats-bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3rem;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.stats-bars__label {
+  overflow-wrap: anywhere;
+}
+
+.stats-bars__track {
+  height: 0.75rem;
+}
+
+.stats-bars__track span {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--forest);
+}
+
+.stats-bars__value {
+  font-weight: 700;
+  text-align: right;
+}
+
+.stats-columns {
+  margin: 1.5rem 0 0;
+}
+
+.stats-columns figcaption {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.stats-columns ol {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 8rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+}
+
+.stats-columns li {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.stats-columns li > span:first-child {
+  width: 100%;
+  min-height: 1px;
+  border-radius: 4px 4px 0 0;
+  background: var(--forest);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.stats-grid h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.stats-page .admin-notice {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 42rem) {
+  /* Short figure tables stay tables on phones: stacked rows would lose which column a number belongs to. */
+  .admin-table--compact thead {
+    display: table-header-group;
+  }
+
+  .admin-table--compact tr {
+    display: table-row;
+  }
+
+  .admin-table--compact th,
+  .admin-table--compact td {
+    padding: 0.6rem 0.4rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.85rem;
+  }
+
+  .stats-bars li {
+    grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 2.5rem;
+  }
+}
