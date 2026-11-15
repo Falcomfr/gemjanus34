@@ -142,6 +142,30 @@ test("sitemap lists every public route", async ({ request }) => {
   expect(body.match(/<loc>/g)!.length).toBeGreaterThanOrEqual(publicRoutes.length);
 });
 
+test("each page names its own address on gemjanus34.fr for search engines and shares", async ({ page }) => {
+  for (const path of ["/", "/actualites"]) {
+    await page.goto(path);
+    const url = `https://gemjanus34.fr${path === "/" ? "" : path}`;
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url);
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "GEM Janus34");
+  }
+  await expect(page).toHaveTitle("Planning et actualités | GEM Janus34");
+});
+
+test("the home page describes the association to search engines", async ({ page }) => {
+  await page.goto("/");
+  const data = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
+
+  expect(data).toMatchObject({
+    "@type": "NGO",
+    name: "GEM Janus34",
+    url: "https://gemjanus34.fr/",
+    telephone: "+33467048768",
+    address: { streetAddress: "405 rue des Grèzes", postalCode: "34070", addressLocality: "Montpellier" },
+  });
+});
+
 test("robots allows the public site and protects administration", async ({ request }) => {
   const response = await request.get("/robots.txt");
   expect(response.ok()).toBe(true);
