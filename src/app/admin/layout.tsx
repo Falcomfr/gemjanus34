@@ -38,11 +38,20 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   const profile = await requireProfile();
+  const supabase = await createServerClient();
+  const head = { count: "exact" as const, head: true };
+  const [messages, pages, news] = await Promise.all([
+    supabase.from("contact_messages").select("id", head).is("handled_at", null),
+    supabase.from("pages").select("id", head).eq("status", "draft"),
+    supabase.from("news").select("id", head).eq("status", "draft"),
+  ]);
+  // An unreadable count shows no badge rather than breaking the admin.
+  const pending = { messages: messages.count ?? 0, pages: pages.count ?? 0, news: news.count ?? 0 };
 
   return (
     <div className="admin-area">
       <a className="skip-link" href="#admin-contenu">Aller au contenu d’administration</a>
-      <AdminShell pathname={pathname ?? "/admin"} profile={profile}>
+      <AdminShell pathname={pathname ?? "/admin"} profile={profile} pending={pending}>
         {children}
       </AdminShell>
     </div>

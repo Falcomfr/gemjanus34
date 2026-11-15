@@ -125,3 +125,15 @@ test("shows the settings to administrators only", () => {
   render(<AdminShell pathname="/admin" profile={{ ...profile, role: "admin" }}><p /></AdminShell>);
   expect(screen.getByRole("link", { name: "Réglages" })).toHaveAttribute("href", "/admin/reglages");
 });
+
+test("shows how many messages wait and how many drafts are left, and nothing at zero", () => {
+  render(
+    <AdminShell pathname="/admin" profile={profile} pending={{ messages: 3, pages: 1, news: 0 }}>
+      <p>Contenu</p>
+    </AdminShell>,
+  );
+
+  expect(screen.getByRole("link", { name: "Messages 3 à traiter" })).toHaveAttribute("title", "Messages : 3 à traiter");
+  expect(screen.getByRole("link", { name: "Pages 1 brouillon" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Actualités" })).toBeInTheDocument();
+});

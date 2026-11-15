@@ -23,22 +23,32 @@ import { roleLabels } from "@/lib/auth/roles";
 
 const navigation = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/admin/pages", label: "Pages", icon: FileText },
-  { href: "/admin/actualites", label: "Actualités", icon: Newspaper },
+  { href: "/admin/pages", label: "Pages", icon: FileText, pending: "pages" },
+  { href: "/admin/actualites", label: "Actualités", icon: Newspaper, pending: "news" },
   { href: "/admin/planning", label: "Planning", icon: CalendarDays },
   { href: "/admin/lettre", label: "Lettre", icon: ScrollText },
   { href: "/admin/conferences", label: "Conférences", icon: Mic },
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
   { href: "/admin/galerie", label: "Galerie", icon: Images },
-  { href: "/admin/messages", label: "Messages", icon: Mail },
+  { href: "/admin/messages", label: "Messages", icon: Mail, pending: "messages" },
   { href: "/admin/comptes", label: "Comptes", icon: Users, adminOnly: true },
   { href: "/admin/reglages", label: "Réglages", icon: Settings, adminOnly: true },
 ];
+
+/** What waits in each section: unhandled messages, unpublished drafts. */
+export type AdminPending = { messages?: number; pages?: number; news?: number };
+
+const pendingLabels: Record<keyof AdminPending, (count: number) => string> = {
+  messages: () => "à traiter",
+  pages: (count) => (count === 1 ? "brouillon" : "brouillons"),
+  news: (count) => (count === 1 ? "brouillon" : "brouillons"),
+};
 
 type AdminShellProps = {
   children: ReactNode;
   pathname: string;
   profile: Profile;
+  pending?: AdminPending;
 };
 
 function isCurrentSection(pathname: string, href: string) {
@@ -47,7 +57,7 @@ function isCurrentSection(pathname: string, href: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminShell({ children, pathname, profile }: AdminShellProps) {
+export function AdminShell({ children, pathname, profile, pending = {} }: AdminShellProps) {
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -58,18 +68,30 @@ export function AdminShell({ children, pathname, profile }: AdminShellProps) {
 
         <nav aria-label="Navigation de l’administration">
           <ul className="admin-navigation">
-            {navigation.filter((item) => !("adminOnly" in item) || profile.role === "admin").map(({ href, label, icon: Icon }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  aria-current={isCurrentSection(pathname, href) ? "page" : undefined}
-                  title={label}
-                >
-                  <Icon aria-hidden="true" size={20} />
-                  <span>{label}</span>
-                </Link>
-              </li>
-            ))}
+            {navigation.filter((item) => !("adminOnly" in item) || profile.role === "admin").map((item) => {
+              const { href, label, icon: Icon } = item;
+              const key = "pending" in item ? (item.pending as keyof AdminPending) : undefined;
+              const count = key ? (pending[key] ?? 0) : 0;
+              const waiting = key && count > 0 ? `${count} ${pendingLabels[key](count)}` : null;
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    aria-current={isCurrentSection(pathname, href) ? "page" : undefined}
+                    title={waiting ? `${label} : ${waiting}` : label}
+                    aria-label={waiting ? `${label} ${waiting}` : undefined}
+                  >
+                    <Icon aria-hidden="true" size={20} />
+                    <span>{label}</span>
+                    {waiting ? (
+                      <span className={`admin-navigation__badge${key === "messages" ? " admin-navigation__badge--urgent" : ""}`} aria-hidden="true">
+                        {count}
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
