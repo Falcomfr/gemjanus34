@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPdf } from "./document-input";
 
 export const MAX_GALLERY_BYTES = 4 * 1024 * 1024;
 
@@ -11,9 +12,13 @@ const fieldsSchema = z.object({
   consent: z.literal(true),
 });
 
-export type GalleryField = keyof z.infer<typeof fieldsSchema> | "file";
+export const MAX_GALLERY_TEXT = 20000;
+export type GalleryKind = "image" | "text" | "pdf";
+export type GalleryField = keyof z.infer<typeof fieldsSchema> | "file" | "body";
 type ImageKind = { extension: "jpg" | "png" | "webp"; contentType: string };
-export type GalleryInput = z.infer<typeof fieldsSchema> & { file: File } & ImageKind;
+type FileKind = { extension: "jpg" | "png" | "webp" | "pdf"; contentType: string };
+export type GalleryInput = z.infer<typeof fieldsSchema> &
+  ({ kind: "text"; body: string } | ({ kind: "image" | "pdf"; file: File } & FileKind));
 export type GalleryFormResult =
   | { success: true; data: GalleryInput }
   | { success: false; fieldErrors: Partial<Record<GalleryField, string[]>> };
@@ -24,6 +29,7 @@ const fieldMessages: Record<GalleryField, string> = {
   workshop: "80 caractères au plus.",
   consent: "Cochez la case : une création n’est publiée qu’avec l’accord de son auteur.",
   file: "Choisissez une photo JPEG, PNG ou WebP.",
+  body: `Collez le texte (${MAX_GALLERY_TEXT.toLocaleString("fr-FR")} caractères au plus).`,
 };
 
 // The file signature, not the name or the browser-reported type, says what the photo is.
@@ -51,12 +57,24 @@ export async function parseGalleryFormData(formData: FormData): Promise<GalleryF
     }
   }
 
-  const file = formData.get("file");
-  let kind: ImageKind | null = null;
-  if (!(file instanceof File) || file.size === 0) fieldErrors.file = [fieldMessages.file];
-  else if (file.size > MAX_GALLERY_BYTES) fieldErrors.file = ["La photo dépasse 4 Mo."];
-  else if (!(kind = await imageKind(file))) fieldErrors.file = [fieldMessages.file];
+  const kind: GalleryKind = formData.get("kind") === "text" ? "text" : formData.get("kind") === "pdf" ? "pdf" : "image";
+  if (kind === "text") {
+    // Pasted from a word processor: Windows line ends become plain ones, the poem's own blank lines stay.
+    const body = String(formData.get("body") ?? "").replace(/\r\n?/g, "\n").trim();
+    if (!body || body.length > MAX_GALLERY_TEXT) fieldErrors.body = [fieldMessages.body];
+    if (!fields.success || fieldErrors.body) return { success: false, fieldErrors };
+    return { success: true, data: { ...fields.data, kind, body } };
+  }
 
-  if (!fields.success || !kind) return { success: false, fieldErrors };
-  return { success: true, data: { ...fields.data, file: file as File, ...kind } };
+  const file = formData.get("file");
+  const wrongType = kind === "pdf" ? "Choisissez un fichier PDF." : fieldMessages.file;
+  let fileKind: FileKind | null = null;
+  if (!(file instanceof File) || file.size === 0) fieldErrors.file = [wrongType];
+  else if (file.size > MAX_GALLERY_BYTES) fieldErrors.file = ["Le fichier dépasse 4 Mo."];
+  else if (kind === "pdf") fileKind = (await isPdf(file)) ? { extension: "pdf", contentType: "application/pdf" } : null;
+  else fileKind = await imageKind(file);
+  if (!fieldErrors.file && !fileKind) fieldErrors.file = [wrongType];
+
+  if (!fields.success || !fileKind) return { success: false, fieldErrors };
+  return { success: true, data: { ...fields.data, kind, file: file as File, ...fileKind } };
 }

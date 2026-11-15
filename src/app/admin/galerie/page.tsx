@@ -1,14 +1,17 @@
+import { FileText } from "lucide-react";
 import Link from "next/link";
 import { DeleteGalleryItemButton, GalleryUploadForm } from "@/components/admin/gallery-forms";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { getSiteSettings } from "@/lib/settings/site-settings";
 import { createServerClient } from "@/lib/supabase/server";
 
+const kindLabels: Record<string, string> = { text: "Texte", pdf: "PDF" };
+
 export default async function AdminGalleryPage() {
   const profile = await requireProfile();
   const supabase = await createServerClient();
   const [{ data: items, error }, settings] = await Promise.all([
-    supabase.from("gallery_items").select("id, title, author, workshop, image_url, created_at").order("created_at", { ascending: false }),
+    supabase.from("gallery_items").select("id, kind, title, author, workshop, image_url, created_at").order("created_at", { ascending: false }),
     getSiteSettings(),
   ]);
 
@@ -40,11 +43,15 @@ export default async function AdminGalleryPage() {
         <ul className="admin-gallery__list">
           {items.map((item) => (
             <li key={item.id}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- photo from the public storage, already sized by the list */}
-              <img src={item.image_url} alt={item.title} loading="lazy" />
+              {item.kind === "image" ? (
+                // eslint-disable-next-line @next/next/no-img-element -- photo from the public storage, already sized by the list
+                <img src={item.image_url ?? ""} alt={item.title} loading="lazy" />
+              ) : (
+                <FileText className="admin-gallery__icon" aria-hidden="true" size={32} />
+              )}
               <div>
                 <strong>{item.title}</strong>
-                <span>{[item.author, item.workshop].filter(Boolean).join(" · ")}</span>
+                <span>{[kindLabels[item.kind], item.author, item.workshop].filter(Boolean).join(" · ")}</span>
               </div>
               <DeleteGalleryItemButton id={item.id} title={item.title} />
             </li>

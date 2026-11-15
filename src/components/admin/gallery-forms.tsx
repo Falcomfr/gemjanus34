@@ -3,7 +3,7 @@
 import { Trash2, Upload } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, type FormEvent } from "react";
 import { deleteGalleryItem, uploadGalleryItem, type GalleryActionState } from "@/app/admin/galerie/actions";
-import { MAX_GALLERY_BYTES } from "@/lib/admin/gallery-input";
+import { MAX_GALLERY_BYTES, MAX_GALLERY_TEXT, type GalleryKind } from "@/lib/admin/gallery-input";
 import { submitWithoutReset } from "@/lib/forms/submit-without-reset";
 
 const initialState: GalleryActionState = {};
@@ -16,7 +16,8 @@ export function GalleryUploadForm() {
   const [state, formAction, pending] = useActionState(uploadGalleryItem, initialState);
   const form = useRef<HTMLFormElement>(null);
   const [tooLarge, setTooLarge] = useState(false);
-  const errors = tooLarge ? { ...state.fieldErrors, file: ["La photo dépasse 4 Mo."] } : (state.fieldErrors ?? {});
+  const [kind, setKind] = useState<GalleryKind>("image");
+  const errors = tooLarge ? { ...state.fieldErrors, file: ["Le fichier dépasse 4 Mo."] } : (state.fieldErrors ?? {});
   const send = submitWithoutReset(formAction);
   // Larger requests are rejected by the host before the action runs, so check here first.
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -35,7 +36,7 @@ export function GalleryUploadForm() {
   }, [state]);
 
   return (
-    <form className="admin-page-form" ref={form} onSubmit={submit}>
+    <form className="admin-page-form" ref={form} onSubmit={submit} onReset={() => setKind("image")}>
       {state.formError ? <p className="form-status form-status--error" role="alert">{state.formError}</p> : null}
       {state.success ? <p className="form-status form-status--success" role="status">{state.success}</p> : null}
       <div className="admin-form-grid">
@@ -54,11 +55,41 @@ export function GalleryUploadForm() {
           <input name="workshop" maxLength={80} placeholder="Linogravure, collage…" aria-invalid={Boolean(errors.workshop)} aria-describedby="gallery-workshop-error" />
           <FieldError id="gallery-workshop-error" messages={errors.workshop} />
         </label>
-        <label className="admin-field admin-field--wide">
-          Photo JPEG, PNG ou WebP (4 Mo au plus)
-          <input name="file" type="file" accept="image/jpeg,image/png,image/webp" required aria-invalid={Boolean(errors.file)} aria-describedby="gallery-file-error" />
-          <FieldError id="gallery-file-error" messages={errors.file} />
-        </label>
+        <fieldset className="admin-field admin-field--wide admin-gallery__kinds">
+          <legend>Type de création</legend>
+          {(
+            [
+              ["image", "Photo"],
+              ["text", "Texte"],
+              ["pdf", "PDF"],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={value} className="admin-checkbox">
+              <input type="radio" name="kind" value={value} defaultChecked={value === "image"} onChange={() => setKind(value)} />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+        {kind === "text" ? (
+          <label className="admin-field admin-field--wide">
+            Texte de la création (poème, récit… les retours à la ligne sont gardés)
+            <textarea name="body" required rows={12} maxLength={MAX_GALLERY_TEXT} aria-invalid={Boolean(errors.body)} aria-describedby="gallery-body-error" />
+            <FieldError id="gallery-body-error" messages={errors.body} />
+          </label>
+        ) : (
+          <label key={kind} className="admin-field admin-field--wide">
+            {kind === "pdf" ? "Fichier PDF (4 Mo au plus)" : "Photo JPEG, PNG ou WebP (4 Mo au plus)"}
+            <input
+              name="file"
+              type="file"
+              accept={kind === "pdf" ? "application/pdf" : "image/jpeg,image/png,image/webp"}
+              required
+              aria-invalid={Boolean(errors.file)}
+              aria-describedby="gallery-file-error"
+            />
+            <FieldError id="gallery-file-error" messages={errors.file} />
+          </label>
+        )}
         <label className="admin-checkbox admin-field--wide">
           <input type="checkbox" name="consent" required aria-invalid={Boolean(errors.consent)} aria-describedby="gallery-consent-error" />
           L’auteur a donné son accord pour que sa création soit publiée sur le site

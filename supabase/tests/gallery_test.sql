@@ -1,8 +1,8 @@
 begin;
-select plan(10);
+select plan(14);
 
 select has_table('public', 'gallery_items', 'gallery_items table exists');
-select is((select public::text || '|' || file_size_limit || '|' || array_to_string(allowed_mime_types, ',') from storage.buckets where id = 'gallery'), 'true|4194304|image/jpeg,image/png,image/webp', 'gallery bucket is public and takes images up to 4 MB');
+select is((select public::text || '|' || file_size_limit || '|' || array_to_string(allowed_mime_types, ',') from storage.buckets where id = 'gallery'), 'true|4194304|image/jpeg,image/png,image/webp,application/pdf', 'gallery bucket is public and takes images and PDFs up to 4 MB');
 select is((select gallery_enabled from public.site_settings), false, 'the gallery starts switched off');
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
@@ -19,6 +19,22 @@ select throws_ok(
   $$insert into public.gallery_items (title, image_path, image_url, consent, created_by) values ('Sans accord', 'gallery/x.jpg', 'https://example.test/x.jpg', false, 'b1000000-0000-0000-0000-000000000001')$$,
   '23514', null, 'a creation without the author''s consent is refused'
 );
+select lives_ok(
+  $$insert into public.gallery_items (kind, title, body, consent, created_by) values ('text', 'Mer', E'La mer\nau loin', true, 'b1000000-0000-0000-0000-000000000001')$$,
+  'editors add a pasted text'
+);
+select lives_ok(
+  $$insert into public.gallery_items (kind, title, image_path, image_url, consent, created_by) values ('pdf', 'Recueil', 'recueil.pdf', 'https://example.test/recueil.pdf', true, 'b1000000-0000-0000-0000-000000000001')$$,
+  'editors add a PDF'
+);
+select throws_ok(
+  $$insert into public.gallery_items (kind, title, consent, created_by) values ('text', 'Vide', true, 'b1000000-0000-0000-0000-000000000001')$$,
+  '23514', null, 'a text without its words is refused'
+);
+select throws_ok(
+  $$insert into public.gallery_items (kind, title, consent, created_by) values ('pdf', 'Sans fichier', true, 'b1000000-0000-0000-0000-000000000001')$$,
+  '23514', null, 'a PDF without its file is refused'
+);
 reset role;
 
 set local role anon;
@@ -31,14 +47,14 @@ reset role;
 
 update public.site_settings set gallery_enabled = true;
 set local role anon;
-select is((select count(*) from public.gallery_items), 1::bigint, 'visitors see the creations once the gallery is on');
+select is((select count(*) from public.gallery_items), 3::bigint, 'visitors see the creations once the gallery is on');
 reset role;
 
 select set_config('request.jwt.claims', '{"sub":"b1000000-0000-0000-0000-000000000001","role":"authenticated"}', true);
 set local role authenticated;
-select lives_ok($$delete from public.gallery_items where title = 'Le phare'$$, 'editors remove a creation');
+select lives_ok($$delete from public.gallery_items$$, 'editors remove a creation');
 reset role;
-select is((select count(*) from public.gallery_items), 0::bigint, 'the removed creation is gone');
+select is((select count(*) from public.gallery_items), 0::bigint, 'the removed creations are gone');
 
 select * from finish();
 rollback;

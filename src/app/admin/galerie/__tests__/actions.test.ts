@@ -45,6 +45,7 @@ test("stores the photo then lists the creation with its public address", async (
   expect(path).toMatch(/^le-phare-[a-z0-9]+\.jpg$/);
   expect(options).toEqual({ contentType: "image/jpeg" });
   expect(table.insert).toHaveBeenCalledWith({
+    kind: "image",
     title: "Le phare",
     author: "Lou",
     workshop: null,
@@ -90,4 +91,46 @@ test("keeps the creation listed when its photo cannot be erased, so the deletion
 
   expect(table.deleteResult).not.toHaveBeenCalled();
   expect(state.formError).toMatch(/photo/);
+});
+
+test("lists a pasted text without sending any file", async () => {
+  table.insert.mockResolvedValue({ error: null });
+  const data = uploadForm();
+  data.set("kind", "text");
+  data.set("body", "La mer\nau loin");
+  data.delete("file");
+
+  const state = await galleryActions.uploadGalleryItem({}, data);
+
+  expect(storage.upload).not.toHaveBeenCalled();
+  expect(table.insert).toHaveBeenCalledWith(expect.objectContaining({ kind: "text", body: "La mer\nau loin", image_path: null, image_url: null }));
+  expect(state.success).toBeDefined();
+});
+
+test("stores a PDF writing as a PDF", async () => {
+  storage.upload.mockResolvedValue({ error: null });
+  table.insert.mockResolvedValue({ error: null });
+  const data = uploadForm();
+  data.set("kind", "pdf");
+  data.set("file", new File(["%PDF-1.7 poème"], "recueil.pdf", { type: "application/pdf" }));
+
+  await galleryActions.uploadGalleryItem({}, data);
+
+  const [path, , options] = storage.upload.mock.calls[0]!;
+  expect(path).toMatch(/\.pdf$/);
+  expect(options).toEqual({ contentType: "application/pdf" });
+  expect(table.insert).toHaveBeenCalledWith(expect.objectContaining({ kind: "pdf", image_path: path }));
+});
+
+test("removes a text without touching the storage", async () => {
+  table.selectResult.mockResolvedValue({ data: { image_path: null }, error: null });
+  table.deleteResult.mockResolvedValue({ error: null });
+  const data = new FormData();
+  data.set("itemId", "11111111-1111-4111-8111-111111111111");
+
+  const state = await galleryActions.deleteGalleryItem({}, data);
+
+  expect(storage.remove).not.toHaveBeenCalled();
+  expect(table.deleteResult).toHaveBeenCalled();
+  expect(state.success).toBeDefined();
 });

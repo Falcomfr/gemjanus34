@@ -17,7 +17,7 @@ function form(overrides: Record<string, string | File> = {}) {
 test("accepts JPEG, PNG and WebP photos and names their type", async () => {
   for (const [kind, bytes] of Object.entries(signatures)) {
     const result = await parseGalleryFormData(form({ file: image(bytes, `oeuvre.${kind}`) }));
-    expect(result.success && result.data.extension, kind).toBe(kind === "jpeg" ? "jpg" : kind);
+    expect(result.success && result.data.kind !== "text" && result.data.extension, kind).toBe(kind === "jpeg" ? "jpg" : kind);
   }
 });
 
@@ -43,4 +43,26 @@ test("refuses to publish without the author's consent", async () => {
 test("an empty author or workshop is stored as nothing", async () => {
   const result = await parseGalleryFormData(form({ author: "  ", workshop: "" }));
   expect(result.success && [result.data.author, result.data.workshop]).toEqual([null, null]);
+});
+
+test("a pasted text keeps its lines and needs no file", async () => {
+  const data = form({ kind: "text", body: "  La mer\r\nau loin\r\n\r\nencore  " });
+  data.delete("file");
+  const result = await parseGalleryFormData(data);
+  expect(result.success && result.data).toMatchObject({ kind: "text", body: "La mer\nau loin\n\nencore" });
+});
+
+test("refuses an empty or overlong text", async () => {
+  for (const body of ["   ", "a".repeat(20001)]) {
+    const result = await parseGalleryFormData(form({ kind: "text", body }));
+    expect(!result.success && result.fieldErrors.body, body.slice(0, 5)).toBeTruthy();
+  }
+});
+
+test("accepts a PDF writing and refuses a photo sent as a PDF", async () => {
+  const pdf = await parseGalleryFormData(form({ kind: "pdf", file: new File(["%PDF-1.7 poème"], "recueil.pdf", { type: "application/pdf" }) }));
+  expect(pdf.success && pdf.data).toMatchObject({ kind: "pdf", extension: "pdf", contentType: "application/pdf" });
+
+  const photo = await parseGalleryFormData(form({ kind: "pdf" }));
+  expect(!photo.success && photo.fieldErrors.file).toBeTruthy();
 });

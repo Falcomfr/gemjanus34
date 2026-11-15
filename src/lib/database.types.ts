@@ -175,34 +175,40 @@ export type Database = {
       gallery_items: {
         Row: {
           author: string | null;
+          body: string | null;
           consent: boolean;
           created_at: string;
           created_by: string;
           id: string;
-          image_path: string;
-          image_url: string;
+          image_path: string | null;
+          image_url: string | null;
+          kind: string;
           title: string;
           workshop: string | null;
         };
         Insert: {
           author?: string | null;
+          body?: string | null;
           consent: boolean;
           created_at?: string;
           created_by: string;
           id?: string;
-          image_path: string;
-          image_url: string;
+          image_path?: string | null;
+          image_url?: string | null;
+          kind?: string;
           title: string;
           workshop?: string | null;
         };
         Update: {
           author?: string | null;
+          body?: string | null;
           consent?: boolean;
           created_at?: string;
           created_by?: string;
           id?: string;
-          image_path?: string;
-          image_url?: string;
+          image_path?: string | null;
+          image_url?: string | null;
+          kind?: string;
           title?: string;
           workshop?: string | null;
         };

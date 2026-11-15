@@ -35,26 +35,31 @@ export async function uploadGalleryItem(_previous: GalleryActionState, formData:
   const parsed = await parseGalleryFormData(formData);
   if (!parsed.success) return { fieldErrors: parsed.fieldErrors };
 
-  const { title, author, workshop, file, extension, contentType } = parsed.data;
+  const { title, author, workshop } = parsed.data;
   const supabase = await createServerClient();
-  const bucket = supabase.storage.from(BUCKET);
-  const path = `${fileSlug(title)}.${extension}`;
+  const fields = { title, author, workshop, consent: true, created_by: profile.id };
 
-  const upload = await bucket.upload(path, file, { contentType });
-  if (upload.error) return { formError: "La photo n’a pas pu être envoyée. Réessayez." };
+  if (parsed.data.kind === "text") {
+    const { error } = await supabase.from("gallery_items").insert({ kind: "text", ...fields, body: parsed.data.body, image_path: null, image_url: null });
+    if (error) return { formError: "Le texte n’a pas pu être enregistré. Réessayez." };
+  } else {
+    const { kind, file, extension, contentType } = parsed.data;
+    const bucket = supabase.storage.from(BUCKET);
+    const path = `${fileSlug(title)}.${extension}`;
 
-  const { error } = await supabase.from("gallery_items").insert({
-    title,
-    author,
-    workshop,
-    consent: true,
-    image_path: path,
-    image_url: bucket.getPublicUrl(path).data.publicUrl,
-    created_by: profile.id,
-  });
-  if (error) {
-    await bucket.remove([path]);
-    return { formError: "La création n’a pas pu être enregistrée. Réessayez." };
+    const upload = await bucket.upload(path, file, { contentType });
+    if (upload.error) return { formError: "Le fichier n’a pas pu être envoyé. Réessayez." };
+
+    const { error } = await supabase.from("gallery_items").insert({
+      kind,
+      ...fields,
+      image_path: path,
+      image_url: bucket.getPublicUrl(path).data.publicUrl,
+    });
+    if (error) {
+      await bucket.remove([path]);
+      return { formError: "La création n’a pas pu être enregistrée. Réessayez." };
+    }
   }
 
   refreshGallery();
@@ -72,12 +77,14 @@ export async function deleteGalleryItem(_previous: GalleryActionState, formData:
   const { data: existing, error: readError } = await supabase.from("gallery_items").select("image_path").eq("id", id.data).single();
   if (readError || !existing) return { formError: "La création demandée est introuvable." };
 
-  // The bucket is public: erase the photo first, so a withdrawn consent never leaves it online unnoticed.
-  const removal = await supabase.storage.from(BUCKET).remove([existing.image_path]);
-  if (removal.error) return { formError: "La photo n’a pas pu être effacée : la création reste en place, réessayez." };
+  // The bucket is public: erase the file first, so a withdrawn consent never leaves it online unnoticed.
+  if (existing.image_path) {
+    const removal = await supabase.storage.from(BUCKET).remove([existing.image_path]);
+    if (removal.error) return { formError: "La photo ou le PDF n’a pas pu être effacé : la création reste en place, réessayez." };
+  }
 
   const { error } = await supabase.from("gallery_items").delete().eq("id", id.data);
-  if (error) return { formError: "La photo est effacée mais la création n’a pas pu être retirée de la liste : réessayez." };
+  if (error) return { formError: "La création n’a pas pu être retirée de la liste : réessayez." };
 
   refreshGallery();
   return { success: "Création retirée de la galerie." };
