@@ -24,6 +24,9 @@ function builder(rows: unknown[]): unknown {
 }
 
 vi.mock("@/lib/auth/require-profile", () => ({ requireProfile: vi.fn(async () => ({ id: "u1", role: role.current })) }));
+const allOn = { membershipEnabled: true, conferencesEnabled: true, galleryEnabled: true, callbackEnabled: true, registrationsEnabled: true };
+const settings = vi.hoisted(() => ({ current: {} as Record<string, boolean> }));
+vi.mock("@/lib/settings/site-settings", () => ({ getSiteSettings: vi.fn(async () => settings.current) }));
 vi.mock("@/lib/stats/cloudflare", () => ({ getCloudflareStats: vi.fn(async () => cloudflare.current) }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({
@@ -36,6 +39,7 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-11-15T12:00:00Z"));
   role.current = "admin";
+  settings.current = { ...allOn };
   cloudflare.current = { status: "missing_config", missing: ["CLOUDFLARE_API_TOKEN"] };
 });
 
@@ -86,4 +90,35 @@ test("shows the visits once Cloudflare answers", async () => {
   expect(visits).toHaveTextContent("/planning");
   expect(visits).toHaveTextContent("www.google.com");
   expect(visits).toHaveTextContent("Téléphone");
+});
+
+test("leaves out what is switched off in the settings and has nothing to show", async () => {
+  settings.current = { membershipEnabled: false, conferencesEnabled: false, galleryEnabled: false, callbackEnabled: false, registrationsEnabled: false };
+  tables.conferences = [];
+  tables.gallery_items = [];
+  render(await StatisticsPage());
+
+  expect(screen.queryByRole("row", { name: /helloasso/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("row", { name: /appels/i })).toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: "Conférences" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: "Galerie" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("columnheader", { name: /demandes de rappel/i })).not.toBeInTheDocument();
+});
+
+test("drops the seats of conferences while registrations are closed and none were taken", async () => {
+  settings.current = { ...allOn, registrationsEnabled: false };
+  tables.conferences = [{ id: "c2", title: "Le sommeil", starts_at: "2026-12-01T18:00:00Z", capacity: 40 }];
+  render(await StatisticsPage());
+
+  const conferences = screen.getByRole("region", { name: "Conférences" });
+  expect(conferences).toHaveTextContent("Le sommeil");
+  expect(within(conferences).queryByRole("columnheader", { name: /places prises/i })).not.toBeInTheDocument();
+});
+
+test("keeps a switched-off gesture that already has clicks", async () => {
+  settings.current = { ...allOn, membershipEnabled: false };
+  tables.site_events = [{ day: "2026-11-14", event: "helloasso", count: 2 }];
+  render(await StatisticsPage());
+
+  expect(screen.getByRole("row", { name: /helloasso/i })).toHaveTextContent("2");
 });

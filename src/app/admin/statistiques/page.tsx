@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireProfile } from "@/lib/auth/require-profile";
+import { getSiteSettings } from "@/lib/settings/site-settings";
 import { getCloudflareStats, type CloudflareResult } from "@/lib/stats/cloudflare";
 import { siteEventLabels } from "@/lib/stats/site-events";
 import {
@@ -167,14 +168,18 @@ export default async function StatisticsPage() {
     supabase.from("gallery_items").select("kind, workshop"),
     getCloudflareStats(),
   ]);
+  const settings = await getSiteSettings();
 
   const inbox = messageStats(messages.data ?? [], now);
-  const gestures = eventTotals(events.data ?? [], now);
+  // A feature switched off in Réglages only shows when it already has figures to show.
+  const gestures = eventTotals(events.data ?? [], now).filter((row) => row.event !== "helloasso" || settings.membershipEnabled || row.last365 > 0);
   const fill = conferenceFill(conferences.data ?? [], seats.data ?? []);
   const planning = planningByMonth(exceptions.data ?? [], now);
   const content = staleContent(pages.data ?? [], now);
   const team = teamActivity(audit.data ?? [], new Map((profiles.data ?? []).map((profile) => [profile.id, profile.display_name])), now);
   const works = galleryBreakdown(gallery.data ?? []);
+  const showCallbacks = settings.callbackEnabled || inbox.byMonth.some((row) => row.callbacks > 0);
+  const showSeats = settings.registrationsEnabled || fill.some((row) => row.taken > 0);
 
   return (
     <div className="admin-dashboard stats-page">
@@ -203,24 +208,42 @@ export default async function StatisticsPage() {
             { label: "Délai moyen de traitement", value: inbox.averageHours === null ? "?" : inbox.averageHours < 48 ? `${inbox.averageHours} h` : `${Math.round(inbox.averageHours / 24)} jours` },
           ]}
         />
-        <Table
-          caption="Messages reçus par mois"
-          head={["Mois", "Messages écrits", "Demandes de rappel"]}
-          rows={inbox.byMonth.map((row) => ({ key: row.month, cells: [monthLabel(row.month), row.messages, row.callbacks] }))}
-        />
+        {showCallbacks ? (
+          <Table
+            caption="Messages reçus par mois"
+            head={["Mois", "Messages écrits", "Demandes de rappel"]}
+            rows={inbox.byMonth.map((row) => ({ key: row.month, cells: [monthLabel(row.month), row.messages, row.callbacks] }))}
+          />
+        ) : (
+          <Table
+            caption="Messages reçus par mois"
+            head={["Mois", "Messages écrits"]}
+            rows={inbox.byMonth.map((row) => ({ key: row.month, cells: [monthLabel(row.month), row.messages] }))}
+          />
+        )}
       </Section>
 
+      {settings.conferencesEnabled || fill.length > 0 ? (
       <Section id="stats-conferences" title="Conférences">
         {fill.length === 0 ? (
           <p className="admin-empty-state">Aucune conférence enregistrée.</p>
         ) : (
-          <Table
-            caption="Remplissage des conférences"
-            head={["Conférence", "Date", "Places prises", "Remplissage"]}
-            rows={fill.map((row) => ({ key: `${row.title}-${row.startsAt}`, cells: [row.title, dateLabel(row.startsAt), `${row.taken} / ${row.capacity ?? "sans limite"}`, row.rate === null ? "" : `${row.rate} %`] }))}
-          />
+          showSeats ? (
+            <Table
+              caption="Remplissage des conférences"
+              head={["Conférence", "Date", "Places prises", "Remplissage"]}
+              rows={fill.map((row) => ({ key: `${row.title}-${row.startsAt}`, cells: [row.title, dateLabel(row.startsAt), `${row.taken} / ${row.capacity ?? "sans limite"}`, row.rate === null ? "" : `${row.rate} %`] }))}
+            />
+          ) : (
+            <Table
+              caption="Conférences"
+              head={["Conférence", "Date"]}
+              rows={fill.map((row) => ({ key: `${row.title}-${row.startsAt}`, cells: [row.title, dateLabel(row.startsAt)] }))}
+            />
+          )
         )}
       </Section>
+      ) : null}
 
       <Section id="stats-planning" title="Planning" intro="Changements apportés à la semaine type, mois par mois.">
         <Table
@@ -257,9 +280,11 @@ export default async function StatisticsPage() {
         )}
       </Section>
 
-      <Section id="stats-gallery" title="Galerie" intro={`${works.byKind.image} photos, ${works.byKind.text} textes, ${works.byKind.pdf} PDF.`}>
-        <BarList label="Créations par atelier" rows={works.byWorkshop.map((row) => ({ label: row.label, value: row.count }))} />
-      </Section>
+      {settings.galleryEnabled || works.byWorkshop.length > 0 ? (
+        <Section id="stats-gallery" title="Galerie" intro={`${works.byKind.image} photos, ${works.byKind.text} textes, ${works.byKind.pdf} PDF.`}>
+          <BarList label="Créations par atelier" rows={works.byWorkshop.map((row) => ({ label: row.label, value: row.count }))} />
+        </Section>
+      ) : null}
     </div>
   );
 }
