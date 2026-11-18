@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 
 const siteUrl = "https://gemjanus34.fr";
 
-// The same site also answers on gemjanus34.vercel.app: every page names its gemjanus34.fr address.
+// The same site also answers on its *.vercel.app addresses: every page names its gemjanus34.fr address.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "GEM Janus34, Groupe d'Entraide Mutuelle à Montpellier", template: "%s | GEM Janus34" },

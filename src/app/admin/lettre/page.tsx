@@ -7,7 +7,7 @@ import { getLetterNote } from "@/lib/letter/letter-note";
 export default async function AdminLetterPage() {
   await requireProfile();
   const [note, host] = await Promise.all([getLetterNote(), headers().then((list) => list.get("host"))]);
-  const letterUrl = `https://${host ?? "gemjanus34.vercel.app"}/lettre`;
+  const letterUrl = `https://${host ?? "gemjanus34.fr"}/lettre`;
   const mailto = `mailto:?subject=${encodeURIComponent("Quoi de neuf au GEM cette semaine")}&body=${encodeURIComponent(
     `Bonjour,\n\nVoici la lettre de la semaine de Janus34 :\n${letterUrl}\n\nÀ bientôt au GEM !`,
   )}`;

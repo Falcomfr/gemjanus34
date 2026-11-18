@@ -18,7 +18,7 @@ export async function sendContactAlert(
   const { RESEND_API_KEY: apiKey, ALERT_FROM_EMAIL: from, CONTACT_ALERT_EMAIL: to } = env;
   if (!apiKey || !from || !to) return;
 
-  const site = env.NEXT_PUBLIC_SITE_URL || "https://gemjanus34.vercel.app";
+  const site = env.NEXT_PUBLIC_SITE_URL || "https://gemjanus34.fr";
   const isCallback = alert.kind === "callback";
   const text = [
     isCallback ? "Nouvelle demande de rappel sur le site." : "Nouveau message sur le site.",
