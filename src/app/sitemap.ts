@@ -9,7 +9,6 @@ const publicRoutes = [
   "/qui-sommes-nous",
   "/activites",
   "/actualites",
-  "/planning",
   "/nous-rejoindre",
   "/ressources",
   "/contact",

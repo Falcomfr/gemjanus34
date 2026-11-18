@@ -25,6 +25,7 @@ const legacyRedirects = [
   ["/actualites-2__trashed/conferences", "/actualites"],
   ["/janus", "/qui-sommes-nous"],
   ["/samedi", "/actualites"],
+  ["/planning", "/actualites"],
   ["/sortir-a-montpellier", "/sorties-culturelles-et-sportives"],
   ["/mentions-legales-et-confidentialite", "/mentions-legales"],
   ["/le-trouble-bipolaire-2/le-trouble-bipolaire", "/ressources"],

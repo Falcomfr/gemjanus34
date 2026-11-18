@@ -22,10 +22,11 @@ test("lists the fixed routes and every other published page once", async () => {
 
   expect(urls.filter((url) => url.endsWith("/activites"))).toHaveLength(1);
   expect(urls).toContain("https://gemjanus34.fr/sortie-au-musee");
-  expect(urls).toContain("https://gemjanus34.fr/planning");
+  // The planning lives on /actualites#planning: /planning only redirects there.
+  expect(urls).not.toContain("https://gemjanus34.fr/planning");
   expect(urls).not.toContain("https://gemjanus34.fr/galerie");
   expect(urls).not.toContain("https://gemjanus34.fr/conferences");
-  expect(urls).toHaveLength(11);
+  expect(urls).toHaveLength(10);
 });
 
 test("lists the gallery and the conferences only once switched on", async () => {

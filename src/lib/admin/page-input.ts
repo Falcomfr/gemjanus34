@@ -17,6 +17,7 @@ export const RESERVED_SLUGS = [
   "samedi",
   "sortir-a-montpellier",
   "mentions-legales-et-confidentialite",
+  "planning",
 ] as const;
 
 // Site pages with their own route: their address must not change.

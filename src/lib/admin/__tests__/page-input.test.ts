@@ -150,7 +150,7 @@ describe("buildPageUpdate", () => {
   });
 });
 
-test.each(["admin", "contact", "actualites", "documents", "images", "nous-contacter", "evenements", "nos-objectifs-2", "le-trouble-bipolaire-2", "janus", "samedi", "sortir-a-montpellier", "mentions-legales-et-confidentialite"])(
+test.each(["admin", "contact", "actualites", "documents", "images", "nous-contacter", "evenements", "nos-objectifs-2", "le-trouble-bipolaire-2", "janus", "samedi", "sortir-a-montpellier", "mentions-legales-et-confidentialite", "planning"])(
   "refuses the reserved address %s, which a page could never use",
   (slug) => {
     const data = new FormData();
