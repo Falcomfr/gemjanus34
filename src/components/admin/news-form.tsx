@@ -2,11 +2,12 @@
 
 import { Temporal } from "@js-temporal/polyfill";
 import type { JSONContent } from "@tiptap/react";
-import { Archive, RotateCcw, Save, Send } from "lucide-react";
+import { Archive, RotateCcw, Save, Send, Trash2 } from "lucide-react";
 import { useActionState, type FormEvent } from "react";
 import {
   archiveNews,
   createNews,
+  deleteNews,
   publishNews,
   restoreNews,
   updateNews,
@@ -71,6 +72,7 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
       if (intent === "publish") return publishNews(previous, formData);
       if (intent === "archive") return archiveNews(previous, formData);
       if (intent === "restore") return restoreNews(previous, formData);
+      if (intent === "delete") return deleteNews(previous, formData);
       return (mode === "create" ? createNews : updateNews)(previous, formData);
     },
     initialState,
@@ -171,6 +173,16 @@ export function NewsForm({ mode, profile, news }: NewsFormProps) {
             <input type="hidden" name="intent" value="restore" />
             <LifecycleButton pending={pending} icon={RotateCcw} label="Restaurer" />
           </form>
+        ) : null}
+        {news?.status === "archived" && canManageContent(profile.role) ? (
+          <form action={dispatch} onSubmit={confirmFirst("Supprimer définitivement cette actualité ? Cette action est irréversible.")} className="admin-lifecycle-actions">
+            <input type="hidden" name="newsId" value={news.id} />
+            <input type="hidden" name="intent" value="delete" />
+            <LifecycleButton pending={pending} icon={Trash2} label="Supprimer définitivement" />
+          </form>
+        ) : null}
+        {news && news.status !== "draft" && !canManageContent(profile.role) ? (
+          <p>Archiver, restaurer et supprimer sont réservés aux administrateurs et aux gestionnaires.</p>
         ) : null}
       </aside>
     </div>

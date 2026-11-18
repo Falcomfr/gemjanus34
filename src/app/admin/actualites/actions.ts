@@ -164,3 +164,25 @@ export async function restoreNews(
   revalidateNewsPaths();
   return { success: "Actualité restaurée et republiée." };
 }
+
+export async function deleteNews(
+  _previousState: NewsActionState,
+  formData: FormData,
+): Promise<NewsActionState> {
+  const profile = await requireProfile();
+  if (!canManageContent(profile.role)) {
+    return { formError: "Seul un administrateur ou un gestionnaire peut supprimer une actualité." };
+  }
+  const id = newsId(formData);
+  if (!id) return { formError: "L’actualité demandée est invalide." };
+
+  const supabase = await createServerClient();
+  // The database keeps anything not archived (row security), which shows as count 0.
+  const { error, count } = await supabase.from("news").delete({ count: "exact" }).eq("id", id);
+  if (error || count === 0) {
+    return { formError: "L’actualité n’a pas pu être supprimée. Archivez-la d’abord." };
+  }
+
+  revalidateNewsPaths();
+  redirect("/admin/actualites");
+}

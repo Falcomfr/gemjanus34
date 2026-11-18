@@ -8,6 +8,7 @@ vi.mock("@/app/admin/actualites/actions", () => ({
   publishNews: vi.fn(async () => ({ success: "Actualité publiée." })),
   archiveNews: vi.fn(async () => ({ success: "Actualité archivée." })),
   restoreNews: vi.fn(async () => ({ success: "Actualité restaurée et republiée." })),
+  deleteNews: vi.fn(async () => ({ formError: "L’actualité n’a pas pu être supprimée." })),
 }));
 vi.mock("../rich-text-editor", () => ({ RichTextEditor: () => <div /> }));
 
@@ -61,4 +62,24 @@ test("an editor cannot archive news", () => {
   render(<NewsForm mode="edit" profile={editor} news={news} />);
 
   expect(screen.queryByRole("button", { name: /archiver/i })).not.toBeInTheDocument();
+});
+
+test("a manager deletes archived news only, after confirming", async () => {
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+  const { unmount } = render(<NewsForm mode="edit" profile={manager} news={news} />);
+  expect(screen.queryByRole("button", { name: /supprimer/i })).not.toBeInTheDocument();
+  unmount();
+
+  render(<NewsForm mode="edit" profile={manager} news={{ ...news, status: "archived" }} />);
+  fireEvent.submit(screen.getByRole("button", { name: "Supprimer définitivement" }).closest("form")!);
+
+  expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/irréversible/));
+  expect(await screen.findByText("L’actualité n’a pas pu être supprimée.")).toBeInTheDocument();
+});
+
+test("an editor is told who can archive, restore and delete", () => {
+  render(<NewsForm mode="edit" profile={editor} news={{ ...news, status: "archived" }} />);
+
+  expect(screen.queryByRole("button", { name: /restaurer|supprimer/i })).not.toBeInTheDocument();
+  expect(screen.getByText(/réservés aux administrateurs et aux gestionnaires/)).toBeInTheDocument();
 });

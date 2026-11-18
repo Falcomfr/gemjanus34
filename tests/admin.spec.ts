@@ -132,6 +132,24 @@ test("a published news item shows on the public pages at once, and leaves when a
 
   await page.goto("/actualites");
   await expect(page.getByRole("heading", { name: title })).toHaveCount(0);
+
+  await page.goto("/admin/actualites");
+  await page.getByRole("link", { name: `Ouvrir ${title}` }).click();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Restaurer" }).click();
+  await expect(page.locator(".form-status--success").last()).toContainText(/restaurée/i);
+  await page.goto("/actualites");
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+
+  await page.goto("/admin/actualites");
+  await page.getByRole("link", { name: `Ouvrir ${title}` }).click();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archiver" }).click();
+  await expect(page.getByRole("button", { name: "Supprimer définitivement" })).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Supprimer définitivement" }).click();
+  await page.waitForURL(/\/admin\/actualites$/);
+  await expect(page.getByRole("link", { name: `Ouvrir ${title}` })).toHaveCount(0);
 });
 
 async function openPage(page: Page, title: string) {

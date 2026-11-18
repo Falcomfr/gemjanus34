@@ -28,7 +28,7 @@ select policies_are(
 select policies_are(
   'public',
   'news',
-  array['news_public_read', 'news_editor_write']
+  array['news_public_read', 'news_editor_write', 'news_manager_delete_archived']
 );
 select function_returns('public', 'current_app_role', array[]::text[], 'app_role');
 select function_returns('public', 'is_active_editor', array[]::text[], 'boolean');
@@ -598,9 +598,9 @@ select ok(
   exists (select 1 from public.pages where slug = 'editor-page'),
   'editors cannot delete pages'
 );
-select throws_like(
-  $$delete from public.news where id = '40000000-0000-0000-0000-000000000002'$$,
-  '%permission denied%',
+delete from public.news where id = '40000000-0000-0000-0000-000000000002';
+select ok(
+  exists (select 1 from public.news where id = '40000000-0000-0000-0000-000000000002'),
   'editors cannot delete news'
 );
 update public.profiles
@@ -788,10 +788,10 @@ select ok(
   exists (select 1 from public.pages where id = '20000000-0000-0000-0000-000000000002'),
   'admins archive a page before deleting it'
 );
-select throws_like(
-  $$delete from public.news where id = '40000000-0000-0000-0000-000000000001'$$,
-  '%permission denied%',
-  'admins archive rather than delete news'
+delete from public.news where id = '40000000-0000-0000-0000-000000000001';
+select ok(
+  exists (select 1 from public.news where id = '40000000-0000-0000-0000-000000000001'),
+  'admins archive news before deleting it'
 );
 select lives_ok(
   $$select public.restore_page_revision('30000000-0000-0000-0000-000000000001')$$,
