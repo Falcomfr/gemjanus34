@@ -2,7 +2,7 @@
 // Saves the production database and the uploaded PDFs to backups/<timestamp>/.
 //
 // The free Supabase plan keeps no restorable backup, so this is the only recovery point.
-// A GitHub Action runs it every night (.github/workflows/backup.yml) and keeps 90 days.
+// A GitHub Action runs it every night in the private repo Falcomfr/gemjanus34-sauvegardes and keeps 90 days.
 //
 // Needs a Supabase access token with access to the project, through the Management API,
 // read-only endpoint, so no Postgres password and no write right: $JANUS_SUPABASE_TOKEN (not SUPABASE_ACCESS_TOKEN, which the CLI may hold for another account) or
